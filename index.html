@@ -15927,6 +15927,10 @@ renderWeekly = function() {
   // Initial assignment
   document.addEventListener('DOMContentLoaded', () => setTimeout(_assignParallaxSpeeds, 300));
   setTimeout(_assignParallaxSpeeds, 800); // fallback if DOMContentLoaded already fired
+
+  // منع المتصفح من حفظ موضع الصفحة عند الرفريش — دائماً يبدأ من الأعلى
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
 })();
 </script>
 </body>
