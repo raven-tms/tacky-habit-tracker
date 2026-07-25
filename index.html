@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head> 
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TACKY Habit Tracker Pro ✨</title>
@@ -1374,6 +1374,7 @@ body.auth-active {
   padding: 0 10px; gap: 4px; white-space: nowrap;
 }
 .nav-signout-btn:hover { background: var(--red); color: white; box-shadow: 0 4px 14px rgba(239,68,68,0.4); transform: translateY(-1px); }
+@media (max-width: 768px) { .nav-signout-btn { display: none !important; } }
 .nav-signin-btn {
   height: 36px; border-radius: 10px;
   border: none; background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
