@@ -294,6 +294,7 @@ function fbsReset() {
       db = getFirestore(app);
     }
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
 
     window._fbAuth     = auth;
     window._fbDb       = db;
@@ -12602,9 +12603,13 @@ async function _checkUserAccess(user) {
 
 // Called by the Firebase module script when auth state changes
 window._onAuthReady = async function(user) {
-  // أخفِ نافذة تأكيد الخروج إذا كانت مفتوحة (تظهر عند العودة للدخول)
+  // أغلق جميع الأوفرلايز عند أي تغيير في حالة المصادقة
   const soOverlay = document.getElementById('signOutOverlay');
   if (soOverlay) soOverlay.style.display = 'none';
+  const settingsPanel = document.getElementById('settingsPanel');
+  if (settingsPanel) settingsPanel.classList.remove('open');
+  const settingsOverlay = document.getElementById('settingsOverlay');
+  if (settingsOverlay) settingsOverlay.classList.remove('open');
 
   if (!user) {
     // No user — hide skeleton immediately and let auth overlay take over
