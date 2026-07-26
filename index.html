@@ -18,6 +18,15 @@
 <meta name="description" content="تطبيق TACKY لتتبع العادات اليومية — نظّم مهامك، تابع تقدمك، وحقق أهدافك اليومية بسهولة واحترافية.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233b82f6'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
+<!-- ===== PWA ===== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141824" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TACKY">
+<meta name="application-name" content="TACKY">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 
 <!-- ===== FIREBASE SETUP WIZARD STYLES ===== -->
@@ -8152,10 +8161,20 @@ window.addEventListener('beforeunload', () => {
 // على iOS/Android: الضغط على الهوم أو تبديل التطبيق يُطلق visibilitychange
 // قبل أي إغلاق — هذا هو الحدث الأكثر موثوقية للحفظ على الهواتف.
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && window._currentUser && _saveDebounceTimer) {
-    clearTimeout(_saveDebounceTimer);
-    _saveDebounceTimer = null;
-    _saveToFirestore(window._currentUser.uid);
+  // FIX (Android): على أندرويد visibilitychange يُطلَق عند الضغط على الهوم
+  // أو تبديل التطبيق — نحفظ فوراً إذا كان هناك debounce معلّق (تعديل لم يُرسَل بعد)
+  // أو حتى لو لم يكن — لأن أندرويد قد يقتل التطبيق في أي لحظة بعدها.
+  if (document.hidden && window._currentUser) {
+    if (_saveDebounceTimer) {
+      // يوجد تعديل معلّق — أرسله فوراً
+      clearTimeout(_saveDebounceTimer);
+      _saveDebounceTimer = null;
+      _saveToFirestore(window._currentUser.uid);
+    } else if (_pendingLocalEdit) {
+      // FIX: حالة خاصة — debounce انتهى لكن الكتابة لا تزال في الـ queue
+      // (مثلاً الإنترنت كان بطيئاً) — أعد المحاولة لضمان الوصول
+      _saveToFirestore(window._currentUser.uid);
+    }
   }
 });
 
@@ -12028,7 +12047,9 @@ function addQuickTask() {
   if (!text) { inp.focus(); return; }
   quickTasks.unshift({ id: Date.now(), text, done: false, createdAt: Date.now() });
   inp.value = '';
-  saveQuickTasks();
+  // FIX (Android): استخدم _saveImmediate بدل save() ذات الـ 800ms debounce —
+  // على أندرويد المستخدم قد يغلق التطبيق فوراً بعد الإضافة فتضيع المهمة.
+  _saveImmediate();
   renderQuickTasks();
   inp.focus();
 }
@@ -12338,11 +12359,167 @@ window._onFirebaseInitError = function() {
 
 // =========== FIREBASE AUTH FUNCTIONS ===========
 
+// ── كشف متصفحات In-App (تلغرام، مسنجر، واتساب، إنستغرام...) ────────────────
+function _isInAppBrowser() {
+  const ua = navigator.userAgent || '';
+  return /FBAN|FBAV|FB_IAB|Instagram|Twitter|Line\/|MicroMessenger|Snapchat|TikTok|musical_ly|LinkedInApp|Pinterest|reddit\/|Bytedance|BytedanceWebview/.test(ua)
+    || /Telegram/i.test(ua)
+    || (!!window.TelegramWebviewProxy)
+    || (!!window.TelegramWebAppProxy)
+    // WebView عام على أندرويد — ليس Chrome ولا Samsung Browser
+    || (/Android/.test(ua) && /wv\)/.test(ua) && !/Chrome\/\d/.test(ua))
+    // iOS In-App: أي شيء على iPhone/iPad ليس Safari أو Chrome أو Firefox أو Edge
+    || (/iPhone|iPad|iPod/.test(ua) && !/(Safari\/\d|CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua) && /AppleWebKit/.test(ua));
+}
+
+function _isIOS() {
+  return /iPhone|iPad|iPod/.test(navigator.userAgent || '');
+}
+
+function _showInAppBrowserWarning() {
+  const isAr = (currentLang || 'ar') === 'ar';
+  const isFr = currentLang === 'fr';
+  const isIOS = _isIOS();
+  const pageUrl = window.location.href;
+
+  // الرسالة تختلف بين iOS (سفاري/كروم) وأندرويد (كروم/سامسونج)
+  const msg = isAr
+    ? {
+        title: 'متصفح مدمج غير مدعوم',
+        body: isIOS
+          ? 'تسجيل الدخول بـ Google لا يعمل داخل تلغرام أو مسنجر أو تطبيقات المحادثة على iPhone.\nافتح الرابط في Safari أو Chrome.'
+          : 'تسجيل الدخول بـ Google لا يعمل داخل تلغرام أو مسنجر أو تطبيقات المحادثة.\nافتح الرابط في Chrome أو متصفح سامسونج.',
+        btn: isIOS ? '📋 انسخ الرابط وافتحه في Safari أو Chrome' : '📋 انسخ الرابط وافتحه في Chrome',
+        close: 'إغلاق'
+      }
+    : isFr
+    ? {
+        title: 'Navigateur intégré non pris en charge',
+        body: isIOS
+          ? 'La connexion Google ne fonctionne pas dans Telegram, Messenger, etc. sur iPhone.\nOuvrez le lien dans Safari ou Chrome.'
+          : 'La connexion Google ne fonctionne pas dans Telegram, Messenger, etc.\nOuvrez le lien dans Chrome ou votre navigateur principal.',
+        btn: isIOS ? '📋 Copier le lien — ouvrir dans Safari' : '📋 Copier le lien',
+        close: 'Fermer'
+      }
+    : {
+        title: 'In-App Browser Not Supported',
+        body: isIOS
+          ? "Google sign-in doesn't work inside Telegram, Messenger, or chat apps on iPhone.\nPlease open this link in Safari or Chrome."
+          : "Google sign-in doesn't work inside Telegram, Messenger, or chat apps.\nPlease open this link in Chrome or Samsung Browser.",
+        btn: isIOS ? '📋 Copy Link — Open in Safari or Chrome' : '📋 Copy Link — Open in Chrome',
+        close: 'Close'
+      };
+
+  // أيقونة المتصفح المقترح
+  const browserIcons = isIOS
+    ? '🧭 Safari &nbsp;|&nbsp; <img src="https://www.google.com/chrome/static/images/chrome-logo.svg" width="16" height="16" style="vertical-align:middle;border-radius:50%"> Chrome'
+    : '<img src="https://www.google.com/chrome/static/images/chrome-logo.svg" width="16" height="16" style="vertical-align:middle;border-radius:50%"> Chrome &nbsp;|&nbsp; 🌐 Samsung Browser';
+
+  // إزالة أي تحذير سابق
+  const old = document.getElementById('inapp-warn-overlay');
+  if (old) old.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'inapp-warn-overlay';
+  overlay.innerHTML = `
+    <div style="
+      position:fixed;inset:0;z-index:999999;
+      background:rgba(0,0,0,0.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      display:flex;align-items:center;justify-content:center;padding:20px;
+      font-family:'Tajawal',sans-serif;
+    ">
+      <div style="
+        background:#1e2433;border:1.5px solid #ef4444;border-radius:20px;
+        padding:28px 24px;max-width:380px;width:100%;text-align:center;
+        box-shadow:0 20px 60px rgba(0,0,0,0.6);
+        animation:inappFadeUp 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+      ">
+        <div style="font-size:2.2rem;margin-bottom:10px">🚫</div>
+        <div style="font-weight:900;color:#f87171;font-size:1rem;margin-bottom:10px">${msg.title}</div>
+        <div style="color:#94a3b8;font-size:0.83rem;line-height:1.7;margin-bottom:16px;white-space:pre-line">${msg.body}</div>
+
+        <!-- المتصفحات المقترحة -->
+        <div style="
+          background:#0f172a;border:1px solid #2a3352;border-radius:10px;
+          padding:10px 14px;margin-bottom:16px;
+          font-size:0.8rem;color:#60a5fa;
+        ">${browserIcons}</div>
+
+        <!-- الرابط -->
+        <div style="
+          background:#141824;border:1px solid #2a3352;border-radius:10px;
+          padding:9px 12px;margin-bottom:16px;
+          word-break:break-all;font-size:0.72rem;color:#475569;
+          text-align:left;direction:ltr;
+        ">${pageUrl}</div>
+
+        <button id="inapp-copy-btn" style="
+          width:100%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);
+          color:#fff;border:none;border-radius:12px;padding:13px;
+          font-family:'Tajawal',sans-serif;font-size:0.9rem;font-weight:800;
+          cursor:pointer;margin-bottom:10px;
+          box-shadow:0 4px 16px rgba(59,130,246,0.4);
+          -webkit-tap-highlight-color:transparent;
+        ">${msg.btn}</button>
+
+        <button onclick="document.getElementById('inapp-warn-overlay').remove()" style="
+          background:transparent;color:#64748b;border:none;font-size:0.78rem;
+          cursor:pointer;font-family:'Tajawal',sans-serif;padding:6px 12px;
+          -webkit-tap-highlight-color:transparent;
+        ">✕ ${msg.close}</button>
+      </div>
+    </div>
+    <style>
+      @keyframes inappFadeUp {
+        from{opacity:0;transform:scale(0.88) translateY(24px)}
+        to{opacity:1;transform:scale(1) translateY(0)}
+      }
+    </style>
+  `;
+  document.body.appendChild(overlay);
+
+  // زر النسخ والفتح
+  document.getElementById('inapp-copy-btn').addEventListener('click', function() {
+    // نسخ الرابط
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(pageUrl).catch(() => {});
+    } else {
+      // fallback للمتصفحات القديمة
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = pageUrl; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch(e) {}
+    }
+    // محاولة فتح في المتصفح الخارجي
+    if (isIOS) {
+      // iOS: window.open قد ينجح من بعض التطبيقات
+      window.open(pageUrl, '_blank');
+    } else {
+      // أندرويد: intent URL لفتح Chrome
+      try { window.location.href = 'intent:' + pageUrl + '#Intent;package=com.android.chrome;end'; }
+      catch(e) { window.open(pageUrl, '_blank'); }
+    }
+    // تغيير نص الزر للتأكيد
+    this.textContent = isAr ? '✅ تم النسخ — افتح المتصفح والصق الرابط' : isFr ? '✅ Copié — Collez dans Safari/Chrome' : '✅ Copied — Paste in Safari or Chrome';
+    this.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
+  });
+}
+
 function signInWithGoogle() {
   // SDK isn't ready yet (still connecting, or failed to load) — the button
   // should already be disabled in this state, but guard anyway so a click
   // can never throw a silent error that leaves the button stuck spinning.
   if (!window._fbReady) return;
+
+  // FIX: متصفح In-App (تلغرام، مسنجر...) — Google Auth لا يعمل هنا أبداً
+  // Popup يُحظر، وRedirect يفقد الـ session عند العودة للتطبيق.
+  // الحل الوحيد: أخبر المستخدم يفتح الرابط في Chrome أو Samsung Browser.
+  if (_isInAppBrowser()) {
+    _showInAppBrowserWarning();
+    return;
+  }
 
   const btn = document.getElementById('googleSignInBtn');
   if (btn) {
@@ -15977,6 +16154,105 @@ renderWeekly = function() {
   // (IndexedDB وCache API) مما يُفقد البيانات المخزنة محلياً ويمنع المزامنة السليمة.
   // Firestore تعتمد على هذا الكاش لضمان استمرارية البيانات، مسحه يُعيد ضبط
   // كل شيء عند كل تحميل للصفحة كأنه أول مرة.
+</script>
+
+<!-- ===== PWA: Service Worker + Install Prompt ===== -->
+<script>
+(function() {
+  // ── 1. Register Service Worker ──────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('[PWA] SW registered, scope:', reg.scope))
+        .catch(err => console.warn('[PWA] SW registration failed:', err));
+    });
+  }
+
+  // ── 2. PWA Install Prompt (Add to Home Screen) ─────────────────────────
+  let _deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    // Show our custom install banner after a short delay
+    setTimeout(showInstallBanner, 2000);
+  });
+
+  window.addEventListener('appinstalled', () => {
+    _deferredPrompt = null;
+    hideInstallBanner();
+    console.log('[PWA] App installed successfully');
+  });
+
+  function showInstallBanner() {
+    if (!_deferredPrompt) return;
+    if (document.getElementById('pwa-install-banner')) return;
+    // Don't show if already running as PWA
+    if (window.matchMedia('(display-mode: standalone)').matches) return;
+
+    const isAr = document.documentElement.lang === 'ar';
+    const banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
+    banner.innerHTML = `
+      <div style="
+        position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+        z-index:99998; width:calc(100% - 32px); max-width:420px;
+        background:linear-gradient(135deg,#1e2433,#1a2a45);
+        border:1px solid #3b82f6; border-radius:18px;
+        padding:16px 18px; display:flex; align-items:center; gap:14px;
+        box-shadow:0 8px 40px rgba(59,130,246,0.35);
+        animation:pwaSlideUp 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+        font-family:'Tajawal',sans-serif;
+      ">
+        <div style="font-size:2rem;flex-shrink:0">✨</div>
+        <div style="flex:1">
+          <div style="font-weight:800;color:#f1f5f9;font-size:0.95rem;margin-bottom:2px">
+            ${isAr ? 'ثبّت التطبيق' : 'Install App'}
+          </div>
+          <div style="color:#93c5fd;font-size:0.78rem;line-height:1.4">
+            ${isAr ? 'أضفه لشاشتك الرئيسية للوصول السريع بدون متصفح' : 'Add to home screen for quick offline access'}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <button id="pwa-install-btn" style="
+            background:linear-gradient(135deg,#3b82f6,#1d4ed8);
+            color:#fff;border:none;border-radius:10px;
+            padding:8px 16px;font-family:'Tajawal',sans-serif;
+            font-size:0.82rem;font-weight:800;cursor:pointer;
+            box-shadow:0 4px 14px rgba(59,130,246,0.5);
+          ">${isAr ? 'تثبيت' : 'Install'}</button>
+          <button id="pwa-dismiss-btn" style="
+            background:transparent;color:#64748b;border:none;
+            font-size:0.72rem;cursor:pointer;font-family:'Tajawal',sans-serif;
+            padding:2px;
+          ">${isAr ? 'لاحقاً' : 'Later'}</button>
+        </div>
+      </div>
+      <style>
+        @keyframes pwaSlideUp {
+          from { opacity:0; transform:translateX(-50%) translateY(30px); }
+          to   { opacity:1; transform:translateX(-50%) translateY(0); }
+        }
+      </style>
+    `;
+    document.body.appendChild(banner);
+
+    document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+      if (!_deferredPrompt) return;
+      _deferredPrompt.prompt();
+      const { outcome } = await _deferredPrompt.userChoice;
+      if (outcome === 'accepted') _deferredPrompt = null;
+      hideInstallBanner();
+    });
+
+    document.getElementById('pwa-dismiss-btn').addEventListener('click', hideInstallBanner);
+  }
+
+  function hideInstallBanner() {
+    const b = document.getElementById('pwa-install-banner');
+    if (b) b.remove();
+  }
+})();
 </script>
 </body>
 </html>
