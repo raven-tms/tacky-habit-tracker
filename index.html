@@ -16269,14 +16269,22 @@ renderWeekly = function() {
 
   /* ─── كشف In-App Browser بدقة ─── */
   function isInAppBrowser() {
-    // تطبيقات معروفة
+    // تطبيقات معروفة بعلاماتها في UA
     if (/FBAN|FBAV|Instagram|Snapchat|Twitter\/|TW_|Line\/|MicroMessenger|TikTok|musical_ly|Bytedance|Pinterest|LinkedIn|Slack|Discord/i.test(ua)) return true;
     // Android WebView العلامة الرسمية
     if (/\bwv\b/.test(ua)) return true;
-    // iOS WebView: لا يحتوي على "Safari/" في الـ UA
-    if (isIOS && !/Safari\//.test(ua)) return true;
-    // Chrome Custom Tabs على Android (بعض التطبيقات تستخدمها)
+    // iOS: أي WebView بدون "Safari/" = in-app (يشمل تلغرام iOS)
+    if (isIOS && !/Safari\//.test(ua) && /AppleWebKit/.test(ua)) return true;
+    // Chrome Custom Tabs على Android
     if (isAndroid && /Version\/\d/.test(ua) && !/SamsungBrowser/i.test(ua)) return true;
+    // تلغرام Android: يحقن TelegramWebviewProxy في window
+    try { if (window.TelegramWebviewProxy || window.TelegramWebviewProxyProto) return true; } catch(e) {}
+    // Android WebView بدون chrome.runtime (المتصفحات الحقيقية تملكه)
+    try {
+      if (isAndroid && /Chrome\//.test(ua) && !/SamsungBrowser|EdgA|OPR\//i.test(ua)) {
+        if (!(window.chrome && window.chrome.runtime)) return true;
+      }
+    } catch(e) {}
     return false;
   }
 
@@ -16375,9 +16383,16 @@ renderWeekly = function() {
     /* زر النسخ */
     document.getElementById('oib-copy-btn').addEventListener('click', function () {
       var btn = this;
+      var successMsg = isIOS
+        ? '✅ تم النسخ! افتح Safari ← اضغط على شريط العنوان ← الصق'
+        : '✅ تم النسخ! افتح متصفحك والصق في شريط العنوان';
+
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(PAGE_URL).then(function () {
-          btn.textContent = '✅ تم النسخ! الصق الرابط في متصفحك';
+          btn.textContent = successMsg;
+          btn.style.fontSize = '.78rem';
+          // إذا iOS: نعرض تعليمات إضافية مرئية
+          if (isIOS) showIOSPasteHint();
         }).catch(fallbackCopy);
       } else {
         fallbackCopy();
@@ -16388,11 +16403,31 @@ renderWeekly = function() {
         ta.style.cssText = 'position:fixed;opacity:0';
         document.body.appendChild(ta);
         ta.focus(); ta.select();
-        try { document.execCommand('copy'); btn.textContent = '✅ تم النسخ! الصق الرابط في متصفحك'; }
-        catch(e) { btn.textContent = PAGE_URL; }
+        try {
+          document.execCommand('copy');
+          btn.textContent = successMsg;
+          btn.style.fontSize = '.78rem';
+          if (isIOS) showIOSPasteHint();
+        } catch(e) { btn.textContent = PAGE_URL; }
         document.body.removeChild(ta);
       }
     });
+
+    function showIOSPasteHint() {
+      var old = document.getElementById('oib-ios-hint');
+      if (old) return;
+      var hint = document.createElement('div');
+      hint.id = 'oib-ios-hint';
+      hint.style.cssText = 'background:#052e16;border:1px solid #22c55e;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:.8rem;color:#86efac;line-height:1.7;text-align:right;direction:rtl';
+      hint.innerHTML =
+        '<strong style="color:#4ade80">كيف تلصق في Safari:</strong><br>' +
+        '1️⃣ افتح <strong>Safari</strong><br>' +
+        '2️⃣ اضغط على <strong>شريط العنوان</strong> في الأعلى<br>' +
+        '3️⃣ اضغط مطولاً ← اختر <strong>لصق</strong><br>' +
+        '4️⃣ اضغط <strong>انتقال / Go</strong>';
+      var box = document.getElementById('oib-box');
+      box.appendChild(hint);
+    }
 
     /* زر التجاهل */
     document.getElementById('oib-close-btn').addEventListener('click', function () {
