@@ -8133,6 +8133,8 @@ async function _doFirestoreWrite(expectedUid, _retryCount) {
       measurementsData: JSON.parse(JSON.stringify(measurementsData || {})),
       nutritionData:    JSON.parse(JSON.stringify(nutritionData || {})),
       gamification:     JSON.parse(JSON.stringify(gamification || { xp: 0, unlockedBadges: [] })),
+      pomoLog:          JSON.parse(JSON.stringify((typeof pomoLog !== 'undefined' ? pomoLog : []) || [])),
+      pomoStats:        JSON.parse(JSON.stringify((typeof pomoStats !== 'undefined' ? pomoStats : null) || { sessionCount: 0, todayFocusMins: 0, totalFocusMins: 0, dailyFocusMins: {} })),
       updatedAt:        new Date().toISOString(),
       _writerId:        _sessionId,
     });
@@ -8159,7 +8161,8 @@ async function _doFirestoreWrite(expectedUid, _retryCount) {
   }
 }
 
-// ── حفظ فوري (بدون debounce) — يُستخدم في عمليات الحذف لضمان وصول البيانات ──
+// ── حفظ فوري (بدون debounce) — يُستخدم في كل تعديل بيانات حقيقي (مهام، عادات،
+// مزاج، جيم، يوميات...) لضمان وصول التزامن للأجهزة الأخرى دون انتظار ─────────
 function _saveImmediate() {
   clearTimeout(_saveDebounceTimer);
   _saveDebounceTimer = null;
@@ -8168,9 +8171,11 @@ function _saveImmediate() {
   _ls.setItem('hb2_settings', _settingsJson);
   _cookieStore.set(_settingsJson);
   const user = window._currentUser;
-  if (user) {
-    _saveToFirestore(user.uid, 0).catch(() => {});
-  }
+  if (!user) return;
+  // FIX: نفس حماية save() — أثناء التهيئة لا نعتبرها تعديلاً حقيقياً من
+  // المستخدم، حتى لا يُلغى تطبيق بيانات السحابة في _loadFromFirestore.
+  if (!_appInitializing) _pendingLocalEdit = true;
+  _saveToFirestore(user.uid, 0).catch(() => {});
 }
 
 // ── Fix: حفظ فوري عند إغلاق الصفحة (beforeunload) ──────────────────────────
@@ -8247,6 +8252,17 @@ function _applyFirestoreData(d) {
   if ('measurementsData' in d && d.measurementsData !== null) measurementsData = d.measurementsData;
   if ('nutritionData'    in d && d.nutritionData !== null)    nutritionData    = d.nutritionData;
   if ('gamification'     in d && d.gamification !== null)     gamification     = Object.assign({ xp: 0, unlockedBadges: [] }, d.gamification);
+  if ('pomoLog'          in d && d.pomoLog !== null)           pomoLog          = d.pomoLog;
+  if ('pomoStats'        in d && d.pomoStats !== null) {
+    pomoStats = Object.assign({ sessionCount: 0, todayFocusMins: 0, totalFocusMins: 0, dailyFocusMins: {} }, d.pomoStats);
+    // FIX: sessionCount/totalFocusMins يُقرآن فعلياً من pomoState في كل
+    // مكان بالعرض — طبّقهما هنا أيضاً، دون لمس بقية pomoState (المؤقّت
+    // الجاري: running/elapsed/mode) التي تبقى خاصة بهذا الجهاز فقط.
+    if (typeof pomoState !== 'undefined') {
+      pomoState.sessionCount   = pomoStats.sessionCount;
+      pomoState.totalFocusMins = pomoStats.totalFocusMins;
+    }
+  }
 }
 
 // Real-time sync: listens to the user's Firestore document continuously,
@@ -8319,6 +8335,7 @@ async function _loadFromFirestore(user, _retryCount) {
     try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
     try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
     try { renderThoughtNotes(); } catch(e) {}
+    try { if (typeof pomoRender === 'function') pomoRender(); } catch(e) {}
     if (typeof window._revealApp === 'function') window._revealApp();
     await _saveToFirestore(user.uid);
     // This branch only runs when the server just confirmed there was NO
@@ -8334,6 +8351,7 @@ async function _loadFromFirestore(user, _retryCount) {
     try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
     try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
     try { renderThoughtNotes(); } catch(e) {}
+    try { if (typeof pomoRender === 'function') pomoRender(); } catch(e) {}
     if (typeof window._revealApp === 'function') window._revealApp();
   }
   // If serverCheckFailed: don't render defaults — wait for the realtime
@@ -8368,9 +8386,9 @@ async function _loadFromFirestore(user, _retryCount) {
       // فإذا كان التحديث القادم من جهاز آخر يخص فقط الجيم أو اليوميات أو
       // الإنجازات، لا يتغيّر شيء في هذا الـ snapshot الجزئي فيُعتبر "لا تغيير"
       // ولا تُعاد إعادة الرسم إطلاقاً، حتى لو كانت البيانات قد تغيّرت فعلياً.
-      const _before = JSON.stringify({ habits, checks, weeklyTasks, quickTasks, moodData, gymLogs, gymSchedule, gymExercises, journalEntries, gamification });
+      const _before = JSON.stringify({ habits, checks, weeklyTasks, quickTasks, moodData, gymLogs, gymSchedule, gymExercises, journalEntries, gamification, pomoLog, pomoStats });
       _applyFirestoreData(d);
-      const _after = JSON.stringify({ habits, checks, weeklyTasks, quickTasks, moodData, gymLogs, gymSchedule, gymExercises, journalEntries, gamification });
+      const _after = JSON.stringify({ habits, checks, weeklyTasks, quickTasks, moodData, gymLogs, gymSchedule, gymExercises, journalEntries, gamification, pomoLog, pomoStats });
 
       if (isFirstSnapshot || _before !== _after) {
         // setLang بـ _skipSave=true لمنع استدعاء save() داخل المستمع
@@ -8383,6 +8401,7 @@ async function _loadFromFirestore(user, _retryCount) {
         try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
         try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
         try { renderThoughtNotes(); } catch(e) {}
+    try { if (typeof pomoRender === 'function') pomoRender(); } catch(e) {}
       }
       if (isFirstSnapshot && typeof window._revealApp === 'function') window._revealApp();
 
@@ -8508,7 +8527,7 @@ function applyTheme(t) {
   const btn = document.getElementById('themeBtn');
   if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
   settings.theme = t;
-  save();
+  _saveImmediate(); // FIX: فوري
   renderThemeBackground();
   setTimeout(() => { renderAll(); }, 50);
 }
@@ -8656,7 +8675,7 @@ function applyAppTheme(themeId) {
     if (theme) applyTheme(theme.dark ? 'dark' : 'light');
   }
   settings.appTheme = themeId;
-  save();
+  _saveImmediate(); // FIX: فوري
   // Sync dark toggle checkbox to match the chosen theme
   const _togEl = document.getElementById('darkToggle');
   if (_togEl) _togEl.checked = settings.theme === 'dark';
@@ -8829,19 +8848,19 @@ function setFontSize(v) {
   document.body.setAttribute('data-fontsize', v);
   document.documentElement.setAttribute('data-fontsize', v);
   settings.fontSize = v;
-  save();
+  _saveImmediate(); // FIX: فوري
 }
 
 function setCompact(v) {
   document.body.setAttribute('data-compact', v);
   settings.compact = v;
-  save();
+  _saveImmediate(); // FIX: فوري
 }
 
 function setFocus(v) {
   document.body.setAttribute('data-focus', v);
   settings.focus = v;
-  save();
+  _saveImmediate(); // FIX: فوري
 }
 
 function setAccent(c, cd) {
@@ -8850,7 +8869,7 @@ function setAccent(c, cd) {
   document.documentElement.style.setProperty('--blue-700', cd);
   settings.accent = c;
   settings.accentDark = cd;
-  save();
+  _saveImmediate(); // FIX: فوري
   document.querySelectorAll('.color-swatch').forEach(sw => {
     sw.classList.toggle('active', sw.style.background === c);
   });
@@ -8858,7 +8877,7 @@ function setAccent(c, cd) {
 }
 
 function setSoundEnabled(v) { settings.sound = v;
-  save(); }
+  _saveImmediate(); } // FIX: فوري
 
 function toggleNotif(type, on) {
   if (on && 'Notification' in window) {
@@ -8896,7 +8915,7 @@ function handleImport(e) {
       if (d.sleepData) sleepData = d.sleepData;
       if (d.thoughtsData) thoughtsData = d.thoughtsData;
       if (d.weeklyTasks) weeklyTasks = d.weeklyTasks;
-      save();
+      _saveImmediate(); // FIX: فوري
       renderAll();
       showToast(t('toastImported'));
     } catch { showToast(t('toastImportError')); }
@@ -9077,7 +9096,7 @@ function addHabit() {
     inp.style.borderColor = 'var(--red)';
     setTimeout(() => inp.style.borderColor = '', 1200); return; }
   habits.push({ id: Date.now(), emoji: selectedEmoji, name, activeDays: [...selectedDays] });
-  save();
+  _saveImmediate(); // FIX: فوري
   inp.value = '';
   selectedDays = [0,1,2,3,4,5,6];
   _updateDayPickBtnLabel();
@@ -9234,7 +9253,7 @@ function moveHabit(id, dir) {
   const tmp = habits[idx];
   habits[idx] = habits[newIdx];
   habits[newIdx] = tmp;
-  save();
+  _saveImmediate(); // FIX: فوري
   renderAll();
 }
 
@@ -9601,7 +9620,7 @@ function renderGamificationBar(silent) {
       // Give the badge toast a beat to appear first if both fired together.
       setTimeout(() => showLevelUpOverlay(lvl.level), newlyUnlocked.length ? 500 : 0);
     }
-    save();
+    _saveImmediate(); // FIX: فوري
   }
 
   if (document.getElementById('badgesOverlay') && document.getElementById('badgesOverlay').classList.contains('show')) {
@@ -10609,7 +10628,7 @@ function saveThoughts() {
   thoughtsData[thoughtKey()] = text;
 
   document.getElementById('thoughtsArea').value = '';
-  save();
+  _saveImmediate(); // FIX: فوري
   renderThoughtNotes();
   showToast(t('toastSaved'));
 }
@@ -10841,7 +10860,7 @@ function setTabVisible(tab, visible) {
     if (btn2) btn2.style.display = visible ? '' : 'none';
     if (!visible && currentPage === 'journal') showPage('tracker');
   }
-  save();
+  _saveImmediate(); // FIX: فوري
 }
 
 function applyTabVisibility() {
@@ -10864,7 +10883,7 @@ function _measureStickyHeaderOffset() {
 
 function setStickyTableHeader(on) {
   settings.stickyTableHeader = !!on;
-  save();
+  _saveImmediate(); // FIX: فوري
   document.body.setAttribute('data-sticky-header', on ? 'true' : 'false');
   const toggle = document.getElementById('stickyHeaderToggle');
   if (toggle) toggle.checked = !!on;
@@ -10882,7 +10901,7 @@ function applyStickyTableHeaderSetting() {
 // =========== STICKY TOP NAV BAR (تثبيت الشريط العلوي — كمبيوتر فقط) ===========
 function setStickyTopnav(on) {
   settings.stickyTopnav = !!on;
-  save();
+  _saveImmediate(); // FIX: فوري
   document.body.setAttribute('data-sticky-topnav', on ? 'true' : 'false');
   const toggle = document.getElementById('stickyTopnavToggle');
   if (toggle) toggle.checked = !!on;
@@ -12805,7 +12824,7 @@ function confirmAddHabit() {
   const name = inp.value.trim();
   if (!name) { closeAddHabitModal(); return; }
   habits.push({ id: Date.now(), emoji: selectedEmoji, name, activeDays: [..._modalSelectedDays] });
-  save();
+  _saveImmediate(); // FIX: فوري
   inp.value = '';
   selectedDays = [0,1,2,3,4,5,6];
   _modalSelectedDays = [0,1,2,3,4,5,6];
@@ -13566,7 +13585,7 @@ function setupWeeklyDragDrop() {
         const [moved] = arr.splice(_wTaskDragI, 1);
         arr.splice(i, 0, moved);
       }
-      save();
+      _saveImmediate(); // FIX: فوري
       renderWeekly();
     });
   });
@@ -13768,7 +13787,7 @@ function _hrmMoveHabit(hid, action) {
   if (newIdx === idx) return;
   const [moved] = habits.splice(idx, 1);
   habits.splice(newIdx, 0, moved);
-  save();
+  _saveImmediate(); // FIX: فوري
   renderAll();
 }
 
@@ -13859,7 +13878,7 @@ function setupTouchDragDrop() {
           const [moved] = arr.splice(fi, 1);
           arr.splice(ti, 0, moved);
         }
-        save(); renderWeekly();
+        _saveImmediate(); renderWeekly(); // FIX: فوري
       }
     );
   });
@@ -13878,7 +13897,7 @@ function setupTouchDragDrop() {
         if (fi === -1 || ti === -1) return;
         const [moved] = quickTasks.splice(fi, 1);
         quickTasks.splice(ti, 0, moved);
-        save(); renderQuickTasks();
+        _saveImmediate(); renderQuickTasks(); // FIX: فوري
       }
     );
   });
@@ -15123,6 +15142,10 @@ let pomoState = {
 };
 
 let pomoLog = [];
+// FIX: إحصائيات بومودورو التي تُزامَن مع السحابة (سجل الجلسات + الإحصائيات
+// الدائمة فقط) — منفصلة عمداً عن pomoState التي تمثل حالة المؤقّت الجاري
+// (running/elapsed/mode...) والتي تبقى محلية لكل جهاز فقط، بلا داعٍ لمزامنتها.
+let pomoStats = { sessionCount: 0, todayFocusMins: 0, totalFocusMins: 0, dailyFocusMins: {} };
 let pomoInterval = null;
 let pomoWorker = null;
 let pomoNotified = false;
@@ -15298,6 +15321,19 @@ function pomoSave() {
     localStorage.setItem(POMO_LOG_KEY, JSON.stringify(pomoLog.slice(-50)));
   } catch(e) {}
 }
+// FIX: مزامنة فورية للسحابة — للسجل والإحصائيات فقط (وليس المؤقّت الجاري
+// نفسه، الذي يبقى محلياً لكل جهاز — لا فائدة من رؤية عداد يعمل في جهاز آخر
+// لست أمامه، ومزامنته كل ثانية مكلفة بلا داعٍ). تُستدعى فقط عند تغيّر حقيقي
+// في السجل/الإحصائيات: انتهاء جلسة، حذف جلسة، مسح السجل.
+// ملاحظة: sessionCount/totalFocusMins تعيش فعلياً داخل pomoState (لأن كل
+// دوال العرض تقرأها من هناك)، فنشتق pomoStats منها وقت الحفظ فقط.
+function pomoSyncToCloud() {
+  pomoStats.sessionCount   = pomoState.sessionCount   || 0;
+  pomoStats.totalFocusMins = pomoState.totalFocusMins || 0;
+  try { localStorage.setItem(POMO_LOG_KEY, JSON.stringify(pomoLog.slice(-50))); } catch(e) {}
+  try { localStorage.setItem('tacky_pomo_stats_v1', JSON.stringify(pomoStats)); } catch(e) {}
+  if (typeof _saveImmediate === 'function') _saveImmediate();
+}
 function pomoLoad() {
   try {
     const raw = localStorage.getItem(POMO_KEY);
@@ -15313,6 +15349,10 @@ function pomoLoad() {
     }
     const rawLog = localStorage.getItem(POMO_LOG_KEY);
     if (rawLog) pomoLog = JSON.parse(rawLog);
+    // FIX: تحميل الإحصائيات محلياً كخط دفاع أول (قبل وصول بيانات Firestore
+    // الفعلية عبر _applyFirestoreData، أو في حال عدم تسجيل الدخول إطلاقاً).
+    const rawStats = localStorage.getItem('tacky_pomo_stats_v1');
+    if (rawStats) pomoStats = Object.assign({ sessionCount: 0, todayFocusMins: 0, totalFocusMins: 0, dailyFocusMins: {} }, JSON.parse(rawStats));
   } catch(e) {}
 }
 
@@ -15417,6 +15457,7 @@ window.pomoStop = function pomoStop(record) {
       pomoState.sessionCount++;
       pomoState.totalFocusMins += Math.floor(pomoState.totalSecs / 60);
       pomoSaveTodayFocus(Math.floor(pomoState.totalSecs / 60));
+      pomoSyncToCloud(); // FIX: مزامنة فورية للإحصائيات
     }
   }
   pomoState.running = false;
@@ -15541,6 +15582,7 @@ function pomoLogEntry(done, durationSec, note) {
   pomoLog.unshift(entry);
   if (pomoLog.length > 50) pomoLog = pomoLog.slice(0, 50);
   pomoSave();
+  pomoSyncToCloud(); // FIX: مزامنة فورية للسجل مع السحابة
 }
 
 window.pomoSaveNote = function pomoSaveNote() {
@@ -15578,6 +15620,7 @@ window.pomoClearLog = function pomoClearLog() {
   pomoConfirm(confirmMsg, () => {
     pomoLog = [];
     pomoSave();
+    pomoSyncToCloud(); // FIX: مزامنة فورية
     pomoRender();
   }, '🗑️');
 }
@@ -15588,6 +15631,7 @@ window.pomoDeleteEntry = function pomoDeleteEntry(ts) {
   pomoConfirm(confirmMsg, () => {
     pomoLog = pomoLog.filter(e => e.ts !== ts);
     pomoSave();
+    pomoSyncToCloud(); // FIX: مزامنة فورية
     pomoRender();
   }, '🗑️');
 }
@@ -15741,6 +15785,7 @@ function pomoShowFinishModal() {
         pomoState.sessionCount++;
         pomoState.totalFocusMins += Math.floor(pomoState.totalSecs / 60);
         pomoSaveTodayFocus(Math.floor(pomoState.totalSecs / 60));
+        pomoSyncToCloud(); // FIX: مزامنة فورية للإحصائيات
       }
       pomoReset();
     }
@@ -16184,7 +16229,7 @@ function setupHabitDragDrop() {
       if (fromIdx === -1 || toIdx === -1) return;
       const [moved] = habits.splice(fromIdx, 1);
       habits.splice(toIdx, 0, moved);
-      save();
+      _saveImmediate(); // FIX: فوري
       renderAll();
     });
   });
