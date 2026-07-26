@@ -285,7 +285,7 @@ function fbsReset() {
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, getDocFromServer, setDoc, onSnapshot }
+  import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, getDocFromServer, setDoc, updateDoc, onSnapshot }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // ============================================================
@@ -322,6 +322,7 @@ function fbsReset() {
     window._fbGetDoc   = getDoc;
     window._fbGetDocFromServer = getDocFromServer;
     window._fbSetDoc   = setDoc;
+    window._fbUpdateDoc = updateDoc;
     window._fbOnSnapshot = onSnapshot;
     window._fbProvider = provider;
     window._fbSignInWithPopup = signInWithPopup;
@@ -8063,7 +8064,25 @@ let _appInitializing = true;
 // triggered, so the last one to arrive is always the most recent state.
 let _saveQueue = Promise.resolve();
 
-function save() {
+// ── FIX: تتبع الحقول التي تغيّرت فعلياً — بدل كتابة كل الحقول دائماً ────────
+// كل save() أو _saveImmediate() يُحدّد الحقول المتغيرة هنا.
+// _doFirestoreWrite يقرأها ويرسل فقط هذه الحقول (updateDoc جزئي).
+// بعد الكتابة الناجحة يُفرّغ هذا الـ Set.
+// عند أول كتابة لمستخدم جديد (لا يوجد مستند بعد) نستخدم setDoc كامل.
+const _dirtyFields = new Set();
+
+// قائمة كل الحقول الممكنة — تُستخدم عند setDoc الأول (مستخدم جديد)
+const ALL_DATA_FIELDS = [
+  'habits','checks','moodData','waterData','sleepData','thoughtsData',
+  'weeklyTasks','gymSchedule','gymExercises','gymLogs','quickTasks',
+  'journalEntries','bodyWeightData','workoutNotesData','bmiSavedData',
+  'measurementsData','nutritionData','gamification','pomoLog','pomoStats'
+];
+
+// FIX (race condition): save() تقبل الآن اسم الحقل المتغير اختيارياً.
+// إذا مُرّر fieldName، يُضاف فقط هذا الحقل لـ _dirtyFields.
+// إذا لم يُمرَّر (استدعاء قديم بدون حقل)، تُضاف كل الحقول للأمان.
+function save(fieldName) {
   // Always save settings locally (device preferences), to BOTH localStorage
   // and the cookie backup. Stamping _savedAt lets the next page load figure
   // out which of the two stores actually persisted the latest write, in
@@ -8086,6 +8105,13 @@ function save() {
   // وليست تعديلات حقيقية من المستخدم. إذا أطلق Firebase onAuthStateChanged سريعاً
   // قبل انتهاء init()، كان _pendingLocalEdit يُضبط true فيُتجاهل السحابة كلياً.
   if (!_appInitializing) _pendingLocalEdit = true;
+
+  // FIX (race condition): سجّل الحقل المتغير — إذا لم يُحدَّد نضع كل الحقول
+  if (fieldName && ALL_DATA_FIELDS.includes(fieldName)) {
+    _dirtyFields.add(fieldName);
+  } else {
+    ALL_DATA_FIELDS.forEach(f => _dirtyFields.add(f));
+  }
   const scheduledUid = user.uid;
   clearTimeout(_saveDebounceTimer);
   _saveDebounceTimer = setTimeout(() => {
@@ -8112,32 +8138,67 @@ async function _doFirestoreWrite(expectedUid, _retryCount) {
   // tab's leftover data into the new/wrong account's cloud document.
   if (expectedUid && user.uid !== expectedUid) return;
 
+  // FIX (race condition): خريطة كل الحقول وقيمها الحالية
+  const _allFieldValues = {
+    habits:           JSON.parse(JSON.stringify(habits)),
+    checks:           JSON.parse(JSON.stringify(checks)),
+    moodData:         JSON.parse(JSON.stringify(moodData)),
+    waterData:        JSON.parse(JSON.stringify(waterData)),
+    sleepData:        JSON.parse(JSON.stringify(sleepData)),
+    thoughtsData:     JSON.parse(JSON.stringify(thoughtsData)),
+    weeklyTasks:      JSON.parse(JSON.stringify(weeklyTasks)),
+    gymSchedule:      JSON.parse(JSON.stringify(gymSchedule  || {})),
+    gymExercises:     JSON.parse(JSON.stringify(gymExercises || [])),
+    gymLogs:          JSON.parse(JSON.stringify(gymLogs      || [])),
+    quickTasks:       JSON.parse(JSON.stringify(quickTasks   || [])),
+    journalEntries:   JSON.parse(JSON.stringify(journalEntries || [])),
+    bodyWeightData:   JSON.parse(JSON.stringify(bodyWeightData || {})),
+    workoutNotesData: JSON.parse(JSON.stringify(workoutNotesData || {})),
+    bmiSavedData:     bmiSavedData ? JSON.parse(JSON.stringify(bmiSavedData)) : null,
+    measurementsData: JSON.parse(JSON.stringify(measurementsData || {})),
+    nutritionData:    JSON.parse(JSON.stringify(nutritionData || {})),
+    gamification:     JSON.parse(JSON.stringify(gamification || { xp: 0, unlockedBadges: [] })),
+    pomoLog:          JSON.parse(JSON.stringify((typeof pomoLog !== 'undefined' ? pomoLog : []) || [])),
+    pomoStats:        JSON.parse(JSON.stringify((typeof pomoStats !== 'undefined' ? pomoStats : null) || { sessionCount: 0, todayFocusMins: 0, totalFocusMins: 0, dailyFocusMins: {} })),
+  };
+
+  // خذ نسخة من الحقول المتغيرة الآن وافرّغ الـ Set فوراً
+  // (حتى لو جاء save() جديد أثناء الكتابة، يُسجَّل في دورة منفصلة)
+  const fieldsToWrite = new Set(_dirtyFields);
+  _dirtyFields.clear();
+
   try {
     const docRef = window._fbDoc(window._fbDb, 'users', user.uid, 'data', 'main');
-    await window._fbSetDoc(docRef, {
-      habits:           JSON.parse(JSON.stringify(habits)),
-      checks:           JSON.parse(JSON.stringify(checks)),
-      moodData:         JSON.parse(JSON.stringify(moodData)),
-      waterData:        JSON.parse(JSON.stringify(waterData)),
-      sleepData:        JSON.parse(JSON.stringify(sleepData)),
-      thoughtsData:     JSON.parse(JSON.stringify(thoughtsData)),
-      weeklyTasks:      JSON.parse(JSON.stringify(weeklyTasks)),
-      gymSchedule:      JSON.parse(JSON.stringify(gymSchedule  || {})),
-      gymExercises:     JSON.parse(JSON.stringify(gymExercises || [])),
-      gymLogs:          JSON.parse(JSON.stringify(gymLogs      || [])),
-      quickTasks:       JSON.parse(JSON.stringify(quickTasks   || [])),
-      journalEntries:   JSON.parse(JSON.stringify(journalEntries || [])),
-      bodyWeightData:   JSON.parse(JSON.stringify(bodyWeightData || {})),
-      workoutNotesData: JSON.parse(JSON.stringify(workoutNotesData || {})),
-      bmiSavedData:     bmiSavedData ? JSON.parse(JSON.stringify(bmiSavedData)) : null,
-      measurementsData: JSON.parse(JSON.stringify(measurementsData || {})),
-      nutritionData:    JSON.parse(JSON.stringify(nutritionData || {})),
-      gamification:     JSON.parse(JSON.stringify(gamification || { xp: 0, unlockedBadges: [] })),
-      pomoLog:          JSON.parse(JSON.stringify((typeof pomoLog !== 'undefined' ? pomoLog : []) || [])),
-      pomoStats:        JSON.parse(JSON.stringify((typeof pomoStats !== 'undefined' ? pomoStats : null) || { sessionCount: 0, todayFocusMins: 0, totalFocusMins: 0, dailyFocusMins: {} })),
-      updatedAt:        new Date().toISOString(),
-      _writerId:        _sessionId,
-    });
+
+    // FIX (race condition): بناء payload يحتوي فقط الحقول التي تغيّرت
+    // إذا كانت الـ Set فارغة (حالة نادرة) أو تحتوي كل الحقول → setDoc كامل
+    // للمستخدم الجديد الذي لا يملك مستنداً بعد.
+    const payload = { updatedAt: new Date().toISOString(), _writerId: _sessionId };
+    const isFullWrite = fieldsToWrite.size === 0 || fieldsToWrite.size === ALL_DATA_FIELDS.length;
+
+    if (isFullWrite) {
+      // كتابة كاملة — للمستخدم الجديد أو عند عدم معرفة الحقل المتغير
+      Object.assign(payload, _allFieldValues);
+      await window._fbSetDoc(docRef, payload);
+    } else {
+      // FIX: كتابة جزئية — فقط الحقول التي تغيّرت فعلاً
+      // updateDoc لا يمسّ الحقول الأخرى أبداً → يُلغي مشكلة race condition
+      fieldsToWrite.forEach(field => {
+        payload[field] = _allFieldValues[field];
+      });
+      try {
+        await window._fbUpdateDoc(docRef, payload);
+      } catch(notFoundErr) {
+        // المستند غير موجود بعد (مستخدم جديد) → نعيد بـ setDoc كامل
+        if (notFoundErr && notFoundErr.code === 'not-found') {
+          Object.assign(payload, _allFieldValues);
+          await window._fbSetDoc(docRef, payload);
+        } else {
+          throw notFoundErr;
+        }
+      }
+    }
+
     _pendingLocalEdit = false;
     // أبلغ المستمع بوقت آخر كتابة ناجحة من هذا الجهاز
     if (typeof window._notifyLocalWrite === 'function') window._notifyLocalWrite();
@@ -8163,7 +8224,7 @@ async function _doFirestoreWrite(expectedUid, _retryCount) {
 
 // ── حفظ فوري (بدون debounce) — يُستخدم في كل تعديل بيانات حقيقي (مهام، عادات،
 // مزاج، جيم، يوميات...) لضمان وصول التزامن للأجهزة الأخرى دون انتظار ─────────
-function _saveImmediate() {
+function _saveImmediate(fieldName) {
   clearTimeout(_saveDebounceTimer);
   _saveDebounceTimer = null;
   settings._savedAt = Date.now();
@@ -8175,6 +8236,12 @@ function _saveImmediate() {
   // FIX: نفس حماية save() — أثناء التهيئة لا نعتبرها تعديلاً حقيقياً من
   // المستخدم، حتى لا يُلغى تطبيق بيانات السحابة في _loadFromFirestore.
   if (!_appInitializing) _pendingLocalEdit = true;
+  // FIX (race condition): سجّل الحقل المتغير
+  if (fieldName && ALL_DATA_FIELDS.includes(fieldName)) {
+    _dirtyFields.add(fieldName);
+  } else {
+    ALL_DATA_FIELDS.forEach(f => _dirtyFields.add(f));
+  }
   _saveToFirestore(user.uid, 0).catch(() => {});
 }
 
@@ -8386,22 +8453,84 @@ async function _loadFromFirestore(user, _retryCount) {
       // فإذا كان التحديث القادم من جهاز آخر يخص فقط الجيم أو اليوميات أو
       // الإنجازات، لا يتغيّر شيء في هذا الـ snapshot الجزئي فيُعتبر "لا تغيير"
       // ولا تُعاد إعادة الرسم إطلاقاً، حتى لو كانت البيانات قد تغيّرت فعلياً.
-      const _before = JSON.stringify({ habits, checks, weeklyTasks, quickTasks, moodData, gymLogs, gymSchedule, gymExercises, journalEntries, gamification, pomoLog, pomoStats });
+      // FIX (performance): نسجّل ما تغيّر بدقة قبل وبعد تطبيق البيانات
+      // حتى نعيد رسم الأقسام المتغيرة فقط بدل renderAll الكامل دائماً
+      const _snap = {
+        habits:       JSON.stringify(habits),
+        checks:       JSON.stringify(checks),
+        weeklyTasks:  JSON.stringify(weeklyTasks),
+        quickTasks:   JSON.stringify(quickTasks),
+        moodData:     JSON.stringify(moodData),
+        gymLogs:      JSON.stringify(gymLogs),
+        gymSchedule:  JSON.stringify(gymSchedule),
+        gymExercises: JSON.stringify(gymExercises),
+        journalEntries: JSON.stringify(journalEntries),
+        gamification: JSON.stringify(gamification),
+        pomoLog:      JSON.stringify(pomoLog),
+        pomoStats:    JSON.stringify(pomoStats),
+        thoughtsData: JSON.stringify(thoughtsData),
+      };
       _applyFirestoreData(d);
-      const _after = JSON.stringify({ habits, checks, weeklyTasks, quickTasks, moodData, gymLogs, gymSchedule, gymExercises, journalEntries, gamification, pomoLog, pomoStats });
+      const _changed = {
+        habits:       JSON.stringify(habits)         !== _snap.habits,
+        checks:       JSON.stringify(checks)         !== _snap.checks,
+        weeklyTasks:  JSON.stringify(weeklyTasks)    !== _snap.weeklyTasks,
+        quickTasks:   JSON.stringify(quickTasks)     !== _snap.quickTasks,
+        moodData:     JSON.stringify(moodData)       !== _snap.moodData,
+        gym:          JSON.stringify(gymLogs)        !== _snap.gymLogs ||
+                      JSON.stringify(gymSchedule)    !== _snap.gymSchedule ||
+                      JSON.stringify(gymExercises)   !== _snap.gymExercises,
+        journal:      JSON.stringify(journalEntries) !== _snap.journalEntries,
+        gamification: JSON.stringify(gamification)   !== _snap.gamification,
+        pomo:         JSON.stringify(pomoLog)        !== _snap.pomoLog ||
+                      JSON.stringify(pomoStats)      !== _snap.pomoStats,
+        thoughts:     JSON.stringify(thoughtsData)   !== _snap.thoughtsData,
+      };
+      const anyChanged = Object.values(_changed).some(Boolean);
 
-      if (isFirstSnapshot || _before !== _after) {
+      if (isFirstSnapshot || anyChanged) {
         // setLang بـ _skipSave=true لمنع استدعاء save() داخل المستمع
-        // (save() → _pendingLocalEdit=true → يتجاهل snapshots لاحقة)
         try { setLang(settings.lang || currentLang || 'ar', true); } catch(e) {}
-        // FIX: أعد رسم كل الصفحات (وليس فقط الصفحة المفتوحة حالياً) حتى
-        // تظهر تحديثات المهام/الجيم/اليوميات/الإنجازات القادمة من جهاز آخر
-        // فوراً، حتى لو كان المستخدم فاتحاً صفحة أخرى (مثل العادات) وقتها.
-        try { renderAll(null, true); } catch(e) { console.error('renderAll error:', e); }
-        try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
-        try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
-        try { renderThoughtNotes(); } catch(e) {}
-    try { if (typeof pomoRender === 'function') pomoRender(); } catch(e) {}
+
+        if (isFirstSnapshot) {
+          // أول تحميل — ارسم كل شيء دفعة واحدة
+          try { renderAll(null, true); } catch(e) { console.error('renderAll error:', e); }
+          try { renderQuickTasks(); } catch(e) {}
+          try { updateQuickTasksText(); } catch(e) {}
+          try { renderThoughtNotes(); } catch(e) {}
+          try { if (typeof pomoRender === 'function') pomoRender(); } catch(e) {}
+        } else {
+          // تحديث من جهاز آخر — ارسم فقط ما تغيّر
+          if (_changed.habits || _changed.checks) {
+            try { renderTracker(); } catch(e) {}
+            try { renderGamificationBar(true); } catch(e) {}
+          }
+          if (_changed.weeklyTasks) {
+            try { if (typeof renderWeekly === 'function') renderWeekly(); } catch(e) {}
+          }
+          if (_changed.quickTasks) {
+            try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
+            try { updateQuickTasksText(); } catch(e) {}
+          }
+          if (_changed.moodData) {
+            try { renderMood(); } catch(e) {}
+          }
+          if (_changed.gym) {
+            try { if (typeof renderGym === 'function') renderGym(); } catch(e) {}
+          }
+          if (_changed.journal) {
+            try { if (typeof renderJournal === 'function') renderJournal(); } catch(e) {}
+          }
+          if (_changed.gamification) {
+            try { renderGamificationBar(true); } catch(e) {}
+          }
+          if (_changed.pomo) {
+            try { if (typeof pomoRender === 'function') pomoRender(); } catch(e) {}
+          }
+          if (_changed.thoughts) {
+            try { renderThoughtNotes(); } catch(e) {}
+          }
+        }
       }
       if (isFirstSnapshot && typeof window._revealApp === 'function') window._revealApp();
 
@@ -8915,7 +9044,7 @@ function handleImport(e) {
       if (d.sleepData) sleepData = d.sleepData;
       if (d.thoughtsData) thoughtsData = d.thoughtsData;
       if (d.weeklyTasks) weeklyTasks = d.weeklyTasks;
-      _saveImmediate(); // FIX: فوري
+      _saveImmediate(); // full write — import changes all fields
       renderAll();
       showToast(t('toastImported'));
     } catch { showToast(t('toastImportError')); }
@@ -8959,7 +9088,7 @@ function clearAllData() {
   thoughtsData = {};
   weeklyTasks = { 1: [], 2: [], 3: [], 4: [] };
   gamification = { xp: 0, unlockedBadges: [] };
-  _saveImmediate();
+  _saveImmediate(); // full write — clear all data
   renderAll();
   renderGamificationBar();
   showToast(t('toastCleared'));
@@ -9096,7 +9225,7 @@ function addHabit() {
     inp.style.borderColor = 'var(--red)';
     setTimeout(() => inp.style.borderColor = '', 1200); return; }
   habits.push({ id: Date.now(), emoji: selectedEmoji, name, activeDays: [...selectedDays] });
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('habits'); // FIX: فوري
   inp.value = '';
   selectedDays = [0,1,2,3,4,5,6];
   _updateDayPickBtnLabel();
@@ -9158,7 +9287,7 @@ function confirmDeleteHabit() {
   });
   _pendingDeleteHabitId = null;
   document.getElementById('delHabitOverlay').classList.remove('show');
-  _saveImmediate();
+  _saveImmediate('habits');
   renderAll();
   if (typeof playSound === 'function') { try { playSound(220, 0.1); } catch(e) {} }
 }
@@ -9253,7 +9382,7 @@ function moveHabit(id, dir) {
   const tmp = habits[idx];
   habits[idx] = habits[newIdx];
   habits[newIdx] = tmp;
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('habits'); // FIX: فوري
   renderAll();
 }
 
@@ -9262,7 +9391,7 @@ function toggleCheck(hid, d) {
   const k = chkKey(hid, d);
   const was = checks[k];
   checks[k] = !was;
-  _saveImmediate(); // FIX: فوري — لو أغلق المستخدم الصفحة مباشرة لا تُفقد الشاكة
+  _saveImmediate('checks'); // FIX: فوري — لو أغلق المستخدم الصفحة مباشرة لا تُفقد الشاكة
   if (!was) {
     // Only count habits actually scheduled for this day — a habit that's
     // grayed out (not scheduled today) must not block the "all done" toast.
@@ -9620,7 +9749,7 @@ function renderGamificationBar(silent) {
       // Give the badge toast a beat to appear first if both fired together.
       setTimeout(() => showLevelUpOverlay(lvl.level), newlyUnlocked.length ? 500 : 0);
     }
-    _saveImmediate(); // FIX: فوري
+    _saveImmediate('gamification'); // FIX: فوري
   }
 
   if (document.getElementById('badgesOverlay') && document.getElementById('badgesOverlay').classList.contains('show')) {
@@ -10419,7 +10548,7 @@ function setMood(d, slot) {
   const cur = moodData[k];
   const isUnsetting = cur === selectedMoodLevel;
   moodData[k] = isUnsetting ? undefined : selectedMoodLevel;
-  _saveImmediate(); // FIX: فوري — المزاج يُحفظ فوراً بدون debounce
+  _saveImmediate('moodData'); // FIX: فوري — المزاج يُحفظ فوراً بدون debounce
   renderMood();
   syncMoodLevelUI();
   if (!isUnsetting) {
@@ -10603,13 +10732,13 @@ function toggleWater(i) {
   const wk = waterKey();
   const cur = waterData[wk] || 0;
   waterData[wk] = (cur >= i && cur === i) ? i - 1 : i;
-  _saveImmediate(); // FIX: فوري — الماء يُحفظ فوراً
+  _saveImmediate('waterData'); // FIX: فوري — الماء يُحفظ فوراً
   renderMood();
 }
 
 function setSleep(d, v) {
   sleepData[sleepKey(d)] = parseFloat(v) || 0;
-  _saveImmediate(); // FIX: فوري — النوم يُحفظ فوراً
+  _saveImmediate('sleepData'); // FIX: فوري — النوم يُحفظ فوراً
 }
 
 function _thoughtNotesKey() { return thoughtKey() + '_notes'; }
@@ -10628,7 +10757,7 @@ function saveThoughts() {
   thoughtsData[thoughtKey()] = text;
 
   document.getElementById('thoughtsArea').value = '';
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('thoughtsData'); // FIX: فوري
   renderThoughtNotes();
   showToast(t('toastSaved'));
 }
@@ -10647,7 +10776,7 @@ function deleteThoughtNote(idx) {
     // If that was the last note, also clear the old backward-compat field
     // so it can never resurrect a deleted note on a future render/migration.
     if (notes2.length === 0) delete thoughtsData[thoughtKey()];
-    _saveImmediate();
+    _saveImmediate('thoughtsData');
     renderThoughtNotes();
   });
 }
@@ -10762,7 +10891,7 @@ function renderWeekly() {
 function toggleTask(w, i) {
   if (weeklyTasks[w] && weeklyTasks[w][i] !== undefined) {
     weeklyTasks[w][i].done = !weeklyTasks[w][i].done;
-    _saveImmediate(); // FIX: فوري مثل toggleCheck — بدون انتظار 800ms
+    _saveImmediate('weeklyTasks'); // FIX: فوري مثل toggleCheck — بدون انتظار 800ms
     renderWeekly();
     if (weeklyTasks[w][i].done) { showToast(t('toastTaskDone'));
       playHabitCheckSound(); }
@@ -10776,7 +10905,7 @@ function deleteTask(w, i) {
   openGenericDeleteConfirm(taskText, () => {
     if (weeklyTasks[w]) {
       weeklyTasks[w].splice(i, 1);
-      _saveImmediate();
+      _saveImmediate('weeklyTasks');
       renderWeekly();
     }
   });
@@ -10797,7 +10926,7 @@ function saveTaskText(w, i, value) {
   const text = (value || '').trim();
   if (weeklyTasks[w] && weeklyTasks[w][i] !== undefined && text) {
     weeklyTasks[w][i].text = text;
-    _saveImmediate();
+    _saveImmediate('weeklyTasks');
   }
   editingTask = null;
   renderWeekly();
@@ -10811,7 +10940,7 @@ function moveTask(w, i, dir) {
   const tmp = arr[i];
   arr[i] = arr[newI];
   arr[newI] = tmp;
-  _saveImmediate();
+  _saveImmediate('weeklyTasks');
   renderWeekly();
 }
 
@@ -10820,7 +10949,7 @@ function addTask(w) {
   if (!inp || !inp.value.trim()) return;
   if (!weeklyTasks[w]) weeklyTasks[w] = [];
   weeklyTasks[w].push({ text: inp.value.trim(), done: false });
-  _saveImmediate();
+  _saveImmediate('weeklyTasks');
   inp.value = '';
   renderWeekly();
   showToast(t('toastTaskAdded'));
@@ -10860,7 +10989,7 @@ function setTabVisible(tab, visible) {
     if (btn2) btn2.style.display = visible ? '' : 'none';
     if (!visible && currentPage === 'journal') showPage('tracker');
   }
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate(); // FIX: فوري (settings only)
 }
 
 function applyTabVisibility() {
@@ -10959,7 +11088,7 @@ function saveJournalEntry() {
   };
 
   journalEntries.unshift(entry);
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('journalEntries'); // FIX: فوري
 
   // Reset composer
   if (ta) ta.value = '';
@@ -10976,7 +11105,7 @@ function saveJournalEntry() {
 
 function deleteJournalEntry(id) {
   journalEntries = journalEntries.filter(e => e.id !== id);
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('journalEntries'); // FIX: فوري
   renderJournalEntries();
   renderJournalStats();
 }
@@ -11231,7 +11360,7 @@ function toggleGymDay(dayIdx) {
   const tr = T[currentLang] || T.ar;
   if (!gymSchedule[dayIdx]) gymSchedule[dayIdx] = { done: false, type: '' };
   gymSchedule[dayIdx].done = !gymSchedule[dayIdx].done;
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('gymSchedule'); // FIX: فوري
   renderGymSchedule();
   renderGymSummary();
   if (gymSchedule[dayIdx].done) {
@@ -11244,7 +11373,7 @@ function toggleGymDay(dayIdx) {
 function setGymDayType(dayIdx, val) {
   if (!gymSchedule[dayIdx]) gymSchedule[dayIdx] = { done: false, type: '' };
   gymSchedule[dayIdx].type = val;
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('gymSchedule'); // FIX: فوري
 }
 
 function renderExerciseList() {
@@ -11282,7 +11411,7 @@ function addExercise() {
   const cat = document.getElementById('exerciseCatSelect').value;
   if (!name) { document.getElementById('exerciseInput').focus(); return; }
   gymExercises.push({ id: Date.now(), name, cat });
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('gymExercises'); // FIX: فوري
   document.getElementById('exerciseInput').value = '';
   renderExerciseList();
   populateLogSelects();
@@ -11291,7 +11420,7 @@ function addExercise() {
 
 function deleteExercise(id) {
   gymExercises = gymExercises.filter(e => e.id !== id);
-  _saveImmediate();
+  _saveImmediate('gymExercises');
   renderExerciseList();
   populateLogSelects();
   renderGymPRs();
@@ -11313,7 +11442,7 @@ function saveExerciseName(id, value) {
   const name = (value || '').trim();
   const ex = gymExercises.find(e => e.id === id);
   if (ex && name) { ex.name = name;
-    _saveImmediate(); // FIX: فوري
+    _saveImmediate('gymExercises'); // FIX: فوري
     populateLogSelects(); }
   editingExerciseId = null;
   renderExerciseList();
@@ -11327,7 +11456,7 @@ function moveExercise(id, dir) {
   const tmp = gymExercises[idx];
   gymExercises[idx] = gymExercises[newIdx];
   gymExercises[newIdx] = tmp;
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('gymExercises'); // FIX: فوري
   renderExerciseList();
 }
 
@@ -11359,7 +11488,7 @@ function addProgressLog() {
 
   const ex = gymExercises.find(e => e.id === exId);
   gymLogs.unshift({ id: Date.now(), exId, date, sets, reps, weight, note, exName: ex ? ex.name : '?' });
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('gymLogs'); // FIX: فوري
 
   document.getElementById('logSets').value = '';
   document.getElementById('logReps').value = '';
@@ -11427,7 +11556,7 @@ function renderProgressLog() {
 
 function deleteLog(id) {
   gymLogs = gymLogs.filter(l => l.id !== id);
-  _saveImmediate();
+  _saveImmediate('gymLogs');
   renderProgressLog();
   renderGymPRs();
   renderGymVolumeBars();
@@ -11703,7 +11832,7 @@ function renderBWGrid() {
 function saveBW(key, val) {
   if (val) bodyWeightData[key] = parseFloat(val);
   else delete bodyWeightData[key];
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('bodyWeightData'); // FIX: فوري
   renderBWGrid();
 }
 
@@ -11715,7 +11844,7 @@ function saveWorkoutNotes() {
   if (!area) return;
   const today2 = new Date().toISOString().slice(0, 10);
   workoutNotesData[today2] = area.value;
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('workoutNotesData'); // FIX: فوري
   const el = document.getElementById('notesSavedDate');
   if (el) el.textContent = `💾 ${currentLang === 'ar' ? 'تم الحفظ:' : currentLang === 'fr' ? 'Enregistré:' : 'Saved:'} ${today2}`;
   showToast(t('toastSaved'));
@@ -11763,7 +11892,7 @@ function calcBMI() {
   if (ptrEl) ptrEl.textContent = ptr;
   if (numEl) numEl.style.color = color;
   bmiSavedData = { weight, height, bmi: bmi.toFixed(1) };
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('bmiSavedData'); // FIX: فوري
 }
 
 let bmiSavedData = null;
@@ -11789,7 +11918,7 @@ function saveMeasurements() {
     if (el && el.value) entry[id] = parseFloat(el.value);
   });
   measurementsData[today2] = entry;
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('measurementsData'); // FIX: فوري
   const el = document.getElementById('measSavedDate');
   if (el) el.textContent = `💾 ${currentLang === 'ar' ? 'تم الحفظ:' : currentLang === 'fr' ? 'Enregistré:' : 'Saved:'} ${today2}`;
   showToast(t('toastSaved'));
@@ -11846,7 +11975,7 @@ function saveNutrition() {
   const carb = parseFloat(document.getElementById('nutriCarbInput')?.value) || 0;
   const fat = parseFloat(document.getElementById('nutriFatInput')?.value) || 0;
   nutritionData[dateStr] = { cal, prot, carb, fat };
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('nutritionData'); // FIX: فوري
   renderNutriDisplay({ cal, prot, carb, fat });
   renderNutriHistory();
   showToast(t('toastSaved'));
@@ -12120,7 +12249,7 @@ let journalEntries = []; // loaded from Firestore after login
 let qtFilter = 'all';
 
 function saveQuickTasks() {
-  _saveImmediate(); // FIX: فوري — بدل الاعتماد على debounce الـ 800ms
+  _saveImmediate('quickTasks'); // FIX: فوري — بدل الاعتماد على debounce الـ 800ms
 }
 
 function playCheckSound() {
@@ -12138,7 +12267,7 @@ function addQuickTask() {
   inp.value = '';
   // FIX (Android): استخدم _saveImmediate بدل save() ذات الـ 800ms debounce —
   // على أندرويد المستخدم قد يغلق التطبيق فوراً بعد الإضافة فتضيع المهمة.
-  _saveImmediate();
+  _saveImmediate('quickTasks');
   renderQuickTasks();
   inp.focus();
 }
@@ -12165,7 +12294,7 @@ function deleteQuickTask(id) {
     // Immediate (non-debounced) save so the deletion reaches the cloud
     // right away. This now goes through the same write queue as every
     // other save, so it can never be overtaken by an older, slower write.
-    _saveImmediate();
+    _saveImmediate('quickTasks');
   });
 }
 
@@ -12178,7 +12307,7 @@ function clearDoneQuickTasks() {
     : `${doneCount} completed task(s) ✅`;
   openGenericDeleteConfirm(countLabel, () => {
     quickTasks = quickTasks.filter(t => !t.done);
-    _saveImmediate();
+    _saveImmediate('quickTasks');
     renderQuickTasks();
   }, true);
 }
@@ -12824,7 +12953,7 @@ function confirmAddHabit() {
   const name = inp.value.trim();
   if (!name) { closeAddHabitModal(); return; }
   habits.push({ id: Date.now(), emoji: selectedEmoji, name, activeDays: [..._modalSelectedDays] });
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('habits'); // FIX: فوري
   inp.value = '';
   selectedDays = [0,1,2,3,4,5,6];
   _modalSelectedDays = [0,1,2,3,4,5,6];
@@ -13585,7 +13714,7 @@ function setupWeeklyDragDrop() {
         const [moved] = arr.splice(_wTaskDragI, 1);
         arr.splice(i, 0, moved);
       }
-      _saveImmediate(); // FIX: فوري
+      _saveImmediate('weeklyTasks'); // FIX: فوري
       renderWeekly();
     });
   });
@@ -13787,7 +13916,7 @@ function _hrmMoveHabit(hid, action) {
   if (newIdx === idx) return;
   const [moved] = habits.splice(idx, 1);
   habits.splice(newIdx, 0, moved);
-  _saveImmediate(); // FIX: فوري
+  _saveImmediate('habits'); // FIX: فوري
   renderAll();
 }
 
@@ -13878,7 +14007,7 @@ function setupTouchDragDrop() {
           const [moved] = arr.splice(fi, 1);
           arr.splice(ti, 0, moved);
         }
-        _saveImmediate(); renderWeekly(); // FIX: فوري
+        _saveImmediate('weeklyTasks'); renderWeekly(); // FIX: فوري
       }
     );
   });
@@ -13897,7 +14026,7 @@ function setupTouchDragDrop() {
         if (fi === -1 || ti === -1) return;
         const [moved] = quickTasks.splice(fi, 1);
         quickTasks.splice(ti, 0, moved);
-        _saveImmediate(); renderQuickTasks(); // FIX: فوري
+        _saveImmediate('quickTasks'); renderQuickTasks(); // FIX: فوري
       }
     );
   });
@@ -15332,7 +15461,7 @@ function pomoSyncToCloud() {
   pomoStats.totalFocusMins = pomoState.totalFocusMins || 0;
   try { localStorage.setItem(POMO_LOG_KEY, JSON.stringify(pomoLog.slice(-50))); } catch(e) {}
   try { localStorage.setItem('tacky_pomo_stats_v1', JSON.stringify(pomoStats)); } catch(e) {}
-  if (typeof _saveImmediate === 'function') _saveImmediate();
+  if (typeof _saveImmediate === 'function') _saveImmediate('pomoLog');
 }
 function pomoLoad() {
   try {
@@ -16229,7 +16358,7 @@ function setupHabitDragDrop() {
       if (fromIdx === -1 || toIdx === -1) return;
       const [moved] = habits.splice(fromIdx, 1);
       habits.splice(toIdx, 0, moved);
-      _saveImmediate(); // FIX: فوري
+      _saveImmediate('habits'); // FIX: فوري
       renderAll();
     });
   });
