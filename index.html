@@ -12470,14 +12470,27 @@ window._onFirebaseInitError = function() {
 // ── كشف متصفحات In-App (تلغرام، مسنجر، واتساب، إنستغرام...) ────────────────
 function _isInAppBrowser() {
   const ua = navigator.userAgent || '';
-  return /FBAN|FBAV|FB_IAB|Instagram|Twitter|Line\/|MicroMessenger|Snapchat|TikTok|musical_ly|LinkedInApp|Pinterest|reddit\/|Bytedance|BytedanceWebview/.test(ua)
-    || /Telegram/i.test(ua)
-    || (!!window.TelegramWebviewProxy)
-    || (!!window.TelegramWebAppProxy)
-    // WebView عام على أندرويد — ليس Chrome ولا Samsung Browser
-    || (/Android/.test(ua) && /wv\)/.test(ua) && !/Chrome\/\d/.test(ua))
-    // iOS In-App: أي شيء على iPhone/iPad ليس Safari أو Chrome أو Firefox أو Edge
-    || (/iPhone|iPad|iPod/.test(ua) && !/(Safari\/\d|CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua) && /AppleWebKit/.test(ua));
+  // ── تيليغرام: كل الطرق ──
+  if (/Telegram/i.test(ua)) return true;
+  try { if (window.TelegramWebviewProxy !== undefined) return true; } catch(e) {}
+  try { if (window.TelegramWebviewProxyProto !== undefined) return true; } catch(e) {}
+  try { if (window.TelegramWebAppProxy !== undefined) return true; } catch(e) {}
+  try { if (window.Telegram && window.Telegram.WebApp) return true; } catch(e) {}
+  try { if (window.TelegramGameProxy !== undefined) return true; } catch(e) {}
+  // ── تطبيقات أخرى ──
+  if (/FBAN|FBAV|FB_IAB|Instagram|Twitter|Line\/|MicroMessenger|Snapchat|TikTok|musical_ly|LinkedInApp|Pinterest|reddit\/|Bytedance|BytedanceWebview/.test(ua)) return true;
+  // Android WebView
+  if (/Android/.test(ua) && /wv\)/.test(ua)) return true;
+  // ── الكشف الذهبي لتيليغرام أندرويد ──
+  if (/Android/.test(ua)) {
+    var isRealBrowser = /SamsungBrowser|EdgA|OPR\/|Firefox|DuckDuckGo/i.test(ua);
+    if (!isRealBrowser) {
+      try { if (!(window.chrome && window.chrome.runtime)) return true; } catch(e) { return true; }
+    }
+  }
+  // iOS In-App: أي شيء على iPhone/iPad ليس Safari أو Chrome أو Firefox أو Edge
+  if (/iPhone|iPad|iPod/.test(ua) && !/(Safari\/\d|CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua) && /AppleWebKit/.test(ua)) return true;
+  return false;
 }
 
 function _isIOS() {
@@ -16278,29 +16291,53 @@ renderWeekly = function() {
 
   /* ─── كشف In-App Browser ─── */
   function isInAppBrowser() {
-    // تطبيقات معروفة بعلاماتها في UA — بما فيها Telegram-Android الرسمي
-    if (/FBAN|FBAV|Instagram|Snapchat|Twitter\/|TW_|Line\/|MicroMessenger|TikTok|musical_ly|Bytedance|Pinterest|LinkedIn|Slack|Discord|Telegram-Android/i.test(ua)) return true;
+    // ── تيليغرام: كل الطرق الممكنة ──
+    // 1) UA الرسمي لتيليغرام أندرويد
+    if (/Telegram/i.test(ua)) return true;
+    // 2) TelegramWebviewProxy (متصفح تيليغرام الداخلي)
+    try { if (window.TelegramWebviewProxy !== undefined) return true; } catch(e) {}
+    try { if (window.TelegramWebviewProxyProto !== undefined) return true; } catch(e) {}
+    // 3) TelegramWebApp (Mini Apps)
+    try { if (window.Telegram && window.Telegram.WebApp) return true; } catch(e) {}
+    // 4) بيئة تيليغرام Mini App عبر window.TelegramGameProxy
+    try { if (window.TelegramGameProxy !== undefined) return true; } catch(e) {}
+
+    // ── تطبيقات أخرى معروفة ──
+    if (/FBAN|FBAV|Instagram|Snapchat|Twitter\/|TW_|Line\/|MicroMessenger|TikTok|musical_ly|Bytedance|Pinterest|LinkedIn|Slack|Discord/i.test(ua)) return true;
     // Android WebView الرسمية
     if (/\bwv\b/.test(ua)) return true;
     // iOS WebView بدون Safari
     if (isIOS && !/Safari\//.test(ua) && /AppleWebKit/.test(ua)) return true;
     // Chrome Custom Tabs
     if (isAndroid && /Version\/\d/.test(ua) && !/SamsungBrowser/i.test(ua)) return true;
-    // TelegramWebviewProxy
-    try { if (window.TelegramWebviewProxy || window.TelegramWebviewProxyProto) return true; } catch(e) {}
-    // WebView بدون chrome.runtime
-    try {
-      if (isAndroid && /Chrome\//.test(ua) && !/SamsungBrowser|EdgA|OPR\/|Firefox|DuckDuckGo/i.test(ua)) {
-        if (!(window.chrome && window.chrome.runtime)) return true;
+    // ── الكشف الذهبي لتيليغرام أندرويد ──
+    // المتصفحات الحقيقية (Chrome, Samsung, Edge, Firefox) تملك chrome.runtime أو بصمات واضحة.
+    // تيليغرام الداخلي على أندرويد لا يملك أياً منها.
+    if (isAndroid) {
+      var isRealBrowser = (
+        /SamsungBrowser/i.test(ua) ||   // Samsung Browser
+        /EdgA/i.test(ua)            ||   // Edge Android
+        /OPR\//i.test(ua)           ||   // Opera
+        /Firefox/i.test(ua)         ||   // Firefox
+        /DuckDuckGo/i.test(ua)           // DuckDuckGo
+      );
+      if (!isRealBrowser) {
+        try {
+          if (!(window.chrome && window.chrome.runtime)) return true;
+        } catch(e) { return true; }
       }
-    } catch(e) {}
+    }
     return false;
   }
 
   /* ─── محتوى التعليمات حسب التطبيق والجهاز ─── */
   function getInstructions() {
     var app = '';
-    if (/FBAN|FBAV/i.test(ua))              app = 'facebook';
+    // تيليغرام: كشف شامل بكل الطرق
+    var isTelegram = /Telegram/i.test(ua)
+      || (function(){ try { return window.TelegramWebviewProxy !== undefined || window.Telegram !== undefined || window.TelegramGameProxy !== undefined; } catch(e){ return false; } })();
+    if (isTelegram)                         app = 'telegram';
+    else if (/FBAN|FBAV/i.test(ua))         app = 'facebook';
     else if (/Instagram/i.test(ua))         app = 'instagram';
     else if (/Snapchat/i.test(ua))          app = 'snapchat';
     else if (/TikTok|musical_ly/i.test(ua)) app = 'tiktok';
@@ -16310,6 +16347,12 @@ renderWeekly = function() {
     var likelyTelegram = (app === '' && isAndroid);
 
     if (isIOS) {
+      if (app === 'telegram') {
+        return {
+          icon: '✈️',
+          text: 'في تيليغرام: اضغط على أيقونة <strong>⋯</strong> في أعلى الشاشة، ثم اختر <strong>"فتح في Safari"</strong> أو <strong>"Open in Safari"</strong>'
+        };
+      }
       if (app === 'instagram' || app === 'facebook' || app === 'tiktok') {
         return {
           icon: '↗️',
@@ -16323,10 +16366,10 @@ renderWeekly = function() {
     }
 
     if (isAndroid) {
-      if (likelyTelegram) {
+      if (app === 'telegram' || likelyTelegram) {
         return {
-          icon: '↗️',
-          text: 'اضغط على أيقونة <strong>⋮</strong> في الزاوية العلوية اليمنى، ثم اختر <strong>"فتح في المتصفح"</strong> أو <strong>"Open in"</strong>'
+          icon: '✈️',
+          text: 'في تيليغرام: اضغط على أيقونة <strong>⋮</strong> (ثلاث نقاط) في أعلى الشاشة، ثم اختر <strong>"فتح في المتصفح"</strong> أو <strong>"Open in"</strong> — ثم اختر <strong>Chrome</strong> أو <strong>Samsung Browser</strong>'
         };
       }
       if (app === 'instagram' || app === 'facebook' || app === 'tiktok') {
