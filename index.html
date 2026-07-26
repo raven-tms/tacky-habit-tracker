@@ -16260,131 +16260,154 @@ renderWeekly = function() {
 <!-- ===== OPEN IN BROWSER: يفتح الرابط في المتصفح الافتراضي ===== -->
 <script>
 (function () {
-  /* ─── إعدادات ─── */
   var PAGE_URL = window.location.href;
-
-  /* ─── هل نحن داخل WebView / In-App Browser؟ ─── */
-  function isInAppBrowser() {
-    var ua = navigator.userAgent || '';
-    return (
-      /FBAN|FBAV|Instagram|Snapchat|Twitter|Line\/|MicroMessenger|TikTok|BytedanceWebview/i.test(ua) ||
-      /\bwv\b/.test(ua) ||                        // Android WebView flag
-      (/iPhone|iPad/.test(ua) && !/Safari/.test(ua))  // iOS WebView (no Safari token)
-    );
-  }
+  var ua = navigator.userAgent || '';
 
   /* ─── كشف النظام ─── */
-  function isIOS()     { return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
-  function isAndroid() { return /Android/i.test(navigator.userAgent); }
-  function isSamsung() { return /SamsungBrowser/i.test(navigator.userAgent); }
+  var isIOS     = /iPhone|iPad|iPod/i.test(ua);
+  var isAndroid = /Android/i.test(ua);
 
-  /* ─── نافذة Popup الاحتياطية ─── */
-  function showFallbackPopup() {
+  /* ─── كشف In-App Browser بدقة ─── */
+  function isInAppBrowser() {
+    // تطبيقات معروفة
+    if (/FBAN|FBAV|Instagram|Snapchat|Twitter\/|TW_|Line\/|MicroMessenger|TikTok|musical_ly|Bytedance|Pinterest|LinkedIn|Slack|Discord/i.test(ua)) return true;
+    // Android WebView العلامة الرسمية
+    if (/\bwv\b/.test(ua)) return true;
+    // iOS WebView: لا يحتوي على "Safari/" في الـ UA
+    if (isIOS && !/Safari\//.test(ua)) return true;
+    // Chrome Custom Tabs على Android (بعض التطبيقات تستخدمها)
+    if (isAndroid && /Version\/\d/.test(ua) && !/SamsungBrowser/i.test(ua)) return true;
+    return false;
+  }
+
+  /* ─── محتوى التعليمات حسب التطبيق والجهاز ─── */
+  function getInstructions() {
+    var app = '';
+    if (/FBAN|FBAV/i.test(ua))       app = 'facebook';
+    else if (/Instagram/i.test(ua))  app = 'instagram';
+    else if (/Snapchat/i.test(ua))   app = 'snapchat';
+    else if (/TikTok|musical_ly/i.test(ua)) app = 'tiktok';
+    else if (/Twitter|TW_/i.test(ua)) app = 'twitter';
+
+    if (isIOS) {
+      if (app === 'instagram' || app === 'facebook' || app === 'tiktok') {
+        return {
+          icon: '↗️',
+          text: 'اضغط على أيقونة <strong>···</strong> أو <strong>⋯</strong> في أعلى الشاشة، ثم اختر <strong>"فتح في Safari"</strong>'
+        };
+      }
+      return {
+        icon: '↗️',
+        text: 'اضغط على أيقونة <strong>المشاركة</strong> أو <strong>···</strong> ثم اختر <strong>"فتح في Safari"</strong>'
+      };
+    }
+
+    if (isAndroid) {
+      if (app === 'instagram' || app === 'facebook' || app === 'tiktok') {
+        return {
+          icon: '↗️',
+          text: 'اضغط على أيقونة <strong>⋮</strong> في الزاوية العلوية، ثم اختر <strong>"فتح في المتصفح"</strong> أو <strong>"Open in Chrome"</strong>'
+        };
+      }
+      return {
+        icon: '↗️',
+        text: 'اضغط على <strong>⋮</strong> ثم اختر <strong>"فتح في المتصفح"</strong> أو <strong>"Open in browser"</strong>'
+      };
+    }
+
+    return {
+      icon: '🌐',
+      text: 'انسخ الرابط وافتحه في متصفحك المفضل'
+    };
+  }
+
+  /* ─── رسم الـ Popup ─── */
+  function showPopup() {
     if (document.getElementById('oib-overlay')) return;
 
-    var isAr = document.documentElement.lang === 'ar';
-    var overlay = document.createElement('div');
-    overlay.id = 'oib-overlay';
+    var inst = getInstructions();
 
-    var browserSteps = '';
-    if (isIOS()) {
-      browserSteps = isAr
-        ? 'اضغط على <strong>···</strong> أو أيقونة المشاركة ثم اختر <strong>فتح في Safari</strong>'
-        : 'Tap <strong>···</strong> or the share icon, then choose <strong>Open in Safari</strong>';
-    } else if (isSamsung()) {
-      browserSteps = isAr
-        ? 'اضغط على <strong>⋮</strong> ثم اختر <strong>فتح في Samsung Browser</strong>'
-        : 'Tap <strong>⋮</strong> then choose <strong>Open in Samsung Internet</strong>';
-    } else if (isAndroid()) {
-      browserSteps = isAr
-        ? 'اضغط على <strong>⋮</strong> ثم اختر <strong>فتح في Chrome</strong> أو متصفحك الافتراضي'
-        : 'Tap <strong>⋮</strong> then choose <strong>Open in Chrome</strong> or your default browser';
-    } else {
-      browserSteps = isAr
-        ? 'انسخ الرابط وافتحه في متصفحك المفضل'
-        : 'Copy the link and open it in your preferred browser';
-    }
+    // صورة توضيحية بالسهم
+    var arrowGif = isIOS
+      ? '<div id="oib-arrow-ios">☝️ أعلى اليمين</div>'
+      : '<div id="oib-arrow-android">☝️ أعلى اليمين أو اليسار</div>';
 
-    overlay.innerHTML =
-      '<div id="oib-box">' +
-        '<div id="oib-icon">🌐</div>' +
-        '<div id="oib-title">' + (isAr ? 'افتح في متصفحك' : 'Open in Browser') + '</div>' +
-        '<div id="oib-desc">' +
-          (isAr
-            ? 'يبدو أنك تفتح التطبيق من داخل تطبيق آخر (واتساب، إنستقرام...). للحصول على أفضل تجربة:'
-            : 'You seem to be inside an in-app browser. For the best experience:') +
+    var html =
+      '<div id="oib-overlay">' +
+        '<div id="oib-box">' +
+          '<div id="oib-pulse">🌐</div>' +
+          '<div id="oib-title">افتح في المتصفح</div>' +
+          '<div id="oib-subtitle">التطبيق يعمل بشكل أفضل في متصفحك الافتراضي</div>' +
+          '<div id="oib-card">' +
+            '<div id="oib-step-num">الخطوة الوحيدة</div>' +
+            '<div id="oib-step-text">' + inst.icon + ' ' + inst.text + '</div>' +
+          '</div>' +
+          arrowGif +
+          '<div id="oib-divider">أو</div>' +
+          '<button id="oib-copy-btn">📋&nbsp; انسخ الرابط وافتحه يدوياً</button>' +
+          '<button id="oib-close-btn">تجاهل والمتابعة هنا</button>' +
         '</div>' +
-        '<div id="oib-steps">' + browserSteps + '</div>' +
-        '<button id="oib-copy">' + (isAr ? '📋 انسخ الرابط' : '📋 Copy Link') + '</button>' +
-        '<button id="oib-close">' + (isAr ? 'متابعة هنا' : 'Continue here') + '</button>' +
-      '</div>' +
-      '<style>' +
-        '#oib-overlay{position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:\'Tajawal\',sans-serif}' +
-        '#oib-box{background:#1e2433;border:1px solid #3b82f6;border-radius:22px;padding:30px 24px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.7);animation:oibPop .35s cubic-bezier(.34,1.56,.64,1) both}' +
-        '@keyframes oibPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}' +
-        '#oib-icon{font-size:3rem;margin-bottom:10px}' +
-        '#oib-title{font-size:1.15rem;font-weight:900;color:#f1f5f9;margin-bottom:8px}' +
-        '#oib-desc{font-size:.8rem;color:#94a3b8;line-height:1.6;margin-bottom:16px}' +
-        '#oib-steps{background:#141824;border:1px solid #2a3352;border-radius:12px;padding:14px 16px;font-size:.82rem;color:#cbd5e1;line-height:1.7;margin-bottom:18px}' +
-        '#oib-steps strong{color:#60a5fa}' +
-        '#oib-copy{width:100%;padding:12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:12px;font-family:\'Tajawal\',sans-serif;font-size:.92rem;font-weight:800;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(59,130,246,.45)}' +
-        '#oib-close{width:100%;padding:10px;background:#2a3352;color:#94a3b8;border:none;border-radius:12px;font-family:\'Tajawal\',sans-serif;font-size:.82rem;cursor:pointer}' +
-      '</style>';
+        '<style>' +
+          '#oib-overlay{position:fixed;inset:0;z-index:2147483647;background:rgba(10,14,26,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0;font-family:\'Tajawal\',sans-serif;direction:rtl}' +
+          '#oib-box{background:#1e2433;border:1.5px solid #3b82f6;border-bottom:none;border-radius:26px 26px 0 0;padding:28px 22px 34px;width:100%;max-width:480px;text-align:center;box-shadow:0 -12px 60px rgba(59,130,246,.25);animation:oibUp .4s cubic-bezier(.34,1.3,.64,1) both}' +
+          '@keyframes oibUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}' +
+          '#oib-pulse{font-size:2.8rem;margin-bottom:10px;animation:oibBounce 1.8s infinite}' +
+          '@keyframes oibBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}' +
+          '#oib-title{font-size:1.25rem;font-weight:900;color:#f1f5f9;margin-bottom:4px}' +
+          '#oib-subtitle{font-size:.78rem;color:#64748b;margin-bottom:18px}' +
+          '#oib-card{background:#0f172a;border:1px solid #2a3352;border-radius:14px;padding:16px 18px;margin-bottom:14px;text-align:right}' +
+          '#oib-step-num{font-size:.68rem;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}' +
+          '#oib-step-text{font-size:.88rem;color:#cbd5e1;line-height:1.7}' +
+          '#oib-step-text strong{color:#60a5fa}' +
+          '#oib-arrow-ios,#oib-arrow-android{font-size:.78rem;color:#94a3b8;margin-bottom:14px}' +
+          '#oib-divider{font-size:.72rem;color:#334155;margin:14px 0;position:relative}' +
+          '#oib-divider::before,#oib-divider::after{content:"";position:absolute;top:50%;width:42%;height:1px;background:#1e2d47}' +
+          '#oib-divider::before{right:0}#oib-divider::after{left:0}' +
+          '#oib-copy-btn{width:100%;padding:13px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:13px;font-family:\'Tajawal\',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 18px rgba(59,130,246,.4)}' +
+          '#oib-close-btn{width:100%;padding:11px;background:#1e2433;color:#475569;border:1px solid #2a3352;border-radius:13px;font-family:\'Tajawal\',sans-serif;font-size:.82rem;cursor:pointer}' +
+        '</style>' +
+      '</div>';
 
-    document.body.appendChild(overlay);
+    var wrap = document.createElement('div');
+    wrap.innerHTML = html;
+    document.body.appendChild(wrap.firstChild);
 
-    document.getElementById('oib-copy').addEventListener('click', function () {
-      navigator.clipboard
-        ? navigator.clipboard.writeText(PAGE_URL).then(function () { this.textContent = isAr ? '✅ تم النسخ!' : '✅ Copied!'; }.bind(document.getElementById('oib-copy')))
-        : (function () {
-            var ta = document.createElement('textarea');
-            ta.value = PAGE_URL; document.body.appendChild(ta); ta.select();
-            document.execCommand('copy'); document.body.removeChild(ta);
-            document.getElementById('oib-copy').textContent = isAr ? '✅ تم النسخ!' : '✅ Copied!';
-          })();
-    });
-
-    document.getElementById('oib-close').addEventListener('click', function () {
-      overlay.remove();
-    });
-  }
-
-  /* ─── محاولة الفتح في المتصفح الافتراضي ─── */
-  function tryOpenInBrowser() {
-    var opened = false;
-
-    /* Android: intent:// يفتح المتصفح الافتراضي مباشرة */
-    if (isAndroid()) {
-      try {
-        var intentUrl = 'intent://' + PAGE_URL.replace(/^https?:\/\//, '') +
-          '#Intent;scheme=' + (PAGE_URL.startsWith('https') ? 'https' : 'http') +
-          ';package=com.android.browser;S.browser_fallback_url=' + encodeURIComponent(PAGE_URL) +
-          ';end';
-        window.location.href = intentUrl;
-        opened = true;
-      } catch (e) {}
-    }
-
-    /* iOS: x-safari:// يفتح Safari */
-    if (isIOS()) {
-      try {
-        window.location.href = PAGE_URL.replace(/^https?:\/\//, 'x-safari-https://');
-        opened = true;
-      } catch (e) {}
-    }
-
-    /* احتياط: بعد 1.2 ثانية إذا لم يُغلق الصفحة => نعرض الـ popup */
-    setTimeout(function () {
-      if (document.visibilityState !== 'hidden') {
-        showFallbackPopup();
+    /* زر النسخ */
+    document.getElementById('oib-copy-btn').addEventListener('click', function () {
+      var btn = this;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(PAGE_URL).then(function () {
+          btn.textContent = '✅ تم النسخ! الصق الرابط في متصفحك';
+        }).catch(fallbackCopy);
+      } else {
+        fallbackCopy();
       }
-    }, 1200);
+      function fallbackCopy() {
+        var ta = document.createElement('textarea');
+        ta.value = PAGE_URL;
+        ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        try { document.execCommand('copy'); btn.textContent = '✅ تم النسخ! الصق الرابط في متصفحك'; }
+        catch(e) { btn.textContent = PAGE_URL; }
+        document.body.removeChild(ta);
+      }
+    });
+
+    /* زر التجاهل */
+    document.getElementById('oib-close-btn').addEventListener('click', function () {
+      var el = document.getElementById('oib-overlay');
+      if (el) el.remove();
+    });
   }
 
-  /* ─── تشغيل الكود ─── */
+  /* ─── تشغيل ─── */
   if (isInAppBrowser()) {
-    /* نتأخر قليلاً حتى تكتمل الصفحة */
-    setTimeout(tryOpenInBrowser, 600);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { setTimeout(showPopup, 400); });
+    } else {
+      setTimeout(showPopup, 400);
+    }
   }
 })();
 </script>
