@@ -12379,6 +12379,87 @@ window._onFirebaseInitError = function() {
 
 // =========== FIREBASE AUTH FUNCTIONS ===========
 
+// ── فتح المتصفح الخارجي تلقائياً عند الكشف عن In-App Browser ─────────────────
+// يُستدعى فور تحميل الصفحة — يحاول فتح المتصفح الافتراضي للجهاز مباشرة،
+// والبوب يبقى احتياطاً إذا فشلت كل المحاولات.
+(function _autoRedirectIfInApp() {
+  // نشغّل هذا مرة واحدة فقط — لو تم redirect فعلاً سينفتح المتصفح الخارجي
+  // وهذه الصفحة ستبقى في الخلفية (In-App) لكن المستخدم انتقل للمتصفح فعلاً
+  const ua = navigator.userAgent || '';
+  const isInApp =
+    /FBAN|FBAV|FB_IAB|Instagram|Twitter|Line\/|MicroMessenger|Snapchat|TikTok|musical_ly|LinkedInApp|Pinterest|reddit\/|Bytedance|BytedanceWebview/.test(ua)
+    || /Telegram/i.test(ua)
+    || (!!window.TelegramWebviewProxy)
+    || (!!window.TelegramWebAppProxy)
+    || (/Android/.test(ua) && /wv\)/.test(ua) && !/Chrome\/\d/.test(ua))
+    || (/iPhone|iPad|iPod/.test(ua) && !/(Safari\/\d|CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua) && /AppleWebKit/.test(ua));
+
+  if (!isInApp) return; // متصفح عادي — لا شيء
+
+  const url = window.location.href;
+  const isIOS = /iPhone|iPad|iPod/.test(ua);
+  const isAndroid = /Android/.test(ua);
+  let redirected = false;
+
+  if (isAndroid) {
+    // ── أندرويد: جرّب Chrome أولاً ثم المتصفح الافتراضي ──────────────────
+    // intent:// يطلب أندرويد يفتح الرابط في Chrome أو المتصفح الافتراضي
+    try {
+      // محاولة 1: Chrome مباشرة
+      const chromeIntent = 'intent://' + url.replace(/^https?:\/\//, '') +
+        '#Intent;scheme=https;package=com.android.chrome;end';
+      window.location.href = chromeIntent;
+      redirected = true;
+    } catch(e) {}
+
+    // محاولة 2: المتصفح الافتراضي (أي متصفح)
+    if (!redirected) {
+      try {
+        const defaultIntent = 'intent://' + url.replace(/^https?:\/\//, '') +
+          '#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end';
+        window.location.href = defaultIntent;
+        redirected = true;
+      } catch(e) {}
+    }
+
+    // محاولة 3: window.open كآخر حل
+    if (!redirected) {
+      try { window.open(url, '_system'); redirected = true; } catch(e) {}
+      try { window.open(url, '_blank'); } catch(e) {}
+    }
+
+  } else if (isIOS) {
+    // ── iOS: Safari هو المتصفح الوحيد الحقيقي ────────────────────────────
+    // لا يوجد intent على iOS — window.open هو الخيار الوحيد
+    // بعض تطبيقات iOS لها زر "فتح في Safari" داخلي — نعتمد على البوب كاحتياط
+    try {
+      window.open(url, '_blank');
+      redirected = true;
+    } catch(e) {}
+  }
+
+  // ── بعد 600ms: لو الصفحة لا تزال مفتوحة (redirect لم ينجح) أظهر البوب ──
+  // نستخدم visibilitychange: لو المتصفح فُتح، الصفحة ستصبح hidden
+  // لو بقيت visible بعد 600ms = redirect فشل = أظهر البوب
+  const _showFallback = setTimeout(() => {
+    // لو الصفحة مخفية = المتصفح الخارجي فُتح بنجاح — لا نظهر البوب
+    if (document.hidden) return;
+    // الصفحة لا تزال مرئية = redirect فشل — أظهر البوب الاحتياطي
+    if (typeof _showInAppBrowserWarning === 'function') {
+      _showInAppBrowserWarning();
+    }
+  }, 600);
+
+  // لو المستخدم عاد للصفحة بعدما فتح المتصفح — ألغ البوب
+  document.addEventListener('visibilitychange', function _cancelPopup() {
+    if (document.hidden) {
+      clearTimeout(_showFallback);
+      document.removeEventListener('visibilitychange', _cancelPopup);
+    }
+  }, { once: false });
+
+})();
+
 // ── كشف متصفحات In-App (تلغرام، مسنجر، واتساب، إنستغرام...) ────────────────
 function _isInAppBrowser() {
   const ua = navigator.userAgent || '';
@@ -16174,6 +16255,138 @@ renderWeekly = function() {
   // (IndexedDB وCache API) مما يُفقد البيانات المخزنة محلياً ويمنع المزامنة السليمة.
   // Firestore تعتمد على هذا الكاش لضمان استمرارية البيانات، مسحه يُعيد ضبط
   // كل شيء عند كل تحميل للصفحة كأنه أول مرة.
+</script>
+
+<!-- ===== OPEN IN BROWSER: يفتح الرابط في المتصفح الافتراضي ===== -->
+<script>
+(function () {
+  /* ─── إعدادات ─── */
+  var PAGE_URL = window.location.href;
+
+  /* ─── هل نحن داخل WebView / In-App Browser؟ ─── */
+  function isInAppBrowser() {
+    var ua = navigator.userAgent || '';
+    return (
+      /FBAN|FBAV|Instagram|Snapchat|Twitter|Line\/|MicroMessenger|TikTok|BytedanceWebview/i.test(ua) ||
+      /\bwv\b/.test(ua) ||                        // Android WebView flag
+      (/iPhone|iPad/.test(ua) && !/Safari/.test(ua))  // iOS WebView (no Safari token)
+    );
+  }
+
+  /* ─── كشف النظام ─── */
+  function isIOS()     { return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
+  function isAndroid() { return /Android/i.test(navigator.userAgent); }
+  function isSamsung() { return /SamsungBrowser/i.test(navigator.userAgent); }
+
+  /* ─── نافذة Popup الاحتياطية ─── */
+  function showFallbackPopup() {
+    if (document.getElementById('oib-overlay')) return;
+
+    var isAr = document.documentElement.lang === 'ar';
+    var overlay = document.createElement('div');
+    overlay.id = 'oib-overlay';
+
+    var browserSteps = '';
+    if (isIOS()) {
+      browserSteps = isAr
+        ? 'اضغط على <strong>···</strong> أو أيقونة المشاركة ثم اختر <strong>فتح في Safari</strong>'
+        : 'Tap <strong>···</strong> or the share icon, then choose <strong>Open in Safari</strong>';
+    } else if (isSamsung()) {
+      browserSteps = isAr
+        ? 'اضغط على <strong>⋮</strong> ثم اختر <strong>فتح في Samsung Browser</strong>'
+        : 'Tap <strong>⋮</strong> then choose <strong>Open in Samsung Internet</strong>';
+    } else if (isAndroid()) {
+      browserSteps = isAr
+        ? 'اضغط على <strong>⋮</strong> ثم اختر <strong>فتح في Chrome</strong> أو متصفحك الافتراضي'
+        : 'Tap <strong>⋮</strong> then choose <strong>Open in Chrome</strong> or your default browser';
+    } else {
+      browserSteps = isAr
+        ? 'انسخ الرابط وافتحه في متصفحك المفضل'
+        : 'Copy the link and open it in your preferred browser';
+    }
+
+    overlay.innerHTML =
+      '<div id="oib-box">' +
+        '<div id="oib-icon">🌐</div>' +
+        '<div id="oib-title">' + (isAr ? 'افتح في متصفحك' : 'Open in Browser') + '</div>' +
+        '<div id="oib-desc">' +
+          (isAr
+            ? 'يبدو أنك تفتح التطبيق من داخل تطبيق آخر (واتساب، إنستقرام...). للحصول على أفضل تجربة:'
+            : 'You seem to be inside an in-app browser. For the best experience:') +
+        '</div>' +
+        '<div id="oib-steps">' + browserSteps + '</div>' +
+        '<button id="oib-copy">' + (isAr ? '📋 انسخ الرابط' : '📋 Copy Link') + '</button>' +
+        '<button id="oib-close">' + (isAr ? 'متابعة هنا' : 'Continue here') + '</button>' +
+      '</div>' +
+      '<style>' +
+        '#oib-overlay{position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:\'Tajawal\',sans-serif}' +
+        '#oib-box{background:#1e2433;border:1px solid #3b82f6;border-radius:22px;padding:30px 24px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.7);animation:oibPop .35s cubic-bezier(.34,1.56,.64,1) both}' +
+        '@keyframes oibPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}' +
+        '#oib-icon{font-size:3rem;margin-bottom:10px}' +
+        '#oib-title{font-size:1.15rem;font-weight:900;color:#f1f5f9;margin-bottom:8px}' +
+        '#oib-desc{font-size:.8rem;color:#94a3b8;line-height:1.6;margin-bottom:16px}' +
+        '#oib-steps{background:#141824;border:1px solid #2a3352;border-radius:12px;padding:14px 16px;font-size:.82rem;color:#cbd5e1;line-height:1.7;margin-bottom:18px}' +
+        '#oib-steps strong{color:#60a5fa}' +
+        '#oib-copy{width:100%;padding:12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:12px;font-family:\'Tajawal\',sans-serif;font-size:.92rem;font-weight:800;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(59,130,246,.45)}' +
+        '#oib-close{width:100%;padding:10px;background:#2a3352;color:#94a3b8;border:none;border-radius:12px;font-family:\'Tajawal\',sans-serif;font-size:.82rem;cursor:pointer}' +
+      '</style>';
+
+    document.body.appendChild(overlay);
+
+    document.getElementById('oib-copy').addEventListener('click', function () {
+      navigator.clipboard
+        ? navigator.clipboard.writeText(PAGE_URL).then(function () { this.textContent = isAr ? '✅ تم النسخ!' : '✅ Copied!'; }.bind(document.getElementById('oib-copy')))
+        : (function () {
+            var ta = document.createElement('textarea');
+            ta.value = PAGE_URL; document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            document.getElementById('oib-copy').textContent = isAr ? '✅ تم النسخ!' : '✅ Copied!';
+          })();
+    });
+
+    document.getElementById('oib-close').addEventListener('click', function () {
+      overlay.remove();
+    });
+  }
+
+  /* ─── محاولة الفتح في المتصفح الافتراضي ─── */
+  function tryOpenInBrowser() {
+    var opened = false;
+
+    /* Android: intent:// يفتح المتصفح الافتراضي مباشرة */
+    if (isAndroid()) {
+      try {
+        var intentUrl = 'intent://' + PAGE_URL.replace(/^https?:\/\//, '') +
+          '#Intent;scheme=' + (PAGE_URL.startsWith('https') ? 'https' : 'http') +
+          ';package=com.android.browser;S.browser_fallback_url=' + encodeURIComponent(PAGE_URL) +
+          ';end';
+        window.location.href = intentUrl;
+        opened = true;
+      } catch (e) {}
+    }
+
+    /* iOS: x-safari:// يفتح Safari */
+    if (isIOS()) {
+      try {
+        window.location.href = PAGE_URL.replace(/^https?:\/\//, 'x-safari-https://');
+        opened = true;
+      } catch (e) {}
+    }
+
+    /* احتياط: بعد 1.2 ثانية إذا لم يُغلق الصفحة => نعرض الـ popup */
+    setTimeout(function () {
+      if (document.visibilityState !== 'hidden') {
+        showFallbackPopup();
+      }
+    }, 1200);
+  }
+
+  /* ─── تشغيل الكود ─── */
+  if (isInAppBrowser()) {
+    /* نتأخر قليلاً حتى تكتمل الصفحة */
+    setTimeout(tryOpenInBrowser, 600);
+  }
+})();
 </script>
 
 <!-- ===== PWA: Service Worker + Install Prompt ===== -->
