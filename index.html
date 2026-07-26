@@ -8339,6 +8339,13 @@ async function _loadFromFirestore(user, _retryCount) {
         // Skip re-applying data that THIS tab just wrote itself — it's already
         // reflected locally, and re-rendering would disrupt active typing.
         if (isFirstSnapshot || d._writerId !== _sessionId) {
+          // FIX (Telegram Android): snapshot قديم يطغى على تعديل محلي
+          // تلغرام يطلق visibilitychange فيجلب بيانات قديمة تمسح الشاك / المهمة.
+          if (!isFirstSnapshot && (_pendingLocalEdit || _saveDebounceTimer !== null)) {
+            console.warn('[Sync] Snapshot ignored - local edit in flight, local wins.');
+            isFirstSnapshot = false;
+            return;
+          }
           const _before = JSON.stringify({ habits, checks, weeklyTasks });
           _applyFirestoreData(d);
           const _after = JSON.stringify({ habits, checks, weeklyTasks });
@@ -16267,58 +16274,26 @@ renderWeekly = function() {
   var isIOS     = /iPhone|iPad|iPod/i.test(ua);
   var isAndroid = /Android/i.test(ua);
 
-  /* ─── كشف In-App Browser بدقة ─── */
+
+
+  /* ─── كشف In-App Browser ─── */
   function isInAppBrowser() {
-    // ── 1. تطبيقات معروفة بعلاماتها في UA ──
-    if (/FBAN|FBAV|Instagram|Snapchat|Twitter\/|TW_|Line\/|MicroMessenger|TikTok|musical_ly|Bytedance|Pinterest|LinkedIn|Slack|Discord/i.test(ua)) return true;
-
-    // ── 2. Android WebView العلامة الرسمية ──
+    // تطبيقات معروفة بعلاماتها في UA — بما فيها Telegram-Android الرسمي
+    if (/FBAN|FBAV|Instagram|Snapchat|Twitter\/|TW_|Line\/|MicroMessenger|TikTok|musical_ly|Bytedance|Pinterest|LinkedIn|Slack|Discord|Telegram-Android/i.test(ua)) return true;
+    // Android WebView الرسمية
     if (/\bwv\b/.test(ua)) return true;
-
-    // ── 3. iOS: أي WebView بدون "Safari/" = in-app ──
+    // iOS WebView بدون Safari
     if (isIOS && !/Safari\//.test(ua) && /AppleWebKit/.test(ua)) return true;
-
-    // ── 4. Chrome Custom Tabs على Android ──
+    // Chrome Custom Tabs
     if (isAndroid && /Version\/\d/.test(ua) && !/SamsungBrowser/i.test(ua)) return true;
-
-    // ── 5. تلغرام: كشف متعدد الإشارات ──
+    // TelegramWebviewProxy
+    try { if (window.TelegramWebviewProxy || window.TelegramWebviewProxyProto) return true; } catch(e) {}
+    // WebView بدون chrome.runtime
     try {
-      // 5a. TelegramWebviewProxy (بعض إصدارات تلغرام)
-      if (window.TelegramWebviewProxy || window.TelegramWebviewProxyProto) return true;
+      if (isAndroid && /Chrome\//.test(ua) && !/SamsungBrowser|EdgA|OPR\/|Firefox|DuckDuckGo/i.test(ua)) {
+        if (!(window.chrome && window.chrome.runtime)) return true;
+      }
     } catch(e) {}
-
-    if (isAndroid) {
-      try {
-        // 5b. WebView بدون chrome.runtime — المتصفحات الحقيقية (Chrome/Samsung/Edge/Opera) تملكه دائماً
-        // تلغرام يشغّل WebView خام بدونه
-        var trustedBrowser = /SamsungBrowser|EdgA|OPR\/|Firefox|DuckDuckGo/i.test(ua);
-        if (!trustedBrowser && /Chrome\//.test(ua)) {
-          var hasRuntime = !!(window.chrome && window.chrome.runtime && window.chrome.runtime.id !== undefined);
-          // chrome.runtime موجود لكن id = undefined في المتصفح الحقيقي، وغائب كلياً في WebView
-          var runtimeExists = !!(window.chrome && window.chrome.runtime);
-          if (!runtimeExists) return true;
-        }
-      } catch(e) {}
-
-      try {
-        // 5c. تلغرام يمنع window.open — المتصفحات الحقيقية لا تمنعه
-        // نتحقق بدون فتح نافذة فعلية
-        var openDescriptor = Object.getOwnPropertyDescriptor(window, 'open');
-        if (openDescriptor && openDescriptor.value && openDescriptor.value.toString().indexOf('[native code]') === -1) return true;
-      } catch(e) {}
-
-      try {
-        // 5d. غياب navigator.share في WebView القديم (Chrome الحقيقي يدعمه من v89)
-        // + UA يدّعي Chrome إصدار حديث = WebView مزيف
-        var chromeVer = ua.match(/Chrome\/(\d+)/);
-        if (chromeVer && parseInt(chromeVer[1]) > 89) {
-          if (typeof navigator.share === 'undefined' && !/SamsungBrowser|EdgA|OPR\/|Firefox/i.test(ua)) {
-            return true;
-          }
-        }
-      } catch(e) {}
-    }
-
     return false;
   }
 
