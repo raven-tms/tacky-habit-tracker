@@ -8136,9 +8136,25 @@ function _saveImmediate() {
 }
 
 // ── Fix: حفظ فوري عند إغلاق الصفحة (beforeunload) ──────────────────────────
+// ملاحظة: على الموبايل beforeunload لا يُطلَق دائماً — لهذا نعتمد أيضاً على
+// visibilitychange أدناه كخط دفاع ثانٍ (الأكثر موثوقية على iOS/Android).
 window.addEventListener('beforeunload', () => {
-  if (_saveDebounceTimer && window._currentUser) {
+  if (window._currentUser) {
     clearTimeout(_saveDebounceTimer);
+    _saveDebounceTimer = null;
+    // استخدام _saveQueue المتزامن — لكن المتصفح قد يقطع الطلب
+    // Firestore offline persistence تضمن وصول البيانات لاحقاً
+    _saveToFirestore(window._currentUser.uid);
+  }
+});
+
+// ── Fix: حفظ عند إخفاء التبويب (الأهم على الموبايل) ─────────────────────────
+// على iOS/Android: الضغط على الهوم أو تبديل التطبيق يُطلق visibilitychange
+// قبل أي إغلاق — هذا هو الحدث الأكثر موثوقية للحفظ على الهواتف.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && window._currentUser && _saveDebounceTimer) {
+    clearTimeout(_saveDebounceTimer);
+    _saveDebounceTimer = null;
     _saveToFirestore(window._currentUser.uid);
   }
 });
@@ -9157,7 +9173,7 @@ function toggleCheck(hid, d) {
   const k = chkKey(hid, d);
   const was = checks[k];
   checks[k] = !was;
-  save();
+  _saveImmediate(); // FIX: فوري — لو أغلق المستخدم الصفحة مباشرة لا تُفقد الشاكة
   if (!was) {
     // Only count habits actually scheduled for this day — a habit that's
     // grayed out (not scheduled today) must not block the "all done" toast.
@@ -10314,7 +10330,7 @@ function setMood(d, slot) {
   const cur = moodData[k];
   const isUnsetting = cur === selectedMoodLevel;
   moodData[k] = isUnsetting ? undefined : selectedMoodLevel;
-  save();
+  _saveImmediate(); // FIX: فوري — المزاج يُحفظ فوراً بدون debounce
   renderMood();
   syncMoodLevelUI();
   if (!isUnsetting) {
@@ -10498,13 +10514,13 @@ function toggleWater(i) {
   const wk = waterKey();
   const cur = waterData[wk] || 0;
   waterData[wk] = (cur >= i && cur === i) ? i - 1 : i;
-  save();
+  _saveImmediate(); // FIX: فوري — الماء يُحفظ فوراً
   renderMood();
 }
 
 function setSleep(d, v) {
   sleepData[sleepKey(d)] = parseFloat(v) || 0;
-  save();
+  _saveImmediate(); // FIX: فوري — النوم يُحفظ فوراً
 }
 
 function _thoughtNotesKey() { return thoughtKey() + '_notes'; }
