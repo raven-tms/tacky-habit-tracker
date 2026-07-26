@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<script>
+  // تطبيق الثيم المحفوظ فوراً قبل أي رسم للصفحة، لمنع "ومضة" الشاشة عند فتح التطبيق
+  (function() {
+    try {
+      var raw = localStorage.getItem('hb2_settings');
+      var s = raw ? JSON.parse(raw) : null;
+      var theme = (s && s.theme) || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {}
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TACKY Habit Tracker Pro ✨</title>
@@ -1113,6 +1124,7 @@ html {
   scroll-behavior: smooth;
   overflow-x: hidden;
   max-width: 100%;
+  background: var(--bg);
 }
 
 body {
@@ -15934,6 +15946,18 @@ renderWeekly = function() {
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
 })();
+</script>
+<script>
+  // إزالة أي service worker/كاش قديم كان مسجّل بالغلط من محاولة سابقة (كان يعطّل الحفظ والمزامنة)
+  // هذا موقع عادي فقط، بدون أي تخزين أو تدخل بالطلبات.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(reg => reg.unregister());
+    });
+  }
+  if (window.caches) {
+    caches.keys().then(names => names.forEach(name => caches.delete(name)));
+  }
 </script>
 </body>
 </html>
