@@ -10743,7 +10743,7 @@ function renderWeekly() {
 function toggleTask(w, i) {
   if (weeklyTasks[w] && weeklyTasks[w][i] !== undefined) {
     weeklyTasks[w][i].done = !weeklyTasks[w][i].done;
-    save();
+    _saveImmediate(); // FIX: فوري مثل toggleCheck — بدون انتظار 800ms
     renderWeekly();
     if (weeklyTasks[w][i].done) { showToast(t('toastTaskDone'));
       playHabitCheckSound(); }
@@ -10778,7 +10778,7 @@ function saveTaskText(w, i, value) {
   const text = (value || '').trim();
   if (weeklyTasks[w] && weeklyTasks[w][i] !== undefined && text) {
     weeklyTasks[w][i].text = text;
-    save();
+    _saveImmediate();
   }
   editingTask = null;
   renderWeekly();
@@ -10792,7 +10792,7 @@ function moveTask(w, i, dir) {
   const tmp = arr[i];
   arr[i] = arr[newI];
   arr[newI] = tmp;
-  save();
+  _saveImmediate();
   renderWeekly();
 }
 
@@ -10801,7 +10801,7 @@ function addTask(w) {
   if (!inp || !inp.value.trim()) return;
   if (!weeklyTasks[w]) weeklyTasks[w] = [];
   weeklyTasks[w].push({ text: inp.value.trim(), done: false });
-  save();
+  _saveImmediate();
   inp.value = '';
   renderWeekly();
   showToast(t('toastTaskAdded'));
@@ -10940,7 +10940,7 @@ function saveJournalEntry() {
   };
 
   journalEntries.unshift(entry);
-  save();
+  _saveImmediate(); // FIX: فوري
 
   // Reset composer
   if (ta) ta.value = '';
@@ -10957,7 +10957,7 @@ function saveJournalEntry() {
 
 function deleteJournalEntry(id) {
   journalEntries = journalEntries.filter(e => e.id !== id);
-  save();
+  _saveImmediate(); // FIX: فوري
   renderJournalEntries();
   renderJournalStats();
 }
@@ -11212,7 +11212,7 @@ function toggleGymDay(dayIdx) {
   const tr = T[currentLang] || T.ar;
   if (!gymSchedule[dayIdx]) gymSchedule[dayIdx] = { done: false, type: '' };
   gymSchedule[dayIdx].done = !gymSchedule[dayIdx].done;
-  save();
+  _saveImmediate(); // FIX: فوري
   renderGymSchedule();
   renderGymSummary();
   if (gymSchedule[dayIdx].done) {
@@ -11225,7 +11225,7 @@ function toggleGymDay(dayIdx) {
 function setGymDayType(dayIdx, val) {
   if (!gymSchedule[dayIdx]) gymSchedule[dayIdx] = { done: false, type: '' };
   gymSchedule[dayIdx].type = val;
-  save();
+  _saveImmediate(); // FIX: فوري
 }
 
 function renderExerciseList() {
@@ -11263,7 +11263,7 @@ function addExercise() {
   const cat = document.getElementById('exerciseCatSelect').value;
   if (!name) { document.getElementById('exerciseInput').focus(); return; }
   gymExercises.push({ id: Date.now(), name, cat });
-  save();
+  _saveImmediate(); // FIX: فوري
   document.getElementById('exerciseInput').value = '';
   renderExerciseList();
   populateLogSelects();
@@ -11294,7 +11294,7 @@ function saveExerciseName(id, value) {
   const name = (value || '').trim();
   const ex = gymExercises.find(e => e.id === id);
   if (ex && name) { ex.name = name;
-    save();
+    _saveImmediate(); // FIX: فوري
     populateLogSelects(); }
   editingExerciseId = null;
   renderExerciseList();
@@ -11308,7 +11308,7 @@ function moveExercise(id, dir) {
   const tmp = gymExercises[idx];
   gymExercises[idx] = gymExercises[newIdx];
   gymExercises[newIdx] = tmp;
-  save();
+  _saveImmediate(); // FIX: فوري
   renderExerciseList();
 }
 
@@ -11340,7 +11340,7 @@ function addProgressLog() {
 
   const ex = gymExercises.find(e => e.id === exId);
   gymLogs.unshift({ id: Date.now(), exId, date, sets, reps, weight, note, exName: ex ? ex.name : '?' });
-  save();
+  _saveImmediate(); // FIX: فوري
 
   document.getElementById('logSets').value = '';
   document.getElementById('logReps').value = '';
@@ -11684,7 +11684,7 @@ function renderBWGrid() {
 function saveBW(key, val) {
   if (val) bodyWeightData[key] = parseFloat(val);
   else delete bodyWeightData[key];
-  save();
+  _saveImmediate(); // FIX: فوري
   renderBWGrid();
 }
 
@@ -11696,7 +11696,7 @@ function saveWorkoutNotes() {
   if (!area) return;
   const today2 = new Date().toISOString().slice(0, 10);
   workoutNotesData[today2] = area.value;
-  save();
+  _saveImmediate(); // FIX: فوري
   const el = document.getElementById('notesSavedDate');
   if (el) el.textContent = `💾 ${currentLang === 'ar' ? 'تم الحفظ:' : currentLang === 'fr' ? 'Enregistré:' : 'Saved:'} ${today2}`;
   showToast(t('toastSaved'));
@@ -11744,7 +11744,7 @@ function calcBMI() {
   if (ptrEl) ptrEl.textContent = ptr;
   if (numEl) numEl.style.color = color;
   bmiSavedData = { weight, height, bmi: bmi.toFixed(1) };
-  save();
+  _saveImmediate(); // FIX: فوري
 }
 
 let bmiSavedData = null;
@@ -11770,7 +11770,7 @@ function saveMeasurements() {
     if (el && el.value) entry[id] = parseFloat(el.value);
   });
   measurementsData[today2] = entry;
-  save();
+  _saveImmediate(); // FIX: فوري
   const el = document.getElementById('measSavedDate');
   if (el) el.textContent = `💾 ${currentLang === 'ar' ? 'تم الحفظ:' : currentLang === 'fr' ? 'Enregistré:' : 'Saved:'} ${today2}`;
   showToast(t('toastSaved'));
@@ -11827,7 +11827,7 @@ function saveNutrition() {
   const carb = parseFloat(document.getElementById('nutriCarbInput')?.value) || 0;
   const fat = parseFloat(document.getElementById('nutriFatInput')?.value) || 0;
   nutritionData[dateStr] = { cal, prot, carb, fat };
-  save();
+  _saveImmediate(); // FIX: فوري
   renderNutriDisplay({ cal, prot, carb, fat });
   renderNutriHistory();
   showToast(t('toastSaved'));
@@ -12101,7 +12101,7 @@ let journalEntries = []; // loaded from Firestore after login
 let qtFilter = 'all';
 
 function saveQuickTasks() {
-  save(); // delegates to Firebase save
+  _saveImmediate(); // FIX: فوري — بدل الاعتماد على debounce الـ 800ms
 }
 
 function playCheckSound() {
