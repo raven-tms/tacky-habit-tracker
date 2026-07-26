@@ -8315,7 +8315,7 @@ async function _loadFromFirestore(user, _retryCount) {
     weeklyTasks = JSON.parse(JSON.stringify(DEFAULT_WEEKLY));
     // FIX: re-apply saved language before rendering to prevent reset to Arabic
     try { setLang(settings.lang || currentLang || 'ar'); } catch(e) {}
-    try { renderAll(); } catch(e) { console.error('renderAll error:', e); }
+    try { renderAll(null, true); } catch(e) { console.error('renderAll error:', e); }
     try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
     try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
     try { renderThoughtNotes(); } catch(e) {}
@@ -8330,7 +8330,7 @@ async function _loadFromFirestore(user, _retryCount) {
   } else if (!serverCheckFailed) {
     // FIX: re-apply saved language before rendering to prevent reset to Arabic
     try { setLang(settings.lang || currentLang || 'ar'); } catch(e) {}
-    try { renderAll(); } catch(e) { console.error('renderAll error:', e); }
+    try { renderAll(null, true); } catch(e) { console.error('renderAll error:', e); }
     try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
     try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
     try { renderThoughtNotes(); } catch(e) {}
@@ -8364,15 +8364,22 @@ async function _loadFromFirestore(user, _retryCount) {
       }
 
       // كل حالة أخرى = طبّق البيانات فوراً (جهاز آخر، أو أول تحميل)
-      const _before = JSON.stringify({ habits, checks, weeklyTasks, quickTasks });
+      // FIX: فحص التغيّر كان يشمل فقط habits/checks/weeklyTasks/quickTasks —
+      // فإذا كان التحديث القادم من جهاز آخر يخص فقط الجيم أو اليوميات أو
+      // الإنجازات، لا يتغيّر شيء في هذا الـ snapshot الجزئي فيُعتبر "لا تغيير"
+      // ولا تُعاد إعادة الرسم إطلاقاً، حتى لو كانت البيانات قد تغيّرت فعلياً.
+      const _before = JSON.stringify({ habits, checks, weeklyTasks, quickTasks, moodData, gymLogs, gymSchedule, gymExercises, journalEntries, gamification });
       _applyFirestoreData(d);
-      const _after = JSON.stringify({ habits, checks, weeklyTasks, quickTasks });
+      const _after = JSON.stringify({ habits, checks, weeklyTasks, quickTasks, moodData, gymLogs, gymSchedule, gymExercises, journalEntries, gamification });
 
       if (isFirstSnapshot || _before !== _after) {
         // setLang بـ _skipSave=true لمنع استدعاء save() داخل المستمع
         // (save() → _pendingLocalEdit=true → يتجاهل snapshots لاحقة)
         try { setLang(settings.lang || currentLang || 'ar', true); } catch(e) {}
-        try { renderAll(); } catch(e) { console.error('renderAll error:', e); }
+        // FIX: أعد رسم كل الصفحات (وليس فقط الصفحة المفتوحة حالياً) حتى
+        // تظهر تحديثات المهام/الجيم/اليوميات/الإنجازات القادمة من جهاز آخر
+        // فوراً، حتى لو كان المستخدم فاتحاً صفحة أخرى (مثل العادات) وقتها.
+        try { renderAll(null, true); } catch(e) { console.error('renderAll error:', e); }
         try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
         try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
         try { renderThoughtNotes(); } catch(e) {}
@@ -11048,12 +11055,31 @@ function renderJournalPage() {
 }
 
 // =========== RENDER ALL ===========
-function renderAll(forcePage) {
+function renderAll(forcePage, renderAllPages) {
   const tr = T[currentLang] || T.ar;
   const monthLabelEl = document.getElementById('monthLabel');
   if (monthLabelEl) monthLabelEl.textContent = `${tr.monthNames[curM]} ${curY}`;
   const safeRender = (name, fn) => { try { fn(); } catch (e) { console.error('render error in ' + name + ':' , e); } };
   const pg = forcePage || currentPage;
+
+  // FIX: عند التزامن (تحديث قادم من Firestore، سواء أول تحميل أو من جهاز
+  // آخر عبر onSnapshot)، يجب إعادة رسم كل الصفحات وليس فقط الصفحة المفتوحة
+  // حالياً — وإلا فإن أي تعديل يحدث في خانة غير معروضة حالياً (مهام، جيم،
+  // يوميات، إنجازات) لا يظهر إلا بعد الانتقال يدوياً لتلك الصفحة، مما يبدو
+  // وكأن التزامن معطّل لهذه الخانات تحديداً بينما هو يعمل فعلياً في الخلفية.
+  if (renderAllPages) {
+    if (pg === 'tracker') { safeRender('renderTracker', renderTracker); safeRender('setupTouchDragDrop', setupTouchDragDrop); safeRender('setupHabitColResizer', setupHabitColResizer); }
+    else safeRender('renderTracker', renderTracker);
+    safeRender('renderMood', renderMood);
+    safeRender('renderWeekly', renderWeekly);
+    safeRender('renderQuotes', renderQuotes);
+    safeRender('renderJournalPage', renderJournalPage);
+    safeRender('renderGym', renderGym);
+    safeRender('renderAchievementsPage', renderAchievementsPage);
+    safeRender('renderGamificationBar', renderGamificationBar);
+    return;
+  }
+
   if (pg === 'tracker') { safeRender('renderTracker', renderTracker); safeRender('setupTouchDragDrop', setupTouchDragDrop); safeRender('setupHabitColResizer', setupHabitColResizer); }
   if (pg === 'mood') safeRender('renderMood', renderMood);
   if (pg === 'weekly') safeRender('renderWeekly', renderWeekly);
