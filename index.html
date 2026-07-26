@@ -16269,33 +16269,70 @@ renderWeekly = function() {
 
   /* ─── كشف In-App Browser بدقة ─── */
   function isInAppBrowser() {
-    // تطبيقات معروفة بعلاماتها في UA
+    // ── 1. تطبيقات معروفة بعلاماتها في UA ──
     if (/FBAN|FBAV|Instagram|Snapchat|Twitter\/|TW_|Line\/|MicroMessenger|TikTok|musical_ly|Bytedance|Pinterest|LinkedIn|Slack|Discord/i.test(ua)) return true;
-    // Android WebView العلامة الرسمية
+
+    // ── 2. Android WebView العلامة الرسمية ──
     if (/\bwv\b/.test(ua)) return true;
-    // iOS: أي WebView بدون "Safari/" = in-app (يشمل تلغرام iOS)
+
+    // ── 3. iOS: أي WebView بدون "Safari/" = in-app ──
     if (isIOS && !/Safari\//.test(ua) && /AppleWebKit/.test(ua)) return true;
-    // Chrome Custom Tabs على Android
+
+    // ── 4. Chrome Custom Tabs على Android ──
     if (isAndroid && /Version\/\d/.test(ua) && !/SamsungBrowser/i.test(ua)) return true;
-    // تلغرام Android: يحقن TelegramWebviewProxy في window
-    try { if (window.TelegramWebviewProxy || window.TelegramWebviewProxyProto) return true; } catch(e) {}
-    // Android WebView بدون chrome.runtime (المتصفحات الحقيقية تملكه)
+
+    // ── 5. تلغرام: كشف متعدد الإشارات ──
     try {
-      if (isAndroid && /Chrome\//.test(ua) && !/SamsungBrowser|EdgA|OPR\//i.test(ua)) {
-        if (!(window.chrome && window.chrome.runtime)) return true;
-      }
+      // 5a. TelegramWebviewProxy (بعض إصدارات تلغرام)
+      if (window.TelegramWebviewProxy || window.TelegramWebviewProxyProto) return true;
     } catch(e) {}
+
+    if (isAndroid) {
+      try {
+        // 5b. WebView بدون chrome.runtime — المتصفحات الحقيقية (Chrome/Samsung/Edge/Opera) تملكه دائماً
+        // تلغرام يشغّل WebView خام بدونه
+        var trustedBrowser = /SamsungBrowser|EdgA|OPR\/|Firefox|DuckDuckGo/i.test(ua);
+        if (!trustedBrowser && /Chrome\//.test(ua)) {
+          var hasRuntime = !!(window.chrome && window.chrome.runtime && window.chrome.runtime.id !== undefined);
+          // chrome.runtime موجود لكن id = undefined في المتصفح الحقيقي، وغائب كلياً في WebView
+          var runtimeExists = !!(window.chrome && window.chrome.runtime);
+          if (!runtimeExists) return true;
+        }
+      } catch(e) {}
+
+      try {
+        // 5c. تلغرام يمنع window.open — المتصفحات الحقيقية لا تمنعه
+        // نتحقق بدون فتح نافذة فعلية
+        var openDescriptor = Object.getOwnPropertyDescriptor(window, 'open');
+        if (openDescriptor && openDescriptor.value && openDescriptor.value.toString().indexOf('[native code]') === -1) return true;
+      } catch(e) {}
+
+      try {
+        // 5d. غياب navigator.share في WebView القديم (Chrome الحقيقي يدعمه من v89)
+        // + UA يدّعي Chrome إصدار حديث = WebView مزيف
+        var chromeVer = ua.match(/Chrome\/(\d+)/);
+        if (chromeVer && parseInt(chromeVer[1]) > 89) {
+          if (typeof navigator.share === 'undefined' && !/SamsungBrowser|EdgA|OPR\/|Firefox/i.test(ua)) {
+            return true;
+          }
+        }
+      } catch(e) {}
+    }
+
     return false;
   }
 
   /* ─── محتوى التعليمات حسب التطبيق والجهاز ─── */
   function getInstructions() {
     var app = '';
-    if (/FBAN|FBAV/i.test(ua))       app = 'facebook';
-    else if (/Instagram/i.test(ua))  app = 'instagram';
-    else if (/Snapchat/i.test(ua))   app = 'snapchat';
+    if (/FBAN|FBAV/i.test(ua))              app = 'facebook';
+    else if (/Instagram/i.test(ua))         app = 'instagram';
+    else if (/Snapchat/i.test(ua))          app = 'snapchat';
     else if (/TikTok|musical_ly/i.test(ua)) app = 'tiktok';
-    else if (/Twitter|TW_/i.test(ua)) app = 'twitter';
+    else if (/Twitter|TW_/i.test(ua))       app = 'twitter';
+    // تلغرام: إذا وصلنا لهنا فهو محتمل (UA لا يحتوي على اسمه)
+    // نكتشفه بغياب جميع العلامات السابقة مع Android
+    var likelyTelegram = (app === '' && isAndroid);
 
     if (isIOS) {
       if (app === 'instagram' || app === 'facebook' || app === 'tiktok') {
@@ -16311,6 +16348,12 @@ renderWeekly = function() {
     }
 
     if (isAndroid) {
+      if (likelyTelegram) {
+        return {
+          icon: '↗️',
+          text: 'اضغط على أيقونة <strong>⋮</strong> في الزاوية العلوية اليمنى، ثم اختر <strong>"فتح في المتصفح"</strong> أو <strong>"Open in"</strong>'
+        };
+      }
       if (app === 'instagram' || app === 'facebook' || app === 'tiktok') {
         return {
           icon: '↗️',
