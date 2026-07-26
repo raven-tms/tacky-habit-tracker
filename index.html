@@ -8045,6 +8045,10 @@ function save() {
   const user = window._currentUser;
   if (!user) return;
 
+  // FIX: _pendingLocalEdit=true فقط عند وجود مستخدم مسجل دخوله فعلاً.
+  // init() تستدعي save() (عبر applyAppTheme/applyTheme) قبل تسجيل الدخول،
+  // فلو أُضبط هذا المتغير قبل ذلك سيمنع _loadFromFirestore من تطبيق
+  // بيانات السحابة (يظنّها ستُطغى على تعديل محلي لم يُرسَل بعد).
   _pendingLocalEdit = true;
   const scheduledUid = user.uid;
   clearTimeout(_saveDebounceTimer);
@@ -8195,6 +8199,11 @@ function _applyFirestoreData(d) {
 async function _loadFromFirestore(user, _retryCount) {
   if (!user || !window._fbDb) return;
   _retryCount = _retryCount || 0;
+
+  // FIX: أي save() استُدعي قبل تسجيل الدخول (مثلاً من init → applyAppTheme)
+  // لا يمثل تعديلاً حقيقياً من المستخدم، فنُصفِّر الراية هنا حتى لا تمنع
+  // _loadFromFirestore من تطبيق البيانات الحقيقية القادمة من السحابة.
+  _pendingLocalEdit = false;
 
   // Stop any previous listener (e.g. from a prior sign-in this session)
   if (_firestoreUnsubscribe) { _firestoreUnsubscribe(); _firestoreUnsubscribe = null; }
@@ -15948,16 +15957,10 @@ renderWeekly = function() {
 })();
 </script>
 <script>
-  // إزالة أي service worker/كاش قديم كان مسجّل بالغلط من محاولة سابقة (كان يعطّل الحفظ والمزامنة)
-  // هذا موقع عادي فقط، بدون أي تخزين أو تدخل بالطلبات.
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(regs => {
-      regs.forEach(reg => reg.unregister());
-    });
-  }
-  if (window.caches) {
-    caches.keys().then(names => names.forEach(name => caches.delete(name)));
-  }
+  // FIX: أُزيل كود مسح الكاش كلياً — كان يمسح كاش Firestore offline persistence
+  // (IndexedDB وCache API) مما يُفقد البيانات المخزنة محلياً ويمنع المزامنة السليمة.
+  // Firestore تعتمد على هذا الكاش لضمان استمرارية البيانات، مسحه يُعيد ضبط
+  // كل شيء عند كل تحميل للصفحة كأنه أول مرة.
 </script>
 </body>
 </html>
