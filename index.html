@@ -1210,6 +1210,22 @@ body.auth-active {
   opacity: 0 !important;
 }
 
+/* ── Lang switcher inside auth/lock cards ── */
+/* نفس تصميم الشريط العلوي تماماً — يتغير موضعه مع اتجاه اللغة RTL/LTR */
+.auth-lang-switcher {
+  position: absolute;
+  top: 14px;
+  /* RTL (عربي/افتراضي): يسار */
+  inset-inline-start: 14px;
+  /* نفس ألوان وأبعاد .lang-switcher في الشريط العلوي */
+  display: flex;
+  gap: 3px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 3px;
+  z-index: 2;
+}
 .auth-card {
   background: var(--white);
   border: 1px solid var(--border);
@@ -3843,6 +3859,8 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
   .nav-right-divider { display: none !important; }
   .settings-lang-item { display: flex !important; }
   .settings-lang-item .lang-switcher { display: flex !important; }
+  /* استثناء: أظهر lang-switcher في واجهة تسجيل الدخول وواجهة القفل */
+  .auth-lang-switcher { display: flex !important; }
   /* Right side: compact row */
   .nav-right {
     flex: 1; display: flex; align-items: center;
@@ -4597,7 +4615,7 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
 <!-- ===== AUTH OVERLAY (shown when not logged in) ===== -->
 <div id="authOverlay">
   <div class="auth-card">
-    <div class="lang-switcher" style="position:absolute; top:16px; left:16px;">
+    <div class="lang-switcher auth-lang-switcher">
       <button class="lang-opt" id="authLangAr" data-lang="ar" onclick="setLang('ar')">ع</button>
       <button class="lang-opt" id="authLangFr" data-lang="fr" onclick="setLang('fr')">FR</button>
       <button class="lang-opt" id="authLangEn" data-lang="en" onclick="setLang('en')">EN</button>
@@ -4634,7 +4652,7 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
 <!-- ===== ACCESS LOCK OVERLAY (shown when account is not an active subscriber) ===== -->
 <div id="accessLockOverlay">
   <div class="lock-card">
-    <div class="lang-switcher" style="position:absolute; top:16px; left:16px;">
+    <div class="lang-switcher auth-lang-switcher">
       <button class="lang-opt" id="lockLangAr" data-lang="ar" onclick="setLang('ar')">ع</button>
       <button class="lang-opt" id="lockLangFr" data-lang="fr" onclick="setLang('fr')">FR</button>
       <button class="lang-opt" id="lockLangEn" data-lang="en" onclick="setLang('en')">EN</button>
@@ -7337,6 +7355,8 @@ function setLang(lang, _skipSave) {
   updateAchievementsPageText();
   if (typeof renderThemePicker === 'function') { try { renderThemePicker(); } catch(e) {} }
   if (typeof pomoRender === 'function') { try { pomoRender(); } catch(e) {} }
+  // إعادة بناء تحذير In-App Browser لو كان ظاهراً (يقرأ اللغة الجديدة)
+  if (document.getElementById('inapp-warn-overlay')) { _showInAppBrowserWarning(); }
   renderAll();
   // renderAll() just rebuilt the habits table with the new language's labels,
   // which can leave the scroll position wherever the rebuild happened to land.
