@@ -8051,6 +8051,9 @@ let _firestoreUnsubscribe = null;
 // flight, so it doesn't blindly overwrite those fresh local edits with the
 // older data it fetched from the server.
 let _pendingLocalEdit = false;
+// خلال تهيئة التطبيق (init)، أي save() هو لأغراض UI فقط (theme, lang)
+// نمنعه من ضبط _pendingLocalEdit حتى لا يُلغي _loadFromFirestore بيانات السحابة.
+let _appInitializing = true;
 // Every save fully overwrites the cloud document, so if two saves are ever
 // in flight at once (e.g. deleting two tasks back-to-back), nothing stops
 // the network from delivering their responses out of order — the OLDER
@@ -8074,11 +8077,15 @@ function save() {
   const user = window._currentUser;
   if (!user) return;
 
-  // FIX: _pendingLocalEdit=true فقط عند وجود مستخدم مسجل دخوله فعلاً.
-  // init() تستدعي save() (عبر applyAppTheme/applyTheme) قبل تسجيل الدخول،
-  // فلو أُضبط هذا المتغير قبل ذلك سيمنع _loadFromFirestore من تطبيق
-  // بيانات السحابة (يظنّها ستُطغى على تعديل محلي لم يُرسَل بعد).
-  _pendingLocalEdit = true;
+  // FIX: خلال تهيئة التطبيق لا نرسل أي بيانات لـ Firestore — هذه مجرد إعدادات UI
+  // (theme, lang) لا تمثل حالة البيانات الحقيقية التي يجب تزامنها مع السحابة.
+  if (_appInitializing) return;
+
+  // FIX: لا نضبط _pendingLocalEdit خلال تهيئة التطبيق (_appInitializing).
+  // init() تستدعي save() عبر applyTheme/applyAppTheme/setLang — هذه تعديلات UI
+  // وليست تعديلات حقيقية من المستخدم. إذا أطلق Firebase onAuthStateChanged سريعاً
+  // قبل انتهاء init()، كان _pendingLocalEdit يُضبط true فيُتجاهل السحابة كلياً.
+  if (!_appInitializing) _pendingLocalEdit = true;
   const scheduledUid = user.uid;
   clearTimeout(_saveDebounceTimer);
   _saveDebounceTimer = setTimeout(() => {
@@ -8130,6 +8137,8 @@ async function _doFirestoreWrite(expectedUid, _retryCount) {
       _writerId:        _sessionId,
     });
     _pendingLocalEdit = false;
+    // أبلغ المستمع بوقت آخر كتابة ناجحة من هذا الجهاز
+    if (typeof window._notifyLocalWrite === 'function') window._notifyLocalWrite();
   } catch(e) {
     // Log full diagnostics — the Firestore error `code` (e.g. "unavailable",
     // "permission-denied", "resource-exhausted", "invalid-argument") tells
@@ -8217,24 +8226,27 @@ window.addEventListener('offline', () => {
 });
 
 function _applyFirestoreData(d) {
-  if (d.habits)           habits           = d.habits;
-  if (d.checks)           checks           = d.checks;
-  if (d.moodData)         moodData         = d.moodData;
-  if (d.waterData)        waterData        = d.waterData;
-  if (d.sleepData)        sleepData        = d.sleepData;
-  if (d.thoughtsData)     thoughtsData     = d.thoughtsData;
-  if (d.weeklyTasks)      weeklyTasks      = d.weeklyTasks;
-  if (d.gymSchedule)      gymSchedule      = d.gymSchedule;
-  if (d.gymExercises)     gymExercises     = d.gymExercises;
-  if (d.gymLogs)          gymLogs          = d.gymLogs;
-  if (d.quickTasks)       quickTasks       = d.quickTasks;
-  if (d.journalEntries)   journalEntries   = d.journalEntries;
-  if (d.bodyWeightData)   bodyWeightData   = d.bodyWeightData;
-  if (d.workoutNotesData) workoutNotesData = d.workoutNotesData;
-  if (d.bmiSavedData)     bmiSavedData     = d.bmiSavedData;
-  if (d.measurementsData) measurementsData = d.measurementsData;
-  if (d.nutritionData)    nutritionData    = d.nutritionData;
-  if (d.gamification)     gamification     = Object.assign({ xp: 0, unlockedBadges: [] }, d.gamification);
+  // FIX: استخدام 'in' بدلاً من if(d.x) — حتى نطبّق المصفوفات الفارغة []
+  // والكائنات الفارغة {} عند حذف كل العناصر (مثل حذف جميع المهام السريعة).
+  // if(d.quickTasks) كان يتجاهل [] لأن المصفوفة الفارغة تُعتبر falsy في JS.
+  if ('habits'           in d && d.habits !== null)           habits           = d.habits;
+  if ('checks'           in d && d.checks !== null)           checks           = d.checks;
+  if ('moodData'         in d && d.moodData !== null)         moodData         = d.moodData;
+  if ('waterData'        in d && d.waterData !== null)        waterData        = d.waterData;
+  if ('sleepData'        in d && d.sleepData !== null)        sleepData        = d.sleepData;
+  if ('thoughtsData'     in d && d.thoughtsData !== null)     thoughtsData     = d.thoughtsData;
+  if ('weeklyTasks'      in d && d.weeklyTasks !== null)      weeklyTasks      = d.weeklyTasks;
+  if ('gymSchedule'      in d && d.gymSchedule !== null)      gymSchedule      = d.gymSchedule;
+  if ('gymExercises'     in d && d.gymExercises !== null)     gymExercises     = d.gymExercises;
+  if ('gymLogs'          in d && d.gymLogs !== null)          gymLogs          = d.gymLogs;
+  if ('quickTasks'       in d && d.quickTasks !== null)       quickTasks       = d.quickTasks;
+  if ('journalEntries'   in d && d.journalEntries !== null)   journalEntries   = d.journalEntries;
+  if ('bodyWeightData'   in d && d.bodyWeightData !== null)   bodyWeightData   = d.bodyWeightData;
+  if ('workoutNotesData' in d && d.workoutNotesData !== null) workoutNotesData = d.workoutNotesData;
+  if ('bmiSavedData'     in d && d.bmiSavedData !== null)     bmiSavedData     = d.bmiSavedData;
+  if ('measurementsData' in d && d.measurementsData !== null) measurementsData = d.measurementsData;
+  if ('nutritionData'    in d && d.nutritionData !== null)    nutritionData    = d.nutritionData;
+  if ('gamification'     in d && d.gamification !== null)     gamification     = Object.assign({ xp: 0, unlockedBadges: [] }, d.gamification);
 }
 
 // Real-time sync: listens to the user's Firestore document continuously,
@@ -8327,57 +8339,62 @@ async function _loadFromFirestore(user, _retryCount) {
   // If serverCheckFailed: don't render defaults — wait for the realtime
   // listener below to bring in real data from cache/server.
 
-  // Step 2 — attach the realtime listener for ongoing sync. Existence was
-  // already resolved above, so this listener never re-seeds or re-writes
-  // defaults on its own; a "does not exist" reading in here (which can
-  // only really happen from a stale cache callback) is just ignored.
+  // Step 2 — مستمع الوقت الحقيقي للتزامن الفوري بين الأجهزة
+  // المبدأ: أي تحديث قادم من جهاز آخر يُطبَّق فوراً بلا استثناء.
+  // الاستثناء الوحيد: snapshot كتبه هذا الجهاز نفسه خلال آخر 3 ثوانٍ
+  // (لمنع إعادة الرسم غير الضرورية التي تُعطّل الكتابة النشطة).
   let isFirstSnapshot = true;
+  let _lastLocalWriteTime = 0; // وقت آخر كتابة من هذا الجهاز
+
   _firestoreUnsubscribe = window._fbOnSnapshot(docRef, (snap) => {
     try {
-      if (snap.exists()) {
-        const d = snap.data();
-        // Skip re-applying data that THIS tab just wrote itself — it's already
-        // reflected locally, and re-rendering would disrupt active typing.
-        if (isFirstSnapshot || d._writerId !== _sessionId) {
-          // FIX (Telegram Android): snapshot قديم يطغى على تعديل محلي
-          // تلغرام يطلق visibilitychange فيجلب بيانات قديمة تمسح الشاك / المهمة.
-          if (!isFirstSnapshot && (_pendingLocalEdit || _saveDebounceTimer !== null)) {
-            console.warn('[Sync] Snapshot ignored - local edit in flight, local wins.');
-            isFirstSnapshot = false;
-            return;
-          }
-          const _before = JSON.stringify({ habits, checks, weeklyTasks });
-          _applyFirestoreData(d);
-          const _after = JSON.stringify({ habits, checks, weeklyTasks });
-          if (isFirstSnapshot || _before !== _after) {
-            // FIX: re-apply saved language before rendering to prevent reset to Arabic
-            try { setLang(settings.lang || currentLang || 'ar'); } catch(e) {}
-            try { renderAll(); } catch(e) { console.error('renderAll error:', e); }
-            try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
-            try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
-            try { renderThoughtNotes(); } catch(e) {}
-          }
-          if (isFirstSnapshot && typeof window._revealApp === 'function') window._revealApp();
-        }
+      if (!snap.exists()) {
+        isFirstSnapshot = false;
+        return;
       }
-      // No "else" branch: a missing doc on a later snapshot is never
-      // treated as a reason to seed or write defaults. That decision is
-      // made exactly once, above, from a confirmed server read.
+      const d = snap.data();
+      const fromThisDevice = (d._writerId === _sessionId);
+      const timeSinceLocalWrite = Date.now() - _lastLocalWriteTime;
+
+      // تجاهل فقط إذا كتبه هذا الجهاز نفسه منذ أقل من 3 ثوانٍ
+      // (البيانات مطبقة محلياً بالفعل، إعادة التطبيق تُعطّل الكتابة النشطة)
+      if (!isFirstSnapshot && fromThisDevice && timeSinceLocalWrite < 3000) {
+        isFirstSnapshot = false;
+        return;
+      }
+
+      // كل حالة أخرى = طبّق البيانات فوراً (جهاز آخر، أو أول تحميل)
+      const _before = JSON.stringify({ habits, checks, weeklyTasks, quickTasks });
+      _applyFirestoreData(d);
+      const _after = JSON.stringify({ habits, checks, weeklyTasks, quickTasks });
+
+      if (isFirstSnapshot || _before !== _after) {
+        // setLang بـ _skipSave=true لمنع استدعاء save() داخل المستمع
+        // (save() → _pendingLocalEdit=true → يتجاهل snapshots لاحقة)
+        try { setLang(settings.lang || currentLang || 'ar', true); } catch(e) {}
+        try { renderAll(); } catch(e) { console.error('renderAll error:', e); }
+        try { renderQuickTasks(); } catch(e) { console.error('renderQuickTasks error:', e); }
+        try { updateQuickTasksText(); } catch(e) { console.error('updateQuickTasksText error:', e); }
+        try { renderThoughtNotes(); } catch(e) {}
+      }
+      if (isFirstSnapshot && typeof window._revealApp === 'function') window._revealApp();
+
     } catch(e) {
       console.error('Firestore snapshot apply error:', e);
     }
     isFirstSnapshot = false;
   }, (e) => {
     console.error('Firestore listen error:', e);
-    // Transient failures right after a fresh sign-in (token not fully
-    // propagated yet) usually resolve themselves a moment later — retry
-    // a few times automatically instead of requiring a manual refresh.
     if (_retryCount < 3 && window._currentUser && window._currentUser.uid === user.uid) {
       setTimeout(() => _loadFromFirestore(user, _retryCount + 1), 1000 * (_retryCount + 1));
     } else {
       showToast(t('cloudLoadFail'));
     }
   });
+
+  // احفظ وقت كل كتابة ناجحة من هذا الجهاز لصالح المستمع أعلاه
+  const _origSaveQueue_ref = () => _lastLocalWriteTime = Date.now();
+  window._notifyLocalWrite = _origSaveQueue_ref;
 
   if (serverCheckFailed) {
     // Let the person know we're showing cached/local data and haven't
@@ -12314,7 +12331,9 @@ function init() {
   applyStickyTableHeaderSetting();
   applyStickyTopnavSetting();
   const savedLang = settings.lang || 'ar';
-  setLang(savedLang);
+  // FIX: _skipSave=true لمنع save() المبكر — إذا أطلق Firebase onAuthStateChanged
+  // قبل انتهاء init()، يُضبط _pendingLocalEdit=true فتُتجاهل بيانات السحابة كلياً.
+  setLang(savedLang, true);
   // Data will be loaded after auth
 
   // Ensure the first active page is visible once _revealApp fires
@@ -12339,6 +12358,10 @@ function init() {
   // Sign-in starts disabled until Firebase finishes connecting, so a click
   // during that brief window can't silently fail (see _refreshSignInAvailability).
   _refreshSignInAvailability();
+
+  // FIX: انتهت التهيئة — الآن أي save() هو تعديل حقيقي من المستخدم ويُضبط _pendingLocalEdit.
+  // نستخدم setTimeout(0) للتأكد من أن applyTheme/applyAppTheme/setLang انتهت كلياً.
+  setTimeout(() => { _appInitializing = false; }, 0);
 
   // Detect file:// protocol and warn user
   if (location.protocol === 'file:') {
