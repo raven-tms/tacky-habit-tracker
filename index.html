@@ -1779,8 +1779,9 @@ body.auth-active {
 }
 .page.active {
   display: block;
-  opacity: 1;
+  opacity: 0;
   pointer-events: auto;
+  transition: opacity 0.18s ease;
 }
 .page.page-visible {
   opacity: 1;
@@ -8260,7 +8261,13 @@ window._revealApp = (function() {
       sk.classList.add('hiding');
       setTimeout(() => sk.classList.add('hidden'), 380);
     }
-    // الصفحة النشطة تظهر مباشرة عبر CSS — لا حاجة لـ RAF
+    // Animate the current visible page in
+    const activePage = document.querySelector('.page.active');
+    if (activePage) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => activePage.classList.add('page-visible'));
+      });
+    }
   };
 })();
 
@@ -9522,7 +9529,7 @@ function showPage(p) {
   if (_pageTransRafId)    { cancelAnimationFrame(_pageTransRafId); _pageTransRafId = null; }
 
   const nextEl = document.getElementById('page-' + p);
-  if (!nextEl) return;
+  if (!nextEl) return; // FIX: تحقق أولاً قبل إخفاء أي شيء
 
   // ── Update state & nav ───────────────────────────────────────────────────
   currentPage = p;
@@ -9536,21 +9543,21 @@ function showPage(p) {
   if (p === 'tracker') _tableScrolledOnce = false;
   if (p === 'mood') _moodGridScrolledOnce = false;
 
-  // ── 🔥 FIX: أظهر الصفحة أولاً قبل الرسم ──────────────────────────────
+  // ── Render content BEFORE showing ───────────────────────────────────────
+  try { renderAll(p); } catch(e) { console.error('showPage renderAll:', e); }
+
+  // ── FIX: أخفِ الصفحات الأخرى فقط بعد التحقق من وجود الصفحة المستهدفة ─
+  // هذا يمنع حالة "كل شيء مخفي" إذا أُعيد الاستدعاء بسرعة أو فشل شيء ما.
   document.querySelectorAll('.page').forEach(el => {
     if (el !== nextEl) {
       el.classList.remove('active', 'page-visible', 'slide-from-left', 'slide-from-right');
     }
   });
 
+  // ── إظهار الصفحة المستهدفة فوراً بدون تأخير ────────────────────────────
+  // FIX: نضيف active + page-visible في نفس الوقت لمنع وميض opacity:0
   nextEl.classList.remove('slide-from-left', 'slide-from-right');
   nextEl.classList.add('active', 'page-visible');
-
-  // ── 🔥 FIX: ثم أعد رسم المحتوى (بعد أن أصبحت الصفحة ظاهرة) ────────────
-  // استخدم requestAnimationFrame لضمان أن DOM جاهز قبل الرسم
-  requestAnimationFrame(() => {
-    try { renderAll(p); } catch(e) { console.error('showPage renderAll:', e); }
-  });
 }
 
 function changeMonth(d) {
@@ -13720,7 +13727,9 @@ function init() {
   setLang(savedLang, true);
   // Data will be loaded after auth
 
-  // NOTE: لا نُزيل page-visible من الصفحة الأولى — الـ CSS يعرضها مباشرة
+  // Ensure the first active page is visible once _revealApp fires
+  const firstPage = document.querySelector('.page.active');
+  if (firstPage) firstPage.classList.remove('page-visible');
 
   // Safety: if skeleton is still showing after 6 seconds (slow network /
   // Firebase not responding), hide it so the user isn't stuck on a blank screen.
@@ -13732,7 +13741,8 @@ function init() {
     if (typeof applyStickyTopnavSetting === 'function') applyStickyTopnavSetting();
       sk.classList.add('hiding');
       setTimeout(() => sk.classList.add('hidden'), 380);
-      // الصفحة النشطة تظهر مباشرة عبر CSS
+      const ap = document.querySelector('.page.active');
+      if (ap) { requestAnimationFrame(() => requestAnimationFrame(() => ap.classList.add('page-visible'))); }
     }
   }, 6000);
 
@@ -17491,7 +17501,7 @@ window.pomoRender = function pomoRender() {
 
     <!-- Note: لا نضعها هنا — تُبنى مرة واحدة وتُحدَّث بشكل منفصل لمنع إعادة رسمها -->
     <div id="pomo-note-container"></div>
-  \`;
+  `;
 
   // FIX: ملاحظة الجلسة — نبنيها مرة واحدة فقط، وبعدها نحدّث النص فقط بدون
   // إعادة رسم الـ textarea (حتى لا يتحرك المؤشر لبداية النص عند كل render)
