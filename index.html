@@ -9525,20 +9525,11 @@ let _pageTransRafId   = null;         // cancelAnimationFrame handle
 
 function showPage(p) {
   // ── Cancel any in-flight transition immediately ──────────────────────────
-  // Clear pending timers/rAFs from the previous call so they can never
-  // interfere with this new navigation.
   if (_pageTransTimerId)  { clearTimeout(_pageTransTimerId);  _pageTransTimerId  = null; }
   if (_pageTransRafId)    { cancelAnimationFrame(_pageTransRafId); _pageTransRafId = null; }
 
-  // ── Always hide ALL pages, show only the target ──────────────────────────
-  // This is the nuclear option that guarantees no page is ever left in a
-  // half-visible / contradictory state regardless of how fast the user taps.
-  document.querySelectorAll('.page').forEach(el => {
-    el.classList.remove('active', 'page-visible', 'slide-from-left', 'slide-from-right');
-  });
-
   const nextEl = document.getElementById('page-' + p);
-  if (!nextEl) return;
+  if (!nextEl) return; // FIX: تحقق أولاً قبل إخفاء أي شيء
 
   // ── Update state & nav ───────────────────────────────────────────────────
   currentPage = p;
@@ -9549,33 +9540,24 @@ function showPage(p) {
   const bBtn = document.querySelector(`.bottom-nav-btn[data-page="${p}"]`);
   if (bBtn) _syncBottomNav(bBtn);
 
-  // Force a fresh re-center on today's column every time this tab is opened —
-  // not just on the very first visit of the session. This is what makes the
-  // behavior match Android: today always ends up in the middle whenever you
-  // come back to look at these tables, even days later.
   if (p === 'tracker') _tableScrolledOnce = false;
   if (p === 'mood') _moodGridScrolledOnce = false;
 
-  // ── Render content synchronously FIRST ──────────────────────────────────
-  // Content must exist before we reveal the page — this eliminates the blank
-  // flash entirely. renderAll is fast enough (< 16 ms on typical data sets).
+  // ── Render content BEFORE showing ───────────────────────────────────────
   try { renderAll(p); } catch(e) { console.error('showPage renderAll:', e); }
 
-  // ── Show the page with a lightweight fade ────────────────────────────────
-  // .active sets display:block + opacity:0; one rAF later we add .page-visible
-  // which CSS transitions to opacity:1. Using a single rAF (not double) keeps
-  // the animation tight while still letting the browser paint the initial state.
-  nextEl.classList.add('active');
-  _pageTransRafId = requestAnimationFrame(() => {
-    _pageTransRafId = null;
-    nextEl.classList.add('page-visible');
+  // ── FIX: أخفِ الصفحات الأخرى فقط بعد التحقق من وجود الصفحة المستهدفة ─
+  // هذا يمنع حالة "كل شيء مخفي" إذا أُعيد الاستدعاء بسرعة أو فشل شيء ما.
+  document.querySelectorAll('.page').forEach(el => {
+    if (el !== nextEl) {
+      el.classList.remove('active', 'page-visible', 'slide-from-left', 'slide-from-right');
+    }
   });
 
-  // ── Belt-and-suspenders: force visible after 200 ms no matter what ───────
-  _pageTransTimerId = setTimeout(() => {
-    _pageTransTimerId = null;
-    nextEl.classList.add('active', 'page-visible');
-  }, 200);
+  // ── إظهار الصفحة المستهدفة فوراً بدون تأخير ────────────────────────────
+  // FIX: نضيف active + page-visible في نفس الوقت لمنع وميض opacity:0
+  nextEl.classList.remove('slide-from-left', 'slide-from-right');
+  nextEl.classList.add('active', 'page-visible');
 }
 
 function changeMonth(d) {
