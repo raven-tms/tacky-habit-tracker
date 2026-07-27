@@ -2197,21 +2197,21 @@ table { border-collapse: collapse; min-width: 100%; }
 .quick-tasks-section {
   position: relative;
   margin-bottom: 28px;
-  background: linear-gradient(160deg, rgba(139,92,246,0.08), rgba(109,40,217,0.02) 65%, transparent);
-  border: 1px solid rgba(139,92,246,0.16);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--blue-500) 8%, transparent), rgba(109,40,217,0.02) 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--blue-500) 16%, transparent);
   border-radius: 24px;
   padding: 22px 20px 20px;
   box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 24px 54px -26px rgba(109,40,217,0.32), var(--shadow-sm);
   overflow: hidden;
 }
 [data-theme="dark"] .quick-tasks-section {
-  background: linear-gradient(160deg, rgba(139,92,246,0.12), rgba(109,40,217,0.03) 65%, transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--blue-500) 12%, transparent), rgba(109,40,217,0.03) 65%, transparent);
   box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 24px 54px -26px rgba(0,0,0,0.55), var(--shadow-sm);
 }
 .quick-tasks-section::after {
   content: ''; position: absolute; top: -60px; inset-inline-end: -60px;
   width: 200px; height: 200px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(139,92,246,0.18), transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--blue-500) 18%, transparent), transparent 70%);
   pointer-events: none;
 }
 .quick-tasks-header {
@@ -2224,18 +2224,18 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .quick-tasks-title-icon {
   width: 44px; height: 44px; border-radius: 14px;
-  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  background: linear-gradient(135deg, var(--blue-400), var(--blue-500));
   display: flex; align-items: center; justify-content: center;
   font-size: 1.2rem;
-  box-shadow: 0 6px 18px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--blue-500) 40%, transparent), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 .quick-tasks-title-text { font-size: 1.02rem; font-weight: 800; color: var(--text); }
 .quick-tasks-title-sub { font-size: 0.72rem; color: var(--text-3); font-weight: 500; margin-top: 1px; }
 .quick-tasks-count-badge {
-  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  background: linear-gradient(135deg, var(--blue-400), var(--blue-500));
   color: white; border-radius: 99px; padding: 4px 13px;
   font-size: 0.75rem; font-weight: 800; font-family: 'JetBrains Mono', monospace;
-  box-shadow: 0 4px 12px rgba(124,58,237,0.38), inset 0 1px 0 rgba(255,255,255,0.25);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--blue-500) 38%, transparent), inset 0 1px 0 rgba(255,255,255,0.25);
 }
 .qt-add-row {
   position: relative; z-index: 1;
@@ -2244,7 +2244,7 @@ table { border-collapse: collapse; min-width: 100%; }
 .qt-input {
   flex: 1; min-width: 0;
   background: var(--white);
-  border: 1.5px solid rgba(139,92,246,0.2);
+  border: 1.5px solid color-mix(in srgb, var(--blue-500) 20%, transparent);
   border-radius: 13px;
   color: var(--text);
   padding: 11px 18px;
@@ -2255,23 +2255,23 @@ table { border-collapse: collapse; min-width: 100%; }
   transition: var(--transition);
 }
 .qt-input:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139,92,246,0.14);
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue-500) 14%, transparent);
 }
 .qt-input::placeholder { color: var(--text-3); }
 .qt-add-btn {
-  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  background: linear-gradient(135deg, var(--blue-400), var(--blue-500));
   color: white; border: none;
   border-radius: 13px;
   padding: 11px 22px;
   font-family: 'Tajawal', sans-serif;
   font-weight: 700; font-size: 0.92rem;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--blue-500) 40%, transparent), inset 0 1px 0 rgba(255,255,255,0.25);
   transition: var(--transition); white-space: nowrap; flex-shrink: 0;
   display: flex; align-items: center; gap: 6px;
 }
-.qt-add-btn:hover { box-shadow: 0 8px 24px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.25); transform: translateY(-1px); }
+.qt-add-btn:hover { box-shadow: 0 8px 24px color-mix(in srgb, var(--blue-500) 55%, transparent), inset 0 1px 0 rgba(255,255,255,0.25); transform: translateY(-1px); }
 .qt-add-btn:active { transform: translateY(0); }
 
 .qt-filters {
@@ -2285,8 +2285,8 @@ table { border-collapse: collapse; min-width: 100%; }
   font-family: 'Tajawal', sans-serif; font-size: 0.78rem; font-weight: 700;
   cursor: pointer; transition: var(--transition);
 }
-.qt-filter-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
-.qt-filter-btn.active { background: linear-gradient(135deg, #a78bfa, #7c3aed); border-color: transparent; color: white; box-shadow: 0 3px 10px rgba(124,58,237,0.35); }
+.qt-filter-btn:hover { border-color: var(--blue-500); color: var(--blue-500); }
+.qt-filter-btn.active { background: linear-gradient(135deg, var(--blue-400), var(--blue-500)); border-color: transparent; color: white; box-shadow: 0 3px 10px color-mix(in srgb, var(--blue-500) 35%, transparent); }
 
 .qt-list {
   position: relative; z-index: 1;
@@ -2294,7 +2294,7 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .qt-item {
   display: flex; align-items: center; gap: 10px;
-  background: linear-gradient(160deg, var(--white), rgba(139,92,246,0.02));
+  background: linear-gradient(160deg, var(--white), color-mix(in srgb, var(--blue-500) 2%, transparent));
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 11px 14px;
@@ -2308,11 +2308,11 @@ table { border-collapse: collapse; min-width: 100%; }
   content: '';
   position: absolute; inset-inline-end: 0; top: 0; bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #a78bfa, #7c3aed);
+  background: linear-gradient(180deg, var(--blue-400), var(--blue-500));
   border-start-end-radius: 16px; border-end-end-radius: 16px;
   transition: var(--transition);
 }
-.qt-item:hover { box-shadow: 0 12px 30px -16px rgba(124,58,237,0.4), var(--shadow); transform: translateY(-2px); border-color: rgba(139,92,246,0.35); }
+.qt-item:hover { box-shadow: 0 12px 30px -16px color-mix(in srgb, var(--blue-500) 40%, transparent), var(--shadow); transform: translateY(-2px); border-color: color-mix(in srgb, var(--blue-500) 35%, transparent); }
 .qt-item.done-item {
   opacity: 0.7;
   background: var(--bg);
@@ -2330,7 +2330,7 @@ table { border-collapse: collapse; min-width: 100%; }
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
   transition: background 0.15s cubic-bezier(0.4,0,0.2,1), border-color 0.15s cubic-bezier(0.4,0,0.2,1), box-shadow 0.15s cubic-bezier(0.4,0,0.2,1), color 0.15s cubic-bezier(0.4,0,0.2,1);
 }
-.qt-item:hover .qt-checkbox { border-color: #8b5cf6; }
+.qt-item:hover .qt-checkbox { border-color: var(--blue-500); }
 .qt-checkbox.checked {
   background: linear-gradient(135deg, var(--green), #16a34a);
   border-color: var(--green); color: white;
@@ -2376,8 +2376,8 @@ table { border-collapse: collapse; min-width: 100%; }
 
 .qt-empty {
   text-align: center; padding: 40px 20px;
-  background: linear-gradient(160deg, var(--white), rgba(139,92,246,0.04));
-  border: 2px dashed rgba(139,92,246,0.28);
+  background: linear-gradient(160deg, var(--white), color-mix(in srgb, var(--blue-500) 4%, transparent));
+  border: 2px dashed color-mix(in srgb, var(--blue-500) 28%, transparent);
   border-radius: 18px;
   position: relative; z-index: 1;
 }
@@ -2391,7 +2391,7 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .qt-progress-bar-fill {
   height: 100%; border-radius: 99px;
-  background: linear-gradient(90deg, #8b5cf6, var(--green));
+  background: linear-gradient(90deg, var(--blue-500), var(--green));
   transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
 }
 .qt-progress-text {
@@ -2424,7 +2424,7 @@ table { border-collapse: collapse; min-width: 100%; }
   font-size: 0.65rem; transition: var(--transition); flex-shrink: 0;
   padding: 0; line-height: 1;
 }
-.qt-move-btn:hover:not(:disabled) { background: rgba(139,92,246,0.12); color: #8b5cf6; border-radius: 5px; }
+.qt-move-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--blue-500) 12%, transparent); color: var(--blue-500); border-radius: 5px; }
 .qt-move-btn:disabled { opacity: 0.15; cursor: default; }
 
 .qt-edit-btn {
@@ -2440,14 +2440,14 @@ table { border-collapse: collapse; min-width: 100%; }
 .qt-inline-edit {
   flex: 1; min-width: 0;
   background: var(--bg);
-  border: 1.5px solid #8b5cf6;
+  border: 1.5px solid var(--blue-500);
   border-radius: 8px;
   color: var(--text);
   padding: 4px 10px;
   font-family: 'Tajawal', sans-serif;
   font-size: 0.9rem;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue-500) 12%, transparent);
 }
 
 /* ===== TICKTICK PRIORITY STYLES — ENHANCED ===== */
@@ -2476,7 +2476,7 @@ table { border-collapse: collapse; min-width: 100%; }
   background: linear-gradient(130deg, rgba(34,197,94,0.08) 0%, rgba(34,197,94,0.02) 40%, transparent 70%) !important;
   box-shadow: 0 2px 12px rgba(34,197,94,0.10), var(--shadow-sm) !important;
 }
-.qt-item.prio-none { border-right: 3px solid rgba(139,92,246,0.2) !important; }
+.qt-item.prio-none { border-right: 3px solid color-mix(in srgb, var(--blue-500) 20%, transparent) !important; }
 
 .qt-item.prio-high::before { background: linear-gradient(180deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%) !important; width:5px !important; }
 .qt-item.prio-med::before  { background: linear-gradient(180deg, #f97316 0%, #ea580c 50%, #c2410c 100%) !important; width:5px !important; }
@@ -2747,8 +2747,8 @@ table { border-collapse: collapse; min-width: 100%; }
   font-family: 'Tajawal', sans-serif; font-size: 0.7rem; font-weight: 700;
   cursor: pointer; transition: var(--transition);
 }
-.qt-sort-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
-.qt-sort-btn.active { background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-color: transparent; color: white; box-shadow: 0 2px 8px rgba(124,58,237,0.35); }
+.qt-sort-btn:hover { border-color: var(--blue-500); color: var(--blue-500); }
+.qt-sort-btn.active { background: linear-gradient(135deg, var(--blue-400), var(--blue-500)); border-color: transparent; color: white; box-shadow: 0 2px 8px color-mix(in srgb, var(--blue-500) 35%, transparent); }
 
 /* Add task expanded row */
 .qt-add-expanded {
@@ -2773,7 +2773,7 @@ table { border-collapse: collapse; min-width: 100%; }
   font-family: 'Tajawal', sans-serif; font-size: 0.75rem; font-weight: 700;
   color: var(--text-2); transition: all 0.2s;
 }
-.qt-add-prio-btn:hover { border-color: #8b5cf6; }
+.qt-add-prio-btn:hover { border-color: var(--blue-500); }
 .qt-add-prio-btn.sel-high { border-color: #ef4444; background: #fee2e2; color: #dc2626; }
 .qt-add-prio-btn.sel-med  { border-color: #f97316; background: #ffedd5; color: #c2410c; }
 .qt-add-prio-btn.sel-low  { border-color: #22c55e; background: #dcfce7; color: #15803d; }
@@ -3155,18 +3155,18 @@ table { border-collapse: collapse; min-width: 100%; }
   font-family: inherit;
 }
 .habit-row:hover .habit-reorder-btn { opacity: 1; }
-.habit-reorder-btn:hover, .habit-reorder-btn:active { color: #8b5cf6; opacity: 1; }
+.habit-reorder-btn:hover, .habit-reorder-btn:active { color: var(--blue-500); opacity: 1; }
 /* إظهار مقبض السحب عند تمرير الفأرة فوق العنصر (سطح المكتب) — كان مخفياً دائماً بسبب opacity:0 بلا شرط hover */
 .qt-item:hover .drag-handle, .task-item:hover .drag-handle { opacity: 1; }
-.qt-item.drag-over { border: 2px dashed #8b5cf6; background: rgba(139,92,246,0.06); border-radius: 16px; }
+.qt-item.drag-over { border: 2px dashed var(--blue-500); background: color-mix(in srgb, var(--blue-500) 6%, transparent); border-radius: 16px; }
 .task-item.drag-over { border: 2px dashed var(--blue-400); background: var(--blue-50); border-radius: 6px; }
 .qt-item.dragging { opacity: 0.4; }
 .task-item.dragging { opacity: 0.4; }
 .habit-row.dragging { opacity: 0.4; }
 .habit-row.drag-over-touch td { background: var(--blue-50) !important; }
-[data-theme="dark"] .habit-row.drag-over-touch td { background: rgba(139,92,246,0.15) !important; }
-.habit-row.drag-over td { background: var(--blue-50) !important; box-shadow: inset 0 2px 0 #8b5cf6; }
-[data-theme="dark"] .habit-row.drag-over td { background: rgba(139,92,246,0.15) !important; }
+[data-theme="dark"] .habit-row.drag-over-touch td { background: color-mix(in srgb, var(--blue-500) 15%, transparent) !important; }
+.habit-row.drag-over td { background: var(--blue-50) !important; box-shadow: inset 0 2px 0 var(--blue-500); }
+[data-theme="dark"] .habit-row.drag-over td { background: color-mix(in srgb, var(--blue-500) 15%, transparent) !important; }
 
 /* ===== EMOJI PICKER ===== */
 .emoji-popup {
@@ -4691,7 +4691,7 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
   .drag-handle { opacity: 1 !important; font-size: 1.05rem; padding: 6px 5px; color: var(--text-3); touch-action: none; cursor: grab; flex-shrink: 0; }
   .qt-item .drag-handle, .task-item .drag-handle { opacity: 1 !important; }
   .habit-reorder-btn { opacity: 1 !important; display: flex !important; min-width: 32px; min-height: 32px; padding: 6px 6px; justify-content: center; align-items: center; background: transparent; border-radius: 8px; font-size: 1.2rem !important; transition: background 0.15s, color 0.15s, transform 0.1s; }
-  .habit-reorder-btn:active { background: #8b5cf6 !important; color: #fff !important; transform: scale(1.1); }
+  .habit-reorder-btn:active { background: var(--blue-500) !important; color: #fff !important; transform: scale(1.1); }
   /* مقبض تحكم بعرض عمود اسم العادة */
   .habit-col-resizer {
     position: absolute; top: 0; bottom: 0; left: 0; width: 14px;
@@ -4702,7 +4702,7 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
     content: ''; width: 3px; height: 22px; border-radius: 3px;
     background: var(--border); opacity: 0.8;
   }
-  .habit-col-resizer:active::after { background: #8b5cf6; opacity: 1; }
+  .habit-col-resizer:active::after { background: var(--blue-500); opacity: 1; }
   th.habit-col { position: relative; }
 
   /* ══════════ MOOD PAGE ══════════ */
@@ -5272,8 +5272,8 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
 }
 [data-theme="dark"] .ach-badge-cat-tag { background: var(--catbg-dark); color: var(--cattext-dark); }
 .ach-badges-cat-filter { margin-top: 8px; flex-wrap: wrap; }
-.ach-cat-btn.active { background: #8b5cf6; border-color: #8b5cf6; }
-.ach-cat-btn.active:hover { background: #7c3aed; }
+.ach-cat-btn.active { background: var(--blue-500); border-color: var(--blue-500); }
+.ach-cat-btn.active:hover { background: var(--blue-500); }
 
 /* Heatmap tooltip */
 .hm-tooltip {
@@ -15942,9 +15942,9 @@ function _addTouchDrag(handle, rowSelector, getId, onDrop) {
     g.style.cssText = `
       position:fixed; z-index:99999; opacity:0.95; pointer-events:none;
       display:flex; align-items:center; gap:8px;
-      background:var(--white); border:2px solid #8b5cf6;
+      background:var(--white); border:2px solid var(--blue-500);
       border-radius:14px; padding:10px 16px; font-size:0.85rem; font-weight:700;
-      box-shadow:0 10px 28px -8px rgba(124,58,237,0.5), 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow:0 10px 28px -8px color-mix(in srgb, var(--blue-500) 50%, transparent), 0 4px 12px rgba(0,0,0,0.15);
       max-width:220px; min-width:80px; min-height:22px;
       overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
       font-family:'Tajawal',sans-serif; color:var(--text);
@@ -16151,8 +16151,8 @@ function _hrmOpenMenu(hid, hname) {
       <div style="display:flex;flex-direction:column;gap:9px;">
         <button style="${btnBase}${isFirst ? disabledStyle : ''}background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 6px 18px rgba(59,130,246,0.35);" data-act="up">${tr.up}</button>
         <button style="${btnBase}${isLast ? disabledStyle : ''}background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 6px 18px rgba(59,130,246,0.35);" data-act="down">${tr.down}</button>
-        <button style="${btnBase}${isFirst ? disabledStyle : ''}background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;box-shadow:0 6px 18px rgba(139,92,246,0.35);" data-act="first">${tr.first}</button>
-        <button style="${btnBase}${isLast ? disabledStyle : ''}background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;box-shadow:0 6px 18px rgba(139,92,246,0.35);" data-act="last">${tr.last}</button>
+        <button style="${btnBase}${isFirst ? disabledStyle : ''}background:linear-gradient(135deg,var(--blue-400),var(--blue-500));color:#fff;box-shadow:0 6px 18px color-mix(in srgb, var(--blue-500) 35%, transparent);" data-act="first">${tr.first}</button>
+        <button style="${btnBase}${isLast ? disabledStyle : ''}background:linear-gradient(135deg,var(--blue-400),var(--blue-500));color:#fff;box-shadow:0 6px 18px color-mix(in srgb, var(--blue-500) 35%, transparent);" data-act="last">${tr.last}</button>
         <button style="${btnBase}background:var(--bg-2,#f1f5f9);color:var(--text-2);margin-top:4px;" data-act="cancel">${tr.cancel}</button>
       </div>
     </div>
@@ -18483,51 +18483,7 @@ window.pomoRender = function pomoRender() {
       </div>
     </div>
 
-    <!-- Note: لا نضعها هنا — تُبنى مرة واحدة وتُحدَّث بشكل منفصل لمنع إعادة رسمها -->
-    <div id="pomo-note-container"></div>
   `;
-
-  // FIX: ملاحظة الجلسة — نبنيها مرة واحدة فقط، وبعدها نحدّث النص فقط بدون
-  // إعادة رسم الـ textarea (حتى لا يتحرك المؤشر لبداية النص عند كل render)
-  const noteContainer = document.getElementById('pomo-note-container');
-  if (noteContainer) {
-    const existingArea = document.getElementById('pomoNoteArea');
-    if (!existingArea) {
-      // أول مرة — ابنِ القسم كاملاً
-      noteContainer.innerHTML = `
-        <div class="pomo-note-wrap">
-          <div class="pomo-note-title">${t.noteTitle}</div>
-          <textarea class="pomo-note-area" id="pomoNoteArea" placeholder="${t.notePlaceholder}">${pomoState.currentNote || ''}</textarea>
-          <div class="pomo-note-save-row">
-            <button class="pomo-note-delete-btn" id="pomoNoteDeleteBtn" onclick="pomoDeleteNote()" title="${t.noteDelete}">🗑️</button>
-            <button class="pomo-note-save-btn" id="pomoNoteSaveBtn" onclick="pomoSaveNote()">${t.noteSave}</button>
-          </div>
-        </div>
-      `;
-      // FIX: تمدد تلقائي مع الكتابة
-      const _ta = document.getElementById('pomoNoteArea');
-      if (_ta) {
-        const _autoResize = () => { _ta.style.height = 'auto'; _ta.style.height = _ta.scrollHeight + 'px'; };
-        _ta.addEventListener('input', _autoResize);
-        _autoResize(); // ضبط الارتفاع عند التحميل إذا كان فيه نص مسبق
-      }
-    } else {
-      // الجلسات التالية — حدّث النص فقط إذا تغيّر (بدون مس الـ textarea)
-      // ولا تغيّر قيمة الـ textarea إذا كان المستخدم يكتب فيها الآن
-      const isFocused = (document.activeElement === existingArea);
-      if (!isFocused && existingArea.value !== (pomoState.currentNote || '')) {
-        existingArea.value = pomoState.currentNote || '';
-      }
-      // حدّث النصوص فقط (placeholder وعنوان وزر الحفظ)
-      const titleEl = noteContainer.querySelector('.pomo-note-title');
-      if (titleEl) titleEl.textContent = t.noteTitle;
-      existingArea.placeholder = t.notePlaceholder;
-      const saveBtn = document.getElementById('pomoNoteSaveBtn');
-      if (saveBtn && !saveBtn.classList.contains('saved')) saveBtn.textContent = t.noteSave;
-      const delBtn = document.getElementById('pomoNoteDeleteBtn');
-      if (delBtn) delBtn.title = t.noteDelete;
-    }
-  }
 }
 
 /* ---------- INIT ---------- */
