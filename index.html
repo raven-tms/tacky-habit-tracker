@@ -14023,8 +14023,20 @@ function launchConfetti() {
 // =========== QUICK TASKS ===========
 let quickTasks = []; // loaded from Firestore after login
 let journalEntries = []; // loaded from Firestore after login
-let qtFilter = 'all';
-let qtSort   = 'manual'; // manual | prio | due | created
+// ── استعادة الفلتر والترتيب من localStorage ──────────────────────────────
+(function() {
+  try {
+    var saved = localStorage.getItem('tacky_tasks_view');
+    if (saved) {
+      var v = JSON.parse(saved);
+      window._restoredQtFilter = v.filter || 'all';
+      window._restoredQtSort   = v.sort   || 'manual';
+    }
+  } catch(e) {}
+})();
+
+let qtFilter = window._restoredQtFilter || 'all';
+let qtSort   = window._restoredQtSort   || 'manual'; // manual | prio | due | created
 let _qtNewPrio = 'none';
 let _qtNewDate = '';
 let _qtCompletedOpen = true; // completed section collapsed/expanded
@@ -14078,6 +14090,7 @@ function setQtSort(s, btn) {
   qtSort = s;
   document.querySelectorAll('.qt-sort-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  _saveTasksViewState();
   renderQuickTasks();
 }
 
@@ -14221,7 +14234,14 @@ function setQtFilter(filter, btn) {
   qtFilter = filter;
   document.querySelectorAll('.qt-filter-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  _saveTasksViewState();
   renderQuickTasks();
+}
+
+function _saveTasksViewState() {
+  try {
+    localStorage.setItem('tacky_tasks_view', JSON.stringify({ filter: qtFilter, sort: qtSort }));
+  } catch(e) {}
 }
 
 /* ---- Set priority on existing task ---- */
@@ -15824,6 +15844,28 @@ renderQuickTasks = function() {
   setupQtDragDrop();
   if (typeof setupTouchDragDrop === 'function') setupTouchDragDrop();
 };
+
+// ── تطبيق الفلتر والترتيب المحفوظ على الأزرار عند أول تحميل ────────────────
+(function _restoreTasksViewButtons() {
+  function _apply() {
+    // الفلتر
+    var filterBtns = { all:'qtFilterAllBtn', pending:'qtFilterPendingBtn', done:'qtFilterDoneBtn', overdue:'qtFilterOverdueBtn' };
+    Object.values(filterBtns).forEach(function(id){ var b = document.getElementById(id); if(b) b.classList.remove('active'); });
+    var activeFilter = document.getElementById(filterBtns[qtFilter] || 'qtFilterAllBtn');
+    if (activeFilter) activeFilter.classList.add('active');
+
+    // الترتيب
+    var sortBtns = { manual:'qtsortManual', prio:'qtsortPrio', due:'qtsortDue', created:'qtsortCreated' };
+    Object.values(sortBtns).forEach(function(id){ var b = document.getElementById(id); if(b) b.classList.remove('active'); });
+    var activeSort = document.getElementById(sortBtns[qtSort] || 'qtsortManual');
+    if (activeSort) activeSort.classList.add('active');
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _apply);
+  } else {
+    setTimeout(_apply, 0);
+  }
+})();
 
 // =========== DRAG & DROP for Weekly Tasks ===========
 let _wTaskDragW = null;
