@@ -14330,32 +14330,32 @@ function _formatFullDateTime(ts) {
   const dStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const diffDays = Math.round((todayStart - dStart) / 86400000);
 
+  // 🔧 FIX حسب الطلب: بدل "منذ يومين/منذ أسبوع/منذ شهر" الغامضة، من الأمس فما
+  // فوق (أي أي شيء تجاوز الـ 24 ساعة) نعرض التاريخ الفعلي + الساعة دائماً،
+  // بما فيها الأمس نفسها (كانت تعرض الوقت أصلاً — أبقيناها) وأيضاً 2-6 أيام
+  // وأسابيع وأشهر (كانت نصاً نسبياً بدون تاريخ ولا وقت — الآن تعرض تاريخاً حقيقياً + وقت).
+
   // < 1 minute
   if (diffMs < 60000 && diffMs >= 0) return tr.qtRelNow;
   // < 1 hour
   if (diffMin < 60 && diffDays === 0) return tr.qtRelMinAgo(diffMin);
   // same day, >= 1 hour
   if (diffDays === 0) return diffHour < 24 ? tr.qtRelHourAgo(diffHour) : tr.qtRelToday(timeStr);
-  // yesterday
+  // yesterday — تاريخ نسبي + الوقت
   if (diffDays === 1) return tr.qtRelYesterday(timeStr);
-  // 2-6 days ago
-  if (diffDays >= 2 && diffDays <= 6) return tr.qtRelDaysAgo(diffDays);
-  // 1-4 weeks ago
-  if (diffDays >= 7 && diffDays <= 30) return tr.qtRelWeekAgo(Math.round(diffDays / 7));
 
-  // Older than a month → show full date
+  // Older than a day (2 days أو أكثر، أسابيع، أشهر...) → التاريخ الفعلي + الوقت دائماً
   const sameYear = d.getFullYear() === now.getFullYear();
   try {
-    if (sameYear) {
-      return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(d);
-    } else {
-      return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
-    }
+    const datePart = sameYear
+      ? new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(d)
+      : new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+    return `${datePart} · ${timeStr}`;
   } catch(e) {
     const dd = String(d.getDate()).padStart(2,'0');
     const mo = String(d.getMonth()+1).padStart(2,'0');
     const yr = sameYear ? '' : `/${d.getFullYear()}`;
-    return `${dd}/${mo}${yr}`;
+    return `${dd}/${mo}${yr} · ${timeStr}`;
   }
 }
 
@@ -14436,7 +14436,10 @@ function renderQuickTasks() {
     const a = [...arr];
     if (qtSort === 'prio') {
       const order = { high:0, med:1, low:2, none:3 };
-      a.sort((x,y) => (order[x.priority||'none']||3) - (order[y.priority||'none']||3));
+      // 🔧 FIX: كانت "order[x.priority]||3" تحوّل قيمة الأولوية العالية (0) إلى 3
+      // لأن 0 قيمة falsy في JS — فتُعامَل "عالية" وكأنها "بلا أولوية" وتنزل للآخر!
+      // الحل: استخدام (order[...] ?? 3) بدل || حتى لا يُستبدَل 0 الصحيح بـ 3.
+      a.sort((x,y) => (order[x.priority||'none'] ?? 3) - (order[y.priority||'none'] ?? 3));
     } else if (qtSort === 'due') {
       a.sort((x,y) => {
         if (!x.dueDate && !y.dueDate) return 0;
