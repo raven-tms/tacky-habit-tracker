@@ -2328,7 +2328,7 @@ table { border-collapse: collapse; min-width: 100%; }
   font-size: 0.82rem; color: transparent;
   background: var(--white);
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
-  transition: var(--transition);
+  transition: background 0.15s cubic-bezier(0.4,0,0.2,1), border-color 0.15s cubic-bezier(0.4,0,0.2,1), box-shadow 0.15s cubic-bezier(0.4,0,0.2,1), color 0.15s cubic-bezier(0.4,0,0.2,1);
 }
 .qt-item:hover .qt-checkbox { border-color: #8b5cf6; }
 .qt-checkbox.checked {
@@ -2414,14 +2414,14 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .qt-move-group {
   display: flex; flex-direction: column; gap: 1px; flex-shrink: 0;
-  opacity: 0.3; transition: opacity 0.2s;
+  opacity: 0.75; transition: opacity 0.2s;
 }
 .qt-item:hover .qt-move-group { opacity: 1; }
 .qt-move-btn {
   width: 22px; height: 20px; border-radius: 5px; border: none;
-  background: transparent; color: var(--text-3);
+  background: transparent; color: var(--text-2);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 0.6rem; transition: var(--transition); flex-shrink: 0;
+  font-size: 0.65rem; transition: var(--transition); flex-shrink: 0;
   padding: 0; line-height: 1;
 }
 .qt-move-btn:hover:not(:disabled) { background: rgba(139,92,246,0.12); color: #8b5cf6; border-radius: 5px; }
@@ -2816,7 +2816,7 @@ table { border-collapse: collapse; min-width: 100%; }
   70%  { transform: scale(0.9); }
   100% { transform: scale(1); }
 }
-.qt-checkbox.checked { animation: checkPop 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+.qt-checkbox.checked { animation: checkPop 0.25s cubic-bezier(0.34,1.56,0.64,1) both; }
 
 /* ===== CELEBRATION OVERLAY ===== */
 #celebrationOverlay {
@@ -3148,15 +3148,17 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 /* زر تغيير الترتيب في جدول العادات — زر عادي بضغطة واحدة، ما يعتمد على سحب أو ضغط مطول */
 .habit-reorder-btn {
-  color: var(--text-3); cursor: pointer; font-size: 1rem;
+  color: var(--text-2); cursor: pointer; font-size: 1.05rem;
   padding: 4px 3px; flex-shrink: 0; user-select: none;
-  opacity: 0.35; transition: opacity 0.18s, color 0.18s, background 0.18s;
+  opacity: 0.85; transition: opacity 0.18s, color 0.18s, background 0.18s;
   display: flex; align-items: center; justify-content: center; line-height: 1;
   letter-spacing: -1px; background: none; border: none; border-radius: 6px;
   font-family: inherit;
 }
-.habit-row:hover .habit-reorder-btn { opacity: 0.7; }
+.habit-row:hover .habit-reorder-btn { opacity: 1; }
 .habit-reorder-btn:hover, .habit-reorder-btn:active { color: #8b5cf6; opacity: 1; }
+/* إظهار مقبض السحب عند تمرير الفأرة فوق العنصر (سطح المكتب) — كان مخفياً دائماً بسبب opacity:0 بلا شرط hover */
+.qt-item:hover .drag-handle, .task-item:hover .drag-handle { opacity: 1; }
 .qt-item.drag-over { border: 2px dashed #8b5cf6; background: rgba(139,92,246,0.06); border-radius: 16px; }
 .task-item.drag-over { border: 2px dashed var(--blue-400); background: var(--blue-50); border-radius: 6px; }
 .qt-item.dragging { opacity: 0.4; }
@@ -3385,21 +3387,21 @@ table { border-collapse: collapse; min-width: 100%; }
   width: 21px; height: 21px; border-radius: 50%; border: 2px solid var(--border);
   flex-shrink: 0; display: flex; align-items: center; justify-content: center;
   background: var(--white); cursor: pointer;
-  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.2s cubic-bezier(.34,1.56,.64,1);
 }
 .task-chk.done {
   background: linear-gradient(135deg, #34d399, #16a34a);
   border-color: transparent;
-  animation: taskChkPop 0.4s cubic-bezier(.34,1.56,.64,1);
+  animation: taskChkPop 0.25s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes taskChkPop {
-  0%   { transform: scale(0.75); }
-  55%  { transform: scale(1.18); }
+  0%   { transform: scale(0.8); }
+  55%  { transform: scale(1.15); }
   100% { transform: scale(1); }
 }
 .task-chk-icon {
   width: 11px; height: 11px; opacity: 0; transform: scale(0.3) translateY(-3px);
-  transition: opacity 0.2s ease 0.05s, transform 0.25s cubic-bezier(.34,1.56,.64,1) 0.05s;
+  transition: opacity 0.15s ease, transform 0.18s cubic-bezier(.34,1.56,.64,1);
 }
 .task-chk.done .task-chk-icon { opacity: 1; transform: scale(1) translateY(0); }
 .task-chk-icon path {
@@ -6985,6 +6987,22 @@ const T = {
     weeklyAnalysisTitle: '📊 تحليل الأسبوع',
     wBarTasks: 'المهام', wBarHabits: 'العادات', wBarGoal: 'الهدف',
     weekNames: ['الأسبوع الأول','الأسبوع الثاني','الأسبوع الثالث','الأسبوع الرابع'],
+    tableMyHabits: 'عاداتي',
+    tableWeekLabel: n => `الأسبوع ${n}`,
+    tableHabitDayCol: 'العادة / اليوم',
+    tableNoHabits: 'لا توجد عادات بعد — أضف عادتك الأولى أعلاه ✨',
+    tableDeleteTitle: 'حذف',
+    tableEditTitle: 'تعديل الاسم',
+    tableReorderTitle: 'تغيير الترتيب',
+    tableNotScheduled: 'غير مجدولة لهذا اليوم',
+    tableRowProgress: 'التقدم',
+    tableRowDone: 'مكتملة ✅',
+    tableRowMissed: 'فائتة ❌',
+    focusStatDone: 'مكتملة',
+    focusStatStreak: 'سلسلة حالية',
+    focusStatMissed: 'فائتة',
+    heatmapLess: 'أقل',
+    heatmapMore: 'أكثر',
     newTaskPlaceholder: 'مهمة جديدة...',
     quoteBannerBtn: 'اقتباس آخر 🔄',
     quotesSuccessTitle: '🏆 اقتباسات النجاح والإنجاز',
@@ -7407,6 +7425,22 @@ const T = {
     weeklyAnalysisTitle: '📊 Analyse de la semaine',
     wBarTasks: 'Tâches', wBarHabits: 'Habitudes', wBarGoal: 'Objectif',
     weekNames: ['Semaine 1','Semaine 2','Semaine 3','Semaine 4'],
+    tableMyHabits: 'Mes habitudes',
+    tableWeekLabel: n => `Semaine ${n}`,
+    tableHabitDayCol: 'Habitude / Jour',
+    tableNoHabits: 'Aucune habitude — ajoutez votre première habitude ci-dessus ✨',
+    tableDeleteTitle: 'Supprimer',
+    tableEditTitle: 'Modifier le nom',
+    tableReorderTitle: "Changer l'ordre",
+    tableNotScheduled: 'Non planifiée pour ce jour',
+    tableRowProgress: 'Progression',
+    tableRowDone: 'Réalisées ✅',
+    tableRowMissed: 'Manquées ❌',
+    focusStatDone: 'Réalisées',
+    focusStatStreak: 'Série actuelle',
+    focusStatMissed: 'Manquées',
+    heatmapLess: 'Moins',
+    heatmapMore: 'Plus',
     newTaskPlaceholder: 'Nouvelle tâche...',
     quoteBannerBtn: 'Autre citation 🔄',
     quotesSuccessTitle: '🏆 Citations sur le succès',
@@ -7830,6 +7864,22 @@ const T = {
     weeklyAnalysisTitle: '📊 Weekly Analysis',
     wBarTasks: 'Tasks', wBarHabits: 'Habits', wBarGoal: 'Goal',
     weekNames: ['Week 1','Week 2','Week 3','Week 4'],
+    tableMyHabits: 'My Habits',
+    tableWeekLabel: n => `Week ${n}`,
+    tableHabitDayCol: 'Habit / Day',
+    tableNoHabits: 'No habits yet — add your first habit above ✨',
+    tableDeleteTitle: 'Delete',
+    tableEditTitle: 'Edit name',
+    tableReorderTitle: 'Reorder',
+    tableNotScheduled: 'Not scheduled for this day',
+    tableRowProgress: 'Progress',
+    tableRowDone: 'Completed ✅',
+    tableRowMissed: 'Missed ❌',
+    focusStatDone: 'Completed',
+    focusStatStreak: 'Current streak',
+    focusStatMissed: 'Missed',
+    heatmapLess: 'Less',
+    heatmapMore: 'More',
     newTaskPlaceholder: 'New task...',
     quoteBannerBtn: 'Another Quote 🔄',
     quotesSuccessTitle: '🏆 Success & Achievement Quotes',
@@ -8240,6 +8290,21 @@ function setLang(lang, _skipSave) {
   if (ab) ab.textContent = tr.addHabitBtn;
   const qb = document.querySelector('#page-tracker .quote-btn');
   if (qb) qb.textContent = tr.quoteBtn;
+  // Donut / Line / Rings / Heatmap titles + legend
+  const donutTitleEl = document.getElementById('donutTitleEl');
+  if (donutTitleEl) donutTitleEl.textContent = tr.donutTitle;
+  const lineTitleEl = document.getElementById('lineTitleEl');
+  if (lineTitleEl) lineTitleEl.textContent = tr.lineTitle;
+  const ringsTitleEl = document.getElementById('ringsTitleEl');
+  if (ringsTitleEl) ringsTitleEl.textContent = tr.ringsTitle;
+  const heatmapTitleEl = document.getElementById('heatmapTitleEl');
+  if (heatmapTitleEl) heatmapTitleEl.textContent = tr.heatmapTitle;
+  const legendDoneTxt = document.getElementById('legendDoneTxt');
+  if (legendDoneTxt) legendDoneTxt.textContent = tr.legendDone;
+  const legendMissTxt = document.getElementById('legendMissTxt');
+  if (legendMissTxt) legendMissTxt.textContent = tr.legendMissed;
+  const legendFutTxt = document.getElementById('legendFutTxt');
+  if (legendFutTxt) legendFutTxt.textContent = tr.legendFuture;
   const ta = document.getElementById('thoughtsArea');
   if (ta) ta.placeholder = tr.thoughtsPlaceholder;
   const stb = document.querySelector('.save-thoughts-btn');
@@ -10898,6 +10963,7 @@ function openFocusRing(habitId) {
   const accent = settings.accent || '#3b82f6';
   const R = 84, C = 2 * Math.PI * R;
   const offset = C - (pct / 100) * C;
+  const tr = T[currentLang] || T.ar;
   const overlay = document.createElement('div');
   overlay.className = 'focus-modal-overlay';
   overlay.id = 'focusRingOverlay';
@@ -10918,9 +10984,9 @@ function openFocusRing(habitId) {
         </div>
       </div>
       <div class="focus-stats-row">
-        <div class="focus-stat"><div class="focus-stat-val">✅ ${done}</div><div class="focus-stat-lbl">مكتملة</div></div>
-        <div class="focus-stat"><div class="focus-stat-val">🔥 ${streak}</div><div class="focus-stat-lbl">سلسلة حالية</div></div>
-        <div class="focus-stat"><div class="focus-stat-val">❌ ${missed}</div><div class="focus-stat-lbl">فائتة</div></div>
+        <div class="focus-stat"><div class="focus-stat-val">✅ ${done}</div><div class="focus-stat-lbl">${tr.focusStatDone}</div></div>
+        <div class="focus-stat"><div class="focus-stat-val">🔥 ${streak}</div><div class="focus-stat-lbl">${tr.focusStatStreak}</div></div>
+        <div class="focus-stat"><div class="focus-stat-val">❌ ${missed}</div><div class="focus-stat-lbl">${tr.focusStatMissed}</div></div>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -10984,13 +11050,13 @@ function renderHeatmaps() {
     </div>`;
   }).join('') + `
     <div class="heatmap-legend">
-      <span>أقل</span>
+      <span>${tr.heatmapLess}</span>
       <div class="heatmap-cell" style="background:var(--border)"></div>
       <div class="heatmap-cell" style="background:${heatmapLevelColor(1)}"></div>
       <div class="heatmap-cell" style="background:${heatmapLevelColor(2)}"></div>
       <div class="heatmap-cell" style="background:${heatmapLevelColor(3)}"></div>
       <div class="heatmap-cell" style="background:${heatmapLevelColor(4)}"></div>
-      <span>أكثر</span>
+      <span>${tr.heatmapMore}</span>
     </div>`;
 }
 
@@ -11159,21 +11225,22 @@ function renderTable() {
   // left), we physically reverse the week/day order and move the sticky
   // habit column to the END of each row instead of the start.
   const isAr = currentLang === 'ar';
+  const tr = T[currentLang] || T.ar;
   const renderGroups = isAr
     ? weekGroups.slice().reverse().map(wg => ({ n: wg.n, days: wg.days.slice().reverse() }))
     : weekGroups;
 
   let html = '';
-  const habitColLabel1 = '<th class="habit-col">' + 'عاداتي' + '</th>';
+  const habitColLabel1 = '<th class="habit-col">' + tr.tableMyHabits + '</th>';
   let weekCellsHtml = '';
   renderGroups.forEach((wg, wi) => {
     const isLast = wi === renderGroups.length - 1;
-    const wkLabel = `الأسبوع ${wg.n}`;
+    const wkLabel = tr.tableWeekLabel(wg.n);
     weekCellsHtml += `<th colspan="${wg.days.length}" class="${WEEK_COLORS[wi]}${isLast ? '' : ' week-sep'}">${wkLabel}</th>`;
   });
   html += '<tr class="week-header-row">' + (isAr ? weekCellsHtml + habitColLabel1 : habitColLabel1 + weekCellsHtml) + '</tr>';
 
-  const habitColLabel2 = '<th class="habit-col" id="habitColHeader">' + 'العادة / اليوم' + '<div class="habit-col-resizer" id="habitColResizer"></div></th>';
+  const habitColLabel2 = '<th class="habit-col" id="habitColHeader">' + tr.tableHabitDayCol + '<div class="habit-col-resizer" id="habitColResizer"></div></th>';
   let dayCellsHtml = '';
   renderGroups.forEach((wg, wi) => {
     const isLastWk = wi === renderGroups.length - 1;
@@ -11186,7 +11253,7 @@ function renderTable() {
   html += '<tr class="daynum-row">' + (isAr ? dayCellsHtml + habitColLabel2 : habitColLabel2 + dayCellsHtml) + '</tr>';
 
   if (habits.length === 0) {
-    html += `<tr><td class="habit-name-cell" colspan="100" style="padding:30px;text-align:center;color:var(--text-3);font-size:0.9rem">لا توجد عادات بعد — أضف عادتك الأولى أعلاه ✨</td></tr>`;
+    html += `<tr><td class="habit-name-cell" colspan="100" style="padding:30px;text-align:center;color:var(--text-3);font-size:0.9rem">${tr.tableNoHabits}</td></tr>`;
   }
 
   habits.forEach((h, hIdx) => {
@@ -11196,9 +11263,9 @@ function renderTable() {
       else break; }
     const nameHtml = `<span class="habit-text" title="${escAttr(h.name)}" ondblclick="startEditHabit(${h.id})">${escAttr(h.name)}</span>`;
     const nameCellHtml = `<td class="habit-name-cell"><div class="habit-name-inner">
-      <button class="del-btn" onclick="deleteHabit(${h.id})" title="حذف">✕</button>
-      <button class="edit-btn" onclick="startEditHabit(${h.id})" title="تعديل الاسم">✎</button>
-      <button type="button" class="habit-reorder-btn" onclick="event.stopPropagation();openHabitReorderMenu(${h.id})" title="تغيير الترتيب">⠿</button>
+      <button class="del-btn" onclick="deleteHabit(${h.id})" title="${tr.tableDeleteTitle}">✕</button>
+      <button class="edit-btn" onclick="startEditHabit(${h.id})" title="${tr.tableEditTitle}">✎</button>
+      <button type="button" class="habit-reorder-btn" onclick="event.stopPropagation();openHabitReorderMenu(${h.id})" title="${tr.tableReorderTitle}">⠿</button>
       ${streak > 1 ? `<span class="streak-mini">🔥${streak}</span>` : ''}${nameHtml}<span class="habit-emoji">${h.emoji}</span></div></td>`;
     let dayCellsRow = '';
     renderGroups.forEach((wg, wi) => {
@@ -11216,7 +11283,7 @@ function renderTable() {
         else if (done) { cls = 'done'; symbol = '✓'; }
         else if (isTodayCell) { cls = ''; symbol = ''; } // still today — no verdict yet, plain empty box
         else { cls = 'missed-day'; symbol = '✕'; } // scheduled, already passed, never checked
-        const title = !scheduled ? 'غير مجدولة لهذا اليوم' : '';
+        const title = !scheduled ? tr.tableNotScheduled : '';
         dayCellsRow += `<td style="${isLastDay && !isLastWk ? 'border-right:2px solid var(--border)' : ''}"><button class="chk ${cls}" ${title ? `title="${title}"` : ''} onclick="${clickable ? 'toggleCheck(' + h.id + ',' + d + ')' : ''}">${symbol}</button></td>`;
       });
     });
@@ -11224,13 +11291,13 @@ function renderTable() {
   });
 
   const rowDefs = [
-    { label: 'التقدم', fn: (d) => { if (isFuture(d)) return '<span style="color:var(--text-3)">—</span>'; let dc = 0, sc = 0;
+    { label: tr.tableRowProgress, fn: (d) => { if (isFuture(d)) return '<span style="color:var(--text-3)">—</span>'; let dc = 0, sc = 0;
       habits.forEach(h => { if (isHabitActiveOn(h, d)) { sc++; if (checks[chkKey(h.id, d)]) dc++; } });
       const pct = sc > 0 ? Math.round(dc / sc * 100) : 0;
       const cl = pct >= 80 ? 'pct-high' : pct >= 50 ? 'pct-mid' : pct > 0 ? 'pct-low' : 'pct-zero'; return `<span class="pct-chip ${cl}">${pct}%</span>`; } },
-    { label: 'مكتملة ✅', fn: (d) => { let dc = 0;
+    { label: tr.tableRowDone, fn: (d) => { let dc = 0;
       habits.forEach(h => { if (isHabitActiveOn(h, d) && checks[chkKey(h.id, d)]) dc++; }); return isFuture(d) ? '<span style="color:var(--text-3)">—</span>' : `<span style="color:var(--green);font-weight:700">${dc}</span>`; } },
-    { label: 'فائتة ❌', fn: (d) => { let dc = 0, sc = 0;
+    { label: tr.tableRowMissed, fn: (d) => { let dc = 0, sc = 0;
       habits.forEach(h => { if (isHabitActiveOn(h, d)) { sc++; if (checks[chkKey(h.id, d)]) dc++; } });
       const nd = sc - dc; return isFuture(d) ? '<span style="color:var(--text-3)">—</span>' : `<span style="color:var(--red);font-weight:700">${nd}</span>`; } },
   ];
