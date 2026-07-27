@@ -9522,7 +9522,7 @@ function showPage(p) {
   if (_pageTransRafId)    { cancelAnimationFrame(_pageTransRafId); _pageTransRafId = null; }
 
   const nextEl = document.getElementById('page-' + p);
-  if (!nextEl) return; // FIX: تحقق أولاً قبل إخفاء أي شيء
+  if (!nextEl) return;
 
   // ── Update state & nav ───────────────────────────────────────────────────
   currentPage = p;
@@ -9536,21 +9536,21 @@ function showPage(p) {
   if (p === 'tracker') _tableScrolledOnce = false;
   if (p === 'mood') _moodGridScrolledOnce = false;
 
-  // ── Render content BEFORE showing ───────────────────────────────────────
-  try { renderAll(p); } catch(e) { console.error('showPage renderAll:', e); }
-
-  // ── FIX: أخفِ الصفحات الأخرى فقط بعد التحقق من وجود الصفحة المستهدفة ─
-  // هذا يمنع حالة "كل شيء مخفي" إذا أُعيد الاستدعاء بسرعة أو فشل شيء ما.
+  // ── 🔥 FIX: أظهر الصفحة أولاً قبل الرسم ──────────────────────────────
   document.querySelectorAll('.page').forEach(el => {
     if (el !== nextEl) {
       el.classList.remove('active', 'page-visible', 'slide-from-left', 'slide-from-right');
     }
   });
 
-  // ── إظهار الصفحة المستهدفة فوراً بدون تأخير ────────────────────────────
-  // FIX: نضيف active + page-visible في نفس الوقت لمنع وميض opacity:0
   nextEl.classList.remove('slide-from-left', 'slide-from-right');
   nextEl.classList.add('active', 'page-visible');
+
+  // ── 🔥 FIX: ثم أعد رسم المحتوى (بعد أن أصبحت الصفحة ظاهرة) ────────────
+  // استخدم requestAnimationFrame لضمان أن DOM جاهز قبل الرسم
+  requestAnimationFrame(() => {
+    try { renderAll(p); } catch(e) { console.error('showPage renderAll:', e); }
+  });
 }
 
 function changeMonth(d) {
