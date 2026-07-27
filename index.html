@@ -2452,46 +2452,84 @@ table { border-collapse: collapse; min-width: 100%; }
 
 /* ===== TICKTICK PRIORITY STYLES ===== */
 @keyframes qtFadeIn {
-  from { opacity:0; transform: translateY(8px) scale(0.98); }
+  from { opacity:0; transform: translateY(10px) scale(0.97); }
   to   { opacity:1; transform: translateY(0) scale(1); }
 }
 @keyframes qtSlideOut {
-  from { opacity:1; transform: translateX(0) scale(1); max-height:80px; margin-bottom:10px; }
+  from { opacity:1; transform: translateX(0) scale(1); max-height:120px; margin-bottom:10px; }
   to   { opacity:0; transform: translateX(-30px) scale(0.95); max-height:0; margin-bottom:0; padding:0; }
 }
 .qt-item.completing {
-  animation: qtSlideOut 0.35s cubic-bezier(0.4,0,0.2,1) forwards !important;
+  animation: qtSlideOut 0.38s cubic-bezier(0.4,0,0.2,1) forwards !important;
   overflow: hidden;
   pointer-events: none;
 }
-
-/* Priority left stripe */
-.qt-item.prio-high { border-right: 3px solid #ef4444 !important; background: linear-gradient(135deg, rgba(239,68,68,0.06), transparent 60%) !important; }
-.qt-item.prio-med  { border-right: 3px solid #f97316 !important; background: linear-gradient(135deg, rgba(249,115,22,0.06), transparent 60%) !important; }
-.qt-item.prio-low  { border-right: 3px solid #22c55e !important; background: linear-gradient(135deg, rgba(34,197,94,0.06),  transparent 60%) !important; }
+/* TickTick-style: thicker left priority stripe */
+.qt-item.prio-high {
+  border-right: 4px solid #ef4444 !important;
+  background: linear-gradient(135deg, rgba(239,68,68,0.07) 0%, transparent 55%) !important;
+}
+.qt-item.prio-med {
+  border-right: 4px solid #f97316 !important;
+  background: linear-gradient(135deg, rgba(249,115,22,0.07) 0%, transparent 55%) !important;
+}
+.qt-item.prio-low {
+  border-right: 4px solid #22c55e !important;
+  background: linear-gradient(135deg, rgba(34,197,94,0.07) 0%, transparent 55%) !important;
+}
 .qt-item.prio-none { border-right: 3px solid var(--border) !important; }
 
-.qt-item.prio-high::before { background: linear-gradient(180deg, #ef4444, #dc2626) !important; }
-.qt-item.prio-med::before  { background: linear-gradient(180deg, #f97316, #ea580c) !important; }
-.qt-item.prio-low::before  { background: linear-gradient(180deg, #22c55e, #16a34a) !important; }
+.qt-item.prio-high::before { background: linear-gradient(180deg, #ef4444, #b91c1c) !important; }
+.qt-item.prio-med::before  { background: linear-gradient(180deg, #f97316, #c2410c) !important; }
+.qt-item.prio-low::before  { background: linear-gradient(180deg, #22c55e, #15803d) !important; }
 
 /* Overdue task pulse */
-.qt-item.overdue-task { box-shadow: 0 0 0 1.5px rgba(239,68,68,0.35), var(--shadow-sm) !important; }
+.qt-item.overdue-task { box-shadow: 0 0 0 2px rgba(239,68,68,0.3), var(--shadow-sm) !important; }
+@keyframes overdueGlow {
+  0%,100% { box-shadow: 0 0 0 2px rgba(239,68,68,0.2), var(--shadow-sm); }
+  50%     { box-shadow: 0 0 0 4px rgba(239,68,68,0.38), var(--shadow); }
+}
+.qt-item.overdue-task { animation: overdueGlow 2.2s ease-in-out infinite; }
 
-/* Priority flag icon */
-.qt-flag-icon { font-size: 1rem; transition: transform 0.2s; display: inline-block; filter: grayscale(0); line-height:1; }
-.qt-flag-icon.high { filter: none; color: #ef4444; }
-.qt-flag-icon.med  { filter: none; color: #f97316; }
-.qt-flag-icon.low  { filter: none; color: #22c55e; }
-.qt-flag-icon.none { filter: grayscale(1); opacity: 0.35; }
-
+/* TickTick priority badge pill (replaces flag icon) */
+.qt-prio-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 99px;
+  font-size: 0.67rem; font-weight: 800; letter-spacing: 0.2px;
+  cursor: pointer; transition: all 0.18s; flex-shrink: 0;
+  font-family: 'Tajawal', sans-serif; white-space: nowrap;
+  border: 1.5px solid transparent;
+}
+.qt-prio-badge:hover { transform: scale(1.08); filter: brightness(0.92); }
+.qt-prio-badge.high {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #b91c1c; border-color: #fca5a5;
+}
+.qt-prio-badge.med {
+  background: linear-gradient(135deg, #ffedd5, #fed7aa);
+  color: #c2410c; border-color: #fdba74;
+}
+.qt-prio-badge.low {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #15803d; border-color: #86efac;
+}
+.qt-prio-badge.none {
+  background: var(--bg2); color: var(--text-3);
+  border-color: var(--border); opacity: 0.6;
+}
+/* Keep the old flag button style (hidden now, replaced by badge) */
 .qt-flag-btn {
-  background: none; border: none; cursor: pointer; padding: 4px;
+  background: none; border: none; cursor: pointer; padding: 0;
   border-radius: 8px; transition: all 0.18s; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
 }
-.qt-flag-btn:hover { background: var(--bg2); transform: scale(1.2); }
-.qt-flag-btn:hover .qt-flag-icon { transform: rotate(-10deg); }
+.qt-flag-btn:hover { transform: scale(1.1); }
+/* Old flag icon (kept for compat) */
+.qt-flag-icon { font-size: 0.9rem; transition: transform 0.2s; display: inline-block; line-height:1; }
+.qt-flag-icon.high { color: #ef4444; }
+.qt-flag-icon.med  { color: #f97316; }
+.qt-flag-icon.low  { color: #22c55e; }
+.qt-flag-icon.none { filter: grayscale(1); opacity: 0.3; }
 
 /* Item right column */
 .qt-item-right {
@@ -2589,30 +2627,48 @@ table { border-collapse: collapse; min-width: 100%; }
   position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;
 }
 
-/* Completed section divider */
+/* Completed section divider — TickTick style */
 .qt-completed-divider {
   display: flex; align-items: center; gap: 10px;
-  margin: 12px 0 8px;
+  margin: 18px 0 10px;
   cursor: pointer; user-select: none;
+  transition: opacity 0.2s;
 }
+.qt-completed-divider:hover { opacity: 0.85; }
 .qt-completed-divider-line {
-  flex: 1; height: 1px; background: var(--border);
+  flex: 1; height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
 }
 .qt-completed-divider-label {
   font-size: 0.72rem; font-weight: 800; color: var(--text-3);
-  display: flex; align-items: center; gap: 5px;
-  padding: 3px 10px; background: var(--bg2);
-  border-radius: 99px; border: 1px solid var(--border);
-  transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: var(--bg2);
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  transition: all 0.22s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 .qt-completed-divider:hover .qt-completed-divider-label {
-  background: var(--bg3); color: var(--text-2);
+  background: var(--bg3); color: var(--text-2); border-color: var(--blue-300);
 }
 .qt-completed-chevron {
-  display: inline-block; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
-  font-size: 0.6rem;
+  display: inline-block;
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  font-size: 0.58rem; opacity: 0.7;
 }
 .qt-completed-chevron.open { transform: rotate(90deg); }
+/* Completed body appear animation */
+#qtCompletedBody {
+  animation: none;
+}
+#qtCompletedBody.reveal {
+  animation: qtRevealSection 0.32s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes qtRevealSection {
+  from { opacity:0; transform: translateY(-8px); }
+  to   { opacity:1; transform: translateY(0); }
+}
 
 /* Sort controls */
 .qt-sort-row {
@@ -2672,22 +2728,33 @@ table { border-collapse: collapse; min-width: 100%; }
 .qt-add-date-btn:hover { border-color: #3b82f6; color: #2563eb; }
 .qt-add-date-btn.has-date { border-color: #3b82f6; background: #dbeafe; color: #1d4ed8; }
 
-/* Slide-out animation for completed tasks */
-@keyframes qtSlideDown {
-  from { opacity:1; transform: translateY(0) scale(1); max-height: 200px; }
-  to   { opacity:0; transform: translateY(16px) scale(0.97); max-height: 0; padding: 0; margin: 0; }
+/* Slide-out animation for completed tasks → moves DOWN to completed section */
+@keyframes qtCompleteOut {
+  0%   { opacity:1; transform: translateY(0) scale(1); max-height: 200px; padding: 11px 14px; margin-bottom: 10px; }
+  40%  { opacity:0.6; transform: translateY(6px) scale(0.98); }
+  100% { opacity:0; transform: translateY(20px) scale(0.95); max-height: 0; padding: 0; margin-bottom: 0; }
 }
 .qt-item.completing {
-  animation: qtSlideDown 0.38s cubic-bezier(0.4,0,0.2,1) forwards;
+  animation: qtCompleteOut 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
   overflow: hidden; pointer-events: none;
 }
-/* Entry animation */
+/* Entry animation — bouncy spring */
 @keyframes qtSlideIn {
-  from { opacity:0; transform: translateY(-10px) scale(0.97); }
-  to   { opacity:1; transform: translateY(0) scale(1); }
+  0%   { opacity:0; transform: translateY(-14px) scale(0.95); }
+  60%  { opacity:1; transform: translateY(3px) scale(1.01); }
+  100% { opacity:1; transform: translateY(0) scale(1); }
 }
 .qt-item.entering {
-  animation: qtSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation: qtSlideIn 0.36s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+/* Completed item reappears at bottom with a soft bounce */
+@keyframes qtAppearBottom {
+  0%   { opacity:0; transform: translateY(14px) scale(0.96); }
+  70%  { opacity:1; transform: translateY(-3px) scale(1.01); }
+  100% { opacity:1; transform: translateY(0) scale(1); }
+}
+.qt-item.appeared-bottom {
+  animation: qtAppearBottom 0.38s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 
 /* ===== CELEBRATION OVERLAY ===== */
@@ -13940,7 +14007,14 @@ function toggleCompletedSection() {
   const body = document.getElementById('qtCompletedBody');
   if (ch) ch.classList.toggle('open', _qtCompletedOpen);
   if (body) {
-    body.style.display = _qtCompletedOpen ? '' : 'none';
+    if (_qtCompletedOpen) {
+      body.style.display = '';
+      body.classList.remove('reveal');
+      void body.offsetWidth; // reflow to restart animation
+      body.classList.add('reveal');
+    } else {
+      body.style.display = 'none';
+    }
   }
 }
 
@@ -14007,10 +14081,10 @@ function _formatFullDateTime(ts) {
 }
 
 function _qtPrioFlag(prio) {
-  if (prio === 'high') return `<span class="qt-flag-icon high" title="أولوية عالية">🚩</span>`;
-  if (prio === 'med')  return `<span class="qt-flag-icon med"  title="أولوية متوسطة">🚩</span>`;
-  if (prio === 'low')  return `<span class="qt-flag-icon low"  title="أولوية منخفضة">🚩</span>`;
-  return `<span class="qt-flag-icon none" title="بلا أولوية">🏳️</span>`;
+  const icons = { high: '🔴', med: '🟠', low: '🟢', none: '⬜' };
+  const labels = { high: 'عالية', med: 'متوسطة', low: 'منخفضة', none: 'بلا' };
+  const p = prio || 'none';
+  return `<span class="qt-prio-badge ${p}" title="تغيير الأولوية">${icons[p]} ${labels[p]}</span>`;
 }
 
 function _qtDueBadgeHtml(task) {
@@ -14114,19 +14188,19 @@ function renderQuickTasks() {
     const overdueClass = (!task.done && _dueStatus(task.dueDate) === 'overdue') ? ' overdue-task' : '';
 
     return `
-    <div class="qt-item ${prioClass}${task.done ? ' done-item' : ''}${overdueClass}" data-id="${task.id}" style="animation:qtFadeIn 0.28s ease both">
+    <div class="qt-item ${prioClass}${task.done ? ' done-item' : ''}${overdueClass}" data-id="${task.id}" style="animation:qtFadeIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both">
       <button class="qt-checkbox${task.done ? ' checked' : ''}" onclick="toggleQuickTask(${task.id})" aria-label="تبديل حالة المهمة">
         ${task.done ? `<svg width="13" height="13" viewBox="0 0 14 14"><path d="M2 7l4 4 6-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>` : ''}
       </button>
       <div class="qt-item-body" onclick="startEditTaskById(${task.id})">
         <div class="qt-item-text${task.done ? ' struck' : ''}">${escAttr(task.text)}</div>
         <div class="qt-item-meta">
+          <button class="qt-flag-btn" onclick="event.stopPropagation();_cycleTaskPrio(${task.id})" title="تغيير الأولوية" style="padding:0">${flagHtml}</button>
           ${dueHtml}
           ${dateHtml}
         </div>
       </div>
       <div class="qt-item-right">
-        <button class="qt-flag-btn" onclick="event.stopPropagation();_cycleTaskPrio(${task.id})" title="تغيير الأولوية">${flagHtml}</button>
         <div class="qt-item-actions" dir="ltr">
           ${qtSort === 'manual' ? `
           <div class="qt-move-group">
