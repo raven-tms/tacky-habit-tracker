@@ -2450,72 +2450,95 @@ table { border-collapse: collapse; min-width: 100%; }
   box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
 }
 
-/* ===== TICKTICK PRIORITY STYLES ===== */
+/* ===== TICKTICK PRIORITY STYLES — ENHANCED ===== */
 @keyframes qtFadeIn {
-  from { opacity:0; transform: translateY(10px) scale(0.97); }
+  from { opacity:0; transform: translateY(14px) scale(0.95); }
   to   { opacity:1; transform: translateY(0) scale(1); }
 }
 @keyframes qtSlideOut {
   from { opacity:1; transform: translateX(0) scale(1); max-height:120px; margin-bottom:10px; }
   to   { opacity:0; transform: translateX(-30px) scale(0.95); max-height:0; margin-bottom:0; padding:0; }
 }
-.qt-item.completing {
-  animation: qtSlideOut 0.38s cubic-bezier(0.4,0,0.2,1) forwards !important;
-  overflow: hidden;
-  pointer-events: none;
-}
-/* TickTick-style: thicker left priority stripe */
+
+/* TickTick-style priority stripes — stronger, more vibrant */
 .qt-item.prio-high {
-  border-right: 4px solid #ef4444 !important;
-  background: linear-gradient(135deg, rgba(239,68,68,0.07) 0%, transparent 55%) !important;
+  border-right: 5px solid #ef4444 !important;
+  background: linear-gradient(130deg, rgba(239,68,68,0.10) 0%, rgba(239,68,68,0.03) 40%, transparent 70%) !important;
+  box-shadow: inset 4px 0 0 rgba(239,68,68,0.0), 0 2px 12px rgba(239,68,68,0.14), var(--shadow-sm) !important;
 }
 .qt-item.prio-med {
-  border-right: 4px solid #f97316 !important;
-  background: linear-gradient(135deg, rgba(249,115,22,0.07) 0%, transparent 55%) !important;
+  border-right: 5px solid #f97316 !important;
+  background: linear-gradient(130deg, rgba(249,115,22,0.10) 0%, rgba(249,115,22,0.03) 40%, transparent 70%) !important;
+  box-shadow: 0 2px 12px rgba(249,115,22,0.12), var(--shadow-sm) !important;
 }
 .qt-item.prio-low {
-  border-right: 4px solid #22c55e !important;
-  background: linear-gradient(135deg, rgba(34,197,94,0.07) 0%, transparent 55%) !important;
+  border-right: 5px solid #22c55e !important;
+  background: linear-gradient(130deg, rgba(34,197,94,0.08) 0%, rgba(34,197,94,0.02) 40%, transparent 70%) !important;
+  box-shadow: 0 2px 12px rgba(34,197,94,0.10), var(--shadow-sm) !important;
 }
-.qt-item.prio-none { border-right: 3px solid var(--border) !important; }
+.qt-item.prio-none { border-right: 3px solid rgba(139,92,246,0.2) !important; }
 
-.qt-item.prio-high::before { background: linear-gradient(180deg, #ef4444, #b91c1c) !important; }
-.qt-item.prio-med::before  { background: linear-gradient(180deg, #f97316, #c2410c) !important; }
-.qt-item.prio-low::before  { background: linear-gradient(180deg, #22c55e, #15803d) !important; }
+.qt-item.prio-high::before { background: linear-gradient(180deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%) !important; width:5px !important; }
+.qt-item.prio-med::before  { background: linear-gradient(180deg, #f97316 0%, #ea580c 50%, #c2410c 100%) !important; width:5px !important; }
+.qt-item.prio-low::before  { background: linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%) !important; width:5px !important; }
 
-/* Overdue task pulse */
-.qt-item.overdue-task { box-shadow: 0 0 0 2px rgba(239,68,68,0.3), var(--shadow-sm) !important; }
+/* Overdue task pulse — more dramatic */
 @keyframes overdueGlow {
-  0%,100% { box-shadow: 0 0 0 2px rgba(239,68,68,0.2), var(--shadow-sm); }
-  50%     { box-shadow: 0 0 0 4px rgba(239,68,68,0.38), var(--shadow); }
+  0%,100% { box-shadow: 0 0 0 1.5px rgba(239,68,68,0.25), var(--shadow-sm); }
+  50%     { box-shadow: 0 0 0 4px rgba(239,68,68,0.40), 0 6px 24px rgba(239,68,68,0.18), var(--shadow); }
 }
-.qt-item.overdue-task { animation: overdueGlow 2.2s ease-in-out infinite; }
+.qt-item.overdue-task { animation: overdueGlow 2s ease-in-out infinite !important; }
 
-/* TickTick priority badge pill (replaces flag icon) */
+/* TickTick priority badge pill — bolder */
 .qt-prio-badge {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 9px; border-radius: 99px;
-  font-size: 0.67rem; font-weight: 800; letter-spacing: 0.2px;
-  cursor: pointer; transition: all 0.18s; flex-shrink: 0;
+  padding: 3px 10px; border-radius: 99px;
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.3px;
+  cursor: pointer; transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1); flex-shrink: 0;
   font-family: 'Tajawal', sans-serif; white-space: nowrap;
   border: 1.5px solid transparent;
+  position: relative; overflow: hidden;
 }
-.qt-prio-badge:hover { transform: scale(1.08); filter: brightness(0.92); }
+.qt-prio-badge::after {
+  content: ''; position: absolute; inset: 0; opacity: 0;
+  background: rgba(255,255,255,0.3); border-radius: inherit;
+  transition: opacity 0.15s;
+}
+.qt-prio-badge:hover::after { opacity: 1; }
+.qt-prio-badge:hover { transform: scale(1.1) translateY(-1px); }
+.qt-prio-badge:active { transform: scale(0.96); }
+
 .qt-prio-badge.high {
-  background: linear-gradient(135deg, #fee2e2, #fecaca);
-  color: #b91c1c; border-color: #fca5a5;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff; border-color: #b91c1c;
+  box-shadow: 0 3px 10px rgba(239,68,68,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .qt-prio-badge.med {
-  background: linear-gradient(135deg, #ffedd5, #fed7aa);
-  color: #c2410c; border-color: #fdba74;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #fff; border-color: #c2410c;
+  box-shadow: 0 3px 10px rgba(249,115,22,0.40), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .qt-prio-badge.low {
-  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-  color: #15803d; border-color: #86efac;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff; border-color: #15803d;
+  box-shadow: 0 3px 10px rgba(34,197,94,0.38), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .qt-prio-badge.none {
   background: var(--bg2); color: var(--text-3);
-  border-color: var(--border); opacity: 0.6;
+  border-color: var(--border); opacity: 0.55;
+  box-shadow: none;
+}
+
+/* completing animation — slides down to done section */
+.qt-item.completing {
+  animation: qtCompleteSlide 0.45s cubic-bezier(0.4,0,0.2,1) forwards !important;
+  overflow: hidden;
+  pointer-events: none;
+}
+@keyframes qtCompleteSlide {
+  0%   { opacity:1; transform: translateY(0) scale(1); max-height:120px; margin-bottom:10px; }
+  30%  { opacity:0.8; transform: translateY(4px) scale(0.99); background: rgba(34,197,94,0.08); }
+  100% { opacity:0; transform: translateY(16px) scale(0.96); max-height:0; margin-bottom:0; padding:0 14px; }
 }
 /* Keep the old flag button style (hidden now, replaced by badge) */
 .qt-flag-btn {
@@ -2562,7 +2585,7 @@ table { border-collapse: collapse; min-width: 100%; }
   50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
 }
 
-/* Completed section divider — already defined below but make it nicer */
+/* Completed section — enhanced */
 .qt-section-empty {
   text-align: center; padding: 12px; font-size: 0.78rem;
   color: var(--text-3); font-weight: 600;
@@ -2627,48 +2650,88 @@ table { border-collapse: collapse; min-width: 100%; }
   position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;
 }
 
-/* Completed section divider — TickTick style */
+/* Completed section divider — TickTick style ENHANCED */
 .qt-completed-divider {
   display: flex; align-items: center; gap: 10px;
-  margin: 18px 0 10px;
+  margin: 22px 0 12px;
   cursor: pointer; user-select: none;
-  transition: opacity 0.2s;
+  transition: all 0.22s;
 }
-.qt-completed-divider:hover { opacity: 0.85; }
+.qt-completed-divider:hover { filter: brightness(0.92); }
 .qt-completed-divider-line {
   flex: 1; height: 1.5px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  background: linear-gradient(90deg, transparent, rgba(34,197,94,0.35), transparent);
 }
 .qt-completed-divider-label {
-  font-size: 0.72rem; font-weight: 800; color: var(--text-3);
+  font-size: 0.72rem; font-weight: 800; color: #16a34a;
   display: flex; align-items: center; gap: 6px;
-  padding: 5px 14px;
-  background: var(--bg2);
+  padding: 5px 16px;
+  background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.06));
   border-radius: 99px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid rgba(34,197,94,0.35);
   transition: all 0.22s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 10px rgba(34,197,94,0.15);
+}
+[data-theme="dark"] .qt-completed-divider-label {
+  color: #4ade80;
+  background: linear-gradient(135deg, rgba(34,197,94,0.16), rgba(34,197,94,0.08));
+  border-color: rgba(34,197,94,0.3);
 }
 .qt-completed-divider:hover .qt-completed-divider-label {
-  background: var(--bg3); color: var(--text-2); border-color: var(--blue-300);
+  background: linear-gradient(135deg, rgba(34,197,94,0.22), rgba(34,197,94,0.1));
+  box-shadow: 0 4px 16px rgba(34,197,94,0.22);
 }
 .qt-completed-chevron {
   display: inline-block;
-  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-  font-size: 0.58rem; opacity: 0.7;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  font-size: 0.58rem; opacity: 0.8;
 }
 .qt-completed-chevron.open { transform: rotate(90deg); }
 /* Completed body appear animation */
-#qtCompletedBody {
-  animation: none;
-}
+#qtCompletedBody { animation: none; }
 #qtCompletedBody.reveal {
-  animation: qtRevealSection 0.32s cubic-bezier(0.4,0,0.2,1) both;
+  animation: qtRevealSection 0.38s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ===== Overdue divider — TickTick-style red section bar ===== */
+.qt-overdue-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 4px 0 12px;
+  animation: qtFadeIn 0.3s ease both;
+}
+.qt-overdue-divider-line {
+  flex: 1; height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(239,68,68,0.4), transparent);
+}
+.qt-overdue-divider-label {
+  font-size: 0.72rem; font-weight: 800; color: #dc2626;
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 16px;
+  background: linear-gradient(135deg, rgba(239,68,68,0.14), rgba(239,68,68,0.06));
+  border-radius: 99px;
+  border: 1.5px solid rgba(239,68,68,0.4);
+  box-shadow: 0 2px 10px rgba(239,68,68,0.18);
+  animation: overdueDividerPulse 2.2s ease-in-out infinite;
+}
+[data-theme="dark"] .qt-overdue-divider-label {
+  color: #f87171;
+  background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.08));
+  border-color: rgba(239,68,68,0.35);
+}
+@keyframes overdueDividerPulse {
+  0%,100% { box-shadow: 0 2px 10px rgba(239,68,68,0.18); }
+  50%     { box-shadow: 0 2px 18px rgba(239,68,68,0.35); }
 }
 @keyframes qtRevealSection {
-  from { opacity:0; transform: translateY(-8px); }
-  to   { opacity:1; transform: translateY(0); }
+  from { opacity:0; transform: translateY(-12px) scale(0.98); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
 }
+/* Done items inside completed section are dimmer */
+#qtCompletedBody .qt-item {
+  opacity: 0.72;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+#qtCompletedBody .qt-item:hover { opacity: 1; }
 
 /* Sort controls */
 .qt-sort-row {
@@ -2728,34 +2791,32 @@ table { border-collapse: collapse; min-width: 100%; }
 .qt-add-date-btn:hover { border-color: #3b82f6; color: #2563eb; }
 .qt-add-date-btn.has-date { border-color: #3b82f6; background: #dbeafe; color: #1d4ed8; }
 
-/* Slide-out animation for completed tasks → moves DOWN to completed section */
-@keyframes qtCompleteOut {
-  0%   { opacity:1; transform: translateY(0) scale(1); max-height: 200px; padding: 11px 14px; margin-bottom: 10px; }
-  40%  { opacity:0.6; transform: translateY(6px) scale(0.98); }
-  100% { opacity:0; transform: translateY(20px) scale(0.95); max-height: 0; padding: 0; margin-bottom: 0; }
-}
-.qt-item.completing {
-  animation: qtCompleteOut 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
-  overflow: hidden; pointer-events: none;
-}
 /* Entry animation — bouncy spring */
 @keyframes qtSlideIn {
-  0%   { opacity:0; transform: translateY(-14px) scale(0.95); }
-  60%  { opacity:1; transform: translateY(3px) scale(1.01); }
+  0%   { opacity:0; transform: translateY(-18px) scale(0.93); }
+  55%  { opacity:1; transform: translateY(4px) scale(1.02); }
   100% { opacity:1; transform: translateY(0) scale(1); }
 }
 .qt-item.entering {
-  animation: qtSlideIn 0.36s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation: qtSlideIn 0.42s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 /* Completed item reappears at bottom with a soft bounce */
 @keyframes qtAppearBottom {
-  0%   { opacity:0; transform: translateY(14px) scale(0.96); }
-  70%  { opacity:1; transform: translateY(-3px) scale(1.01); }
+  0%   { opacity:0; transform: translateY(18px) scale(0.94); }
+  65%  { opacity:1; transform: translateY(-4px) scale(1.01); }
   100% { opacity:1; transform: translateY(0) scale(1); }
 }
 .qt-item.appeared-bottom {
-  animation: qtAppearBottom 0.38s cubic-bezier(0.34,1.56,0.64,1) both;
+  animation: qtAppearBottom 0.42s cubic-bezier(0.34,1.56,0.64,1) both;
 }
+/* Checkbox check animation */
+@keyframes checkPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.3); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.qt-checkbox.checked { animation: checkPop 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
 
 /* ===== CELEBRATION OVERLAY ===== */
 #celebrationOverlay {
@@ -5466,27 +5527,27 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
 
   <div class="charts-row fade-up">
     <div class="donut-card">
-      <div class="card-title">🍩 نسبة الإنجاز</div>
+      <div class="card-title" id="donutTitleEl">🍩 نسبة الإنجاز</div>
       <div class="donut-wrap">
         <canvas id="donutCanvas" width="180" height="180"></canvas>
         <div class="donut-legend">
           <div class="legend-item">
-            <div class="legend-left"><div class="legend-dot" style="background:#22c55e"></div>مكتملة</div>
+            <div class="legend-left"><div class="legend-dot" style="background:#22c55e"></div><span id="legendDoneTxt">مكتملة</span></div>
             <div class="legend-val" id="dlegDone">0</div>
           </div>
           <div class="legend-item">
-            <div class="legend-left"><div class="legend-dot" style="background:#ef4444"></div>فائتة</div>
+            <div class="legend-left"><div class="legend-dot" style="background:#ef4444"></div><span id="legendMissTxt">فائتة</span></div>
             <div class="legend-val" id="dlegMiss">0</div>
           </div>
           <div class="legend-item">
-            <div class="legend-left"><div class="legend-dot" style="background:var(--border)"></div>قادمة</div>
+            <div class="legend-left"><div class="legend-dot" style="background:var(--border)"></div><span id="legendFutTxt">قادمة</span></div>
             <div class="legend-val" id="dlegFut">0</div>
           </div>
         </div>
       </div>
     </div>
     <div class="line-card">
-      <div class="card-title">📈 منحنى التقدم اليومي</div>
+      <div class="card-title" id="lineTitleEl">📈 منحنى التقدم اليومي</div>
       <canvas id="lineCanvas" style="width:100%;height:140px;display:block"></canvas>
     </div>
   </div>
@@ -5494,12 +5555,12 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
   <div class="streaks-row fade-up" id="streaksRow"></div>
 
   <div class="rings-section fade-up">
-    <div class="card-title">⭕ حلقات العادات (Rings)</div>
+    <div class="card-title" id="ringsTitleEl">⭕ حلقات العادات (Rings)</div>
     <div class="rings-grid" id="ringsGrid"></div>
   </div>
 
   <div class="heatmap-section fade-up">
-    <div class="card-title">🟩 خريطة الحرارة (GitHub Style)</div>
+    <div class="card-title" id="heatmapTitleEl">🟩 خريطة الحرارة (GitHub Style)</div>
     <div id="heatmapContainer"></div>
   </div>
 
@@ -5597,12 +5658,12 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
 
     <!-- Expanded options row (priority + due date) -->
     <div class="qt-add-expanded" id="qtAddExpanded">
-      <span style="font-size:0.72rem;font-weight:700;color:var(--text-3)">الأولوية:</span>
-      <button class="qt-add-prio-btn sel-high" id="qtNewPrioHigh" onclick="setNewTaskPrio('high')">🔴 عالية</button>
-      <button class="qt-add-prio-btn sel-med"  id="qtNewPrioMed"  onclick="setNewTaskPrio('med')">🟠 متوسطة</button>
-      <button class="qt-add-prio-btn sel-low"  id="qtNewPrioLow"  onclick="setNewTaskPrio('low')">🟢 منخفضة</button>
-      <button class="qt-add-prio-btn sel-none" id="qtNewPrioNone" onclick="setNewTaskPrio('none')" style="opacity:0.5">⬜ بلا</button>
-      <span style="font-size:0.72rem;font-weight:700;color:var(--text-3);margin-right:4px">الموعد:</span>
+      <span style="font-size:0.72rem;font-weight:700;color:var(--text-3)" id="qtPrioLabelTxt">الأولوية:</span>
+      <button class="qt-add-prio-btn sel-high" id="qtNewPrioHigh" onclick="setNewTaskPrio('high')">🔴 <span id="qtNewPrioHighTxt">عالية</span></button>
+      <button class="qt-add-prio-btn sel-med"  id="qtNewPrioMed"  onclick="setNewTaskPrio('med')">🟠 <span id="qtNewPrioMedTxt">متوسطة</span></button>
+      <button class="qt-add-prio-btn sel-low"  id="qtNewPrioLow"  onclick="setNewTaskPrio('low')">🟢 <span id="qtNewPrioLowTxt">منخفضة</span></button>
+      <button class="qt-add-prio-btn sel-none" id="qtNewPrioNone" onclick="setNewTaskPrio('none')" style="opacity:0.5">⬜ <span id="qtNewPrioNoneTxt">بلا</span></button>
+      <span style="font-size:0.72rem;font-weight:700;color:var(--text-3);margin-right:4px" id="qtDueLabelTxt">الموعد:</span>
       <button class="qt-add-date-btn" id="qtNewDateBtn" onclick="document.getElementById('qtNewDateInput').showPicker?.() || document.getElementById('qtNewDateInput').click()">
         📅 <span id="qtNewDateLabel">تاريخ</span>
       </button>
@@ -5614,22 +5675,22 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
     </div>
     <div class="qt-progress-text">
       <span id="qtProgressText">لا توجد مهام بعد</span>
-      <button class="qt-clear-done-btn" onclick="clearDoneQuickTasks()">🗑 حذف المنجزة</button>
+      <button class="qt-clear-done-btn" onclick="clearDoneQuickTasks()">🗑 <span id="qtClearDoneTxt">حذف المنجزة</span></button>
     </div>
 
     <!-- Filters + Sort -->
     <div class="qt-filters">
-      <button class="qt-filter-btn active" onclick="setQtFilter('all', this)">الكل</button>
-      <button class="qt-filter-btn" onclick="setQtFilter('pending', this)">⏳ المعلقة</button>
-      <button class="qt-filter-btn" onclick="setQtFilter('done', this)">✅ المنجزة</button>
-      <button class="qt-filter-btn" onclick="setQtFilter('overdue', this)">🔴 متأخرة</button>
+      <button class="qt-filter-btn active" onclick="setQtFilter('all', this)" id="qtFilterAllBtn"><span id="qtFilterAllTxt">الكل</span></button>
+      <button class="qt-filter-btn" onclick="setQtFilter('pending', this)" id="qtFilterPendingBtn">⏳ <span id="qtFilterPendingTxt">المعلقة</span></button>
+      <button class="qt-filter-btn" onclick="setQtFilter('done', this)" id="qtFilterDoneBtn">✅ <span id="qtFilterDoneTxt">المنجزة</span></button>
+      <button class="qt-filter-btn" onclick="setQtFilter('overdue', this)" id="qtFilterOverdueBtn">🔴 <span id="qtFilterOverdueTxt">متأخرة</span></button>
     </div>
     <div class="qt-sort-row">
-      <span class="qt-sort-label">ترتيب:</span>
-      <button class="qt-sort-btn active" id="qtsortManual"   onclick="setQtSort('manual',this)">يدوي</button>
-      <button class="qt-sort-btn" id="qtsortPrio"     onclick="setQtSort('prio',this)">🎯 الأولوية</button>
-      <button class="qt-sort-btn" id="qtsortDue"      onclick="setQtSort('due',this)">📅 الموعد</button>
-      <button class="qt-sort-btn" id="qtsortCreated"  onclick="setQtSort('created',this)">🕐 الأحدث</button>
+      <span class="qt-sort-label" id="qtSortLabelTxt">ترتيب:</span>
+      <button class="qt-sort-btn active" id="qtsortManual"   onclick="setQtSort('manual',this)"><span id="qtSortManualTxt">يدوي</span></button>
+      <button class="qt-sort-btn" id="qtsortPrio"     onclick="setQtSort('prio',this)">🎯 <span id="qtSortPrioTxt">الأولوية</span></button>
+      <button class="qt-sort-btn" id="qtsortDue"      onclick="setQtSort('due',this)">📅 <span id="qtSortDueTxt">الموعد</span></button>
+      <button class="qt-sort-btn" id="qtsortCreated"  onclick="setQtSort('created',this)">🕐 <span id="qtSortCreatedTxt">الأحدث</span></button>
     </div>
 
     <div class="qt-list" id="qtList"></div>
@@ -6900,6 +6961,7 @@ const T = {
     addHabitBtn: '＋ إضافة عادة',
     quoteBtn: 'اقتباس آخر ✨',
     donutTitle: '🍩 نسبة الإنجاز', lineTitle: '📈 منحنى التقدم اليومي',
+    ringsTitle: '⭕ حلقات العادات (Rings)', heatmapTitle: '🟩 خريطة الحرارة (GitHub Style)',
     legendDone: 'مكتملة', legendMissed: 'فائتة', legendFuture: 'قادمة',
     statLabelHabits: 'عدد العادات', statSubHabits: 'عادة نشطة',
     statLabelDone: 'مكتملة هذا الشهر', statSubDone: 'خانة محددة',
@@ -6935,14 +6997,48 @@ const T = {
     qtFilterAll: 'الكل',
     qtFilterPending: '⏳ المعلقة',
     qtFilterDone: '✅ المنجزة',
+    qtFilterOverdue: '🔴 متأخرة',
     qtClearDone: '🗑 حذف المنجزة',
     qtEmpty: 'أضف مهمتك الأولى!',
     qtEmptyPending: 'لا توجد مهام معلقة',
     qtEmptyDone: 'لا توجد مهام منجزة بعد',
+    qtEmptyOverdue: 'لا توجد مهام متأخرة 🎉',
     qtProgressNone: 'لا توجد مهام بعد',
     qtProgressAll: '🎉 أنجزت كل المهام!',
     qtProgressOf: 'مهمة منجزة',
     qtDoneLabel: '✓ تم',
+    qtPrioLabel: 'الأولوية:',
+    qtPrioHigh: 'عالية', qtPrioMed: 'متوسطة', qtPrioLow: 'منخفضة', qtPrioNone: 'بلا',
+    qtDueLabel: 'الموعد:',
+    qtDueDate: 'تاريخ',
+    qtSortLabel: 'ترتيب:',
+    qtSortManual: 'يدوي', qtSortPrio: 'الأولوية', qtSortDue: 'الموعد', qtSortCreated: 'الأحدث',
+    qtSectionEmptyPending: '✅ لا توجد مهام معلقة',
+    qtOverdueSectionLabel: 'متأخرة',
+    qtCompletedSectionLabel: 'مكتملة',
+    qtChangePrioTitle: 'تغيير الأولوية',
+    qtChangeDueTitle: 'تغيير الموعد',
+    qtEditTitle: 'تعديل',
+    qtDeleteTitle: 'حذف',
+    qtMoveUpTitle: 'نقل للأعلى',
+    qtMoveDownTitle: 'نقل للأسفل',
+    qtDueToday: '📅 اليوم',
+    qtDueYesterday: '⚠️ الأمس',
+    qtDueIn2Days: '⏰ قبل يومين',
+    qtDueDaysAgo: n => `🔴 منذ ${n} أيام`,
+    qtDueWeekAgo: date => `🔴 منذ أسبوع (${date})`,
+    qtDueWeeksAgo: (n,date) => `🔴 منذ ${n} أسابيع (${date})`,
+    qtDueVeryOverdue: date => `🔴 متأخرة جداً (${date})`,
+    qtDueTomorrow: '⏳ غداً',
+    qtDueIn2DaysFuture: '⏳ بعد يومين',
+    qtDueInDays: n => `🗓 بعد ${n} أيام`,
+    qtRelNow: 'الآن',
+    qtRelMinAgo: n => `منذ ${n} دقيقة`,
+    qtRelHourAgo: n => `منذ ${n} ساعة`,
+    qtRelToday: t => `اليوم · ${t}`,
+    qtRelYesterday: t => `الأمس · ${t}`,
+    qtRelDaysAgo: n => `منذ ${n} أيام`,
+    qtRelWeekAgo: n => n === 1 ? `منذ أسبوع` : `منذ ${n} أسابيع`,
     toastSaved: '💾 تم حفظ الأفكار', toastHabitAdded: '✅ تمت إضافة العادة',
     toastTaskAdded: '✅ تمت إضافة المهمة', toastTaskDone: '✅ مهمة مكتملة!',
     toastAllDone: '🎉 أكملت كل عادات اليوم!', toastDone: '✅ تم!',
@@ -7287,6 +7383,7 @@ const T = {
     addHabitBtn: '＋ Ajouter',
     quoteBtn: 'Autre citation ✨',
     donutTitle: '🍩 Taux de réussite', lineTitle: '📈 Courbe de progression',
+    ringsTitle: '⭕ Anneaux d\'habitudes', heatmapTitle: '🟩 Carte de chaleur (style GitHub)',
     legendDone: 'Réalisées', legendMissed: 'Manquées', legendFuture: 'À venir',
     statLabelHabits: "Nombre d'habitudes", statSubHabits: 'Actives',
     statLabelDone: 'Réalisées', statSubDone: 'Cases cochées',
@@ -7322,14 +7419,48 @@ const T = {
     qtFilterAll: 'Tout',
     qtFilterPending: '⏳ En cours',
     qtFilterDone: '✅ Terminées',
+    qtFilterOverdue: '🔴 En retard',
     qtClearDone: '🗑 Supprimer terminées',
     qtEmpty: 'Ajoutez votre première tâche!',
     qtEmptyPending: 'Aucune tâche en cours',
     qtEmptyDone: 'Aucune tâche terminée',
+    qtEmptyOverdue: 'Aucune tâche en retard 🎉',
     qtProgressNone: 'Aucune tâche',
     qtProgressAll: '🎉 Toutes les tâches terminées!',
     qtProgressOf: 'tâches terminées',
     qtDoneLabel: '✓ Fait',
+    qtPrioLabel: 'Priorité :',
+    qtPrioHigh: 'Haute', qtPrioMed: 'Moyenne', qtPrioLow: 'Basse', qtPrioNone: 'Aucune',
+    qtDueLabel: 'Échéance :',
+    qtDueDate: 'Date',
+    qtSortLabel: 'Trier :',
+    qtSortManual: 'Manuel', qtSortPrio: 'Priorité', qtSortDue: 'Échéance', qtSortCreated: 'Récent',
+    qtSectionEmptyPending: '✅ Aucune tâche en cours',
+    qtOverdueSectionLabel: 'En retard',
+    qtCompletedSectionLabel: 'Terminées',
+    qtChangePrioTitle: 'Changer la priorité',
+    qtChangeDueTitle: "Changer l'échéance",
+    qtEditTitle: 'Modifier',
+    qtDeleteTitle: 'Supprimer',
+    qtMoveUpTitle: 'Monter',
+    qtMoveDownTitle: 'Descendre',
+    qtDueToday: "📅 Aujourd'hui",
+    qtDueYesterday: '⚠️ Hier',
+    qtDueIn2Days: '⏰ Il y a 2 jours',
+    qtDueDaysAgo: n => `🔴 il y a ${n} jours`,
+    qtDueWeekAgo: date => `🔴 il y a 1 semaine (${date})`,
+    qtDueWeeksAgo: (n,date) => `🔴 il y a ${n} semaines (${date})`,
+    qtDueVeryOverdue: date => `🔴 très en retard (${date})`,
+    qtDueTomorrow: '⏳ Demain',
+    qtDueIn2DaysFuture: '⏳ Dans 2 jours',
+    qtDueInDays: n => `🗓 dans ${n} jours`,
+    qtRelNow: "à l'instant",
+    qtRelMinAgo: n => `il y a ${n} min`,
+    qtRelHourAgo: n => `il y a ${n} h`,
+    qtRelToday: t => `aujourd'hui · ${t}`,
+    qtRelYesterday: t => `hier · ${t}`,
+    qtRelDaysAgo: n => `il y a ${n} jours`,
+    qtRelWeekAgo: n => n === 1 ? `il y a 1 semaine` : `il y a ${n} semaines`,
     toastSaved: '💾 Pensées enregistrées', toastHabitAdded: '✅ Habitude ajoutée',
     toastTaskAdded: '✅ Tâche ajoutée', toastTaskDone: '✅ Tâche terminée!',
     toastAllDone: '🎉 Toutes les habitudes complétées!',
@@ -7675,6 +7806,7 @@ const T = {
     addHabitBtn: '＋ Add Habit',
     quoteBtn: 'Another Quote ✨',
     donutTitle: '🍩 Achievement Rate', lineTitle: '📈 Daily Progress Curve',
+    ringsTitle: '⭕ Habit Rings', heatmapTitle: '🟩 Heatmap (GitHub Style)',
     legendDone: 'Completed', legendMissed: 'Missed', legendFuture: 'Upcoming',
     statLabelHabits: 'Number of Habits', statSubHabits: 'Active Habits',
     statLabelDone: 'Completed This Month', statSubDone: 'Checked Items',
@@ -7710,14 +7842,48 @@ const T = {
     qtFilterAll: 'All',
     qtFilterPending: '⏳ Pending',
     qtFilterDone: '✅ Done',
+    qtFilterOverdue: '🔴 Overdue',
     qtClearDone: '🗑 Clear Done',
     qtEmpty: 'Add your first task!',
     qtEmptyPending: 'No pending tasks',
     qtEmptyDone: 'No completed tasks yet',
+    qtEmptyOverdue: 'No overdue tasks 🎉',
     qtProgressNone: 'No tasks yet',
     qtProgressAll: '🎉 All tasks completed!',
     qtProgressOf: 'tasks completed',
     qtDoneLabel: '✓ Done',
+    qtPrioLabel: 'Priority:',
+    qtPrioHigh: 'High', qtPrioMed: 'Medium', qtPrioLow: 'Low', qtPrioNone: 'None',
+    qtDueLabel: 'Due:',
+    qtDueDate: 'Date',
+    qtSortLabel: 'Sort:',
+    qtSortManual: 'Manual', qtSortPrio: 'Priority', qtSortDue: 'Due date', qtSortCreated: 'Newest',
+    qtSectionEmptyPending: '✅ No pending tasks',
+    qtOverdueSectionLabel: 'Overdue',
+    qtCompletedSectionLabel: 'Completed',
+    qtChangePrioTitle: 'Change priority',
+    qtChangeDueTitle: 'Change due date',
+    qtEditTitle: 'Edit',
+    qtDeleteTitle: 'Delete',
+    qtMoveUpTitle: 'Move up',
+    qtMoveDownTitle: 'Move down',
+    qtDueToday: '📅 Today',
+    qtDueYesterday: '⚠️ Yesterday',
+    qtDueIn2Days: '⏰ 2 days ago',
+    qtDueDaysAgo: n => `🔴 ${n} days ago`,
+    qtDueWeekAgo: date => `🔴 1 week ago (${date})`,
+    qtDueWeeksAgo: (n,date) => `🔴 ${n} weeks ago (${date})`,
+    qtDueVeryOverdue: date => `🔴 very overdue (${date})`,
+    qtDueTomorrow: '⏳ Tomorrow',
+    qtDueIn2DaysFuture: '⏳ In 2 days',
+    qtDueInDays: n => `🗓 in ${n} days`,
+    qtRelNow: 'just now',
+    qtRelMinAgo: n => `${n}m ago`,
+    qtRelHourAgo: n => `${n}h ago`,
+    qtRelToday: t => `today · ${t}`,
+    qtRelYesterday: t => `yesterday · ${t}`,
+    qtRelDaysAgo: n => `${n} days ago`,
+    qtRelWeekAgo: n => n === 1 ? `1 week ago` : `${n} weeks ago`,
     toastSaved: '💾 Thoughts saved', toastHabitAdded: '✅ Habit added',
     toastTaskAdded: '✅ Task added', toastTaskDone: '✅ Task completed!',
     toastAllDone: '🎉 You completed all your habits today!',
@@ -13836,12 +14002,13 @@ function _onNewDateChange(val) {
   const btn = document.getElementById('qtNewDateBtn');
   const lbl = document.getElementById('qtNewDateLabel');
   if (!btn || !lbl) return;
+  const tr = T[currentLang] || T.ar;
   if (val) {
     btn.classList.add('has-date');
     lbl.textContent = _formatDueBadgeText(val);
   } else {
     btn.classList.remove('has-date');
-    lbl.textContent = 'تاريخ';
+    lbl.textContent = tr.qtDueDate || 'تاريخ';
   }
 }
 
@@ -13872,18 +14039,34 @@ function _dueStatus(dueDate) {
 }
 function _formatDueBadgeText(dueDate) {
   if (!dueDate) return '';
+  const tr = T[currentLang] || T.ar;
+  const localeMap = { ar: 'ar-DZ', fr: 'fr-FR', en: 'en-US' };
+  const locale = localeMap[currentLang] || 'ar-DZ';
   const t = _todayStr(), y = _yesterdayStr();
-  if (dueDate === t) return 'اليوم';
-  if (dueDate === y) return 'الأمس';
+  if (dueDate === t) return tr.qtDueToday;
+  if (dueDate === y) return tr.qtDueYesterday;
   // days diff
   const now = new Date(); now.setHours(0,0,0,0);
   const due = new Date(dueDate + 'T00:00:00');
   const diff = Math.round((due - now) / 86400000);
-  if (diff < -1) return `منذ ${Math.abs(diff)} أيام`;
-  if (diff > 0 && diff <= 7) return `بعد ${diff} أيام`;
+  // تاريخ مختصر مساعد لعرضه بجانب النص النسبي عندما يكون التأخير كبيراً
+  let shortDate = '';
+  try {
+    const sameYear = due.getFullYear() === now.getFullYear();
+    shortDate = new Intl.DateTimeFormat(locale, sameYear ? { day:'numeric', month:'short' } : { day:'numeric', month:'short', year:'numeric' }).format(due);
+  } catch(e) { shortDate = dueDate; }
+
+  if (diff === -2) return tr.qtDueIn2Days;
+  if (diff < -2 && diff >= -6) return tr.qtDueDaysAgo(Math.abs(diff));
+  if (diff < -6 && diff >= -13) return tr.qtDueWeekAgo(shortDate);
+  if (diff < -13 && diff >= -27) return tr.qtDueWeeksAgo(Math.round(Math.abs(diff)/7), shortDate);
+  if (diff < -27) return tr.qtDueVeryOverdue(shortDate);
+  if (diff === 1) return tr.qtDueTomorrow;
+  if (diff === 2) return tr.qtDueIn2DaysFuture;
+  if (diff > 2 && diff <= 7) return tr.qtDueInDays(diff);
   // date
   try {
-    return new Intl.DateTimeFormat('ar-DZ', { day:'numeric', month:'short' }).format(due);
+    return new Intl.DateTimeFormat(locale, { day:'numeric', month:'short' }).format(due);
   } catch(e) { return dueDate; }
 }
 function _prioOrder(p) {
@@ -14019,7 +14202,7 @@ function toggleCompletedSection() {
 }
 
 function updateQuickTasksText() {
-  const tr = T.ar;
+  const tr = T[currentLang] || T.ar;
   const titleEl = document.querySelector('.quick-tasks-title-text');
   if (titleEl) titleEl.textContent = tr.qtTitle;
   const subEl = document.querySelector('.quick-tasks-title-sub');
@@ -14028,16 +14211,41 @@ function updateQuickTasksText() {
   if (inp) inp.placeholder = tr.qtPlaceholder;
   const addBtn = document.querySelector('.qt-add-btn');
   if (addBtn) addBtn.innerHTML = `<span style="font-size:1rem">＋</span> ${tr.qtAddBtn}`;
-  const filterBtns = document.querySelectorAll('.qt-filter-btn');
-  if (filterBtns[0]) filterBtns[0].textContent = tr.qtFilterAll;
-  if (filterBtns[1]) filterBtns[1].textContent = tr.qtFilterPending;
-  if (filterBtns[2]) filterBtns[2].textContent = tr.qtFilterDone;
+
+  // فلاتر (الكل / المعلقة / المنجزة / متأخرة)
+  const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setTxt('qtFilterAllTxt', tr.qtFilterAll);
+  setTxt('qtFilterPendingTxt', tr.qtFilterPending.replace(/^[^\s]+\s/, ''));
+  setTxt('qtFilterDoneTxt', tr.qtFilterDone.replace(/^[^\s]+\s/, ''));
+  setTxt('qtFilterOverdueTxt', (tr.qtFilterOverdue || '🔴 متأخرة').replace(/^[^\s]+\s/, ''));
+
   const clearBtn = document.querySelector('.qt-clear-done-btn');
-  if (clearBtn) clearBtn.textContent = tr.qtClearDone;
+  if (clearBtn) clearBtn.innerHTML = `🗑 <span id="qtClearDoneTxt">${(tr.qtClearDone || '').replace(/^[^\s]+\s/, '')}</span>`;
+
+  // قسم الأولوية والموعد عند إضافة مهمة
+  setTxt('qtPrioLabelTxt', tr.qtPrioLabel || 'الأولوية:');
+  setTxt('qtNewPrioHighTxt', tr.qtPrioHigh || 'عالية');
+  setTxt('qtNewPrioMedTxt', tr.qtPrioMed || 'متوسطة');
+  setTxt('qtNewPrioLowTxt', tr.qtPrioLow || 'منخفضة');
+  setTxt('qtNewPrioNoneTxt', tr.qtPrioNone || 'بلا');
+  setTxt('qtDueLabelTxt', tr.qtDueLabel || 'الموعد:');
+  // لا نغيّر qtNewDateLabel هنا إذا كان يعرض تاريخاً فعلياً بالفعل — فقط لو ما زال النص الافتراضي
+  const dateLbl = document.getElementById('qtNewDateLabel');
+  if (dateLbl && (dateLbl.textContent === 'تاريخ' || dateLbl.textContent === 'Date' || dateLbl.textContent === tr.qtDueDate)) {
+    dateLbl.textContent = tr.qtDueDate || 'تاريخ';
+  }
+
+  // نص التقدّم (فقط لو ما زال فارغاً — renderQuickTasks سيحدّثه لاحقاً بالحالة الفعلية)
+  setTxt('qtSortLabelTxt', tr.qtSortLabel || 'ترتيب:');
+  setTxt('qtSortManualTxt', tr.qtSortManual || 'يدوي');
+  setTxt('qtSortPrioTxt', tr.qtSortPrio || 'الأولوية');
+  setTxt('qtSortDueTxt', tr.qtSortDue || 'الموعد');
+  setTxt('qtSortCreatedTxt', tr.qtSortCreated || 'الأحدث');
+
   renderQuickTasks();
 }
 
-// Smart relative date: today→time only, yesterday→"بارح/hier/yesterday + time", old→date+time, >1yr→year too
+// Smart relative date: "الآن" / "منذ X دقيقة" / "منذ X ساعة" / "الأمس" / "منذ X أيام" / "منذ X أسابيع" / تاريخ كامل بعد شهر
 function _formatFullDateTime(ts) {
   if (!ts) return '';
   const d = new Date(ts);
@@ -14045,53 +14253,60 @@ function _formatFullDateTime(ts) {
   const lang = currentLang || 'ar';
   const localeMap = { ar: 'ar-DZ', fr: 'fr-FR', en: 'en-US' };
   const locale = localeMap[lang] || 'ar-DZ';
+  const tr = T[lang] || T.ar;
 
   const timeStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const diffMs   = now - d;
+  const diffMin  = Math.floor(diffMs / 60000);
+  const diffHour = Math.floor(diffMs / 3600000);
 
-  // Same calendar day → time only
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const dStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const diffDays = Math.round((todayStart - dStart) / 86400000);
 
-  if (diffDays === 0) {
-    return timeStr;
-  }
+  // < 1 minute
+  if (diffMs < 60000 && diffMs >= 0) return tr.qtRelNow;
+  // < 1 hour
+  if (diffMin < 60 && diffDays === 0) return tr.qtRelMinAgo(diffMin);
+  // same day, >= 1 hour
+  if (diffDays === 0) return diffHour < 24 ? tr.qtRelHourAgo(diffHour) : tr.qtRelToday(timeStr);
+  // yesterday
+  if (diffDays === 1) return tr.qtRelYesterday(timeStr);
+  // 2-6 days ago
+  if (diffDays >= 2 && diffDays <= 6) return tr.qtRelDaysAgo(diffDays);
+  // 1-4 weeks ago
+  if (diffDays >= 7 && diffDays <= 30) return tr.qtRelWeekAgo(Math.round(diffDays / 7));
 
-  if (diffDays === 1) {
-    const yLabel = lang === 'fr' ? 'hier' : lang === 'en' ? 'yesterday' : 'بارح';
-    return `${yLabel} · ${timeStr}`;
-  }
-
-  // Older than yesterday
+  // Older than a month → show full date
   const sameYear = d.getFullYear() === now.getFullYear();
   try {
     if (sameYear) {
-      const dateStr = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(d);
-      return `${dateStr} · ${timeStr}`;
+      return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' }).format(d);
     } else {
-      const dateStr = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
-      return `${dateStr} · ${timeStr}`;
+      return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
     }
   } catch(e) {
     const dd = String(d.getDate()).padStart(2,'0');
     const mo = String(d.getMonth()+1).padStart(2,'0');
     const yr = sameYear ? '' : `/${d.getFullYear()}`;
-    return `${dd}/${mo}${yr} ${timeStr}`;
+    return `${dd}/${mo}${yr}`;
   }
 }
 
 function _qtPrioFlag(prio) {
+  const tr = T[currentLang] || T.ar;
   const icons = { high: '🔴', med: '🟠', low: '🟢', none: '⬜' };
-  const labels = { high: 'عالية', med: 'متوسطة', low: 'منخفضة', none: 'بلا' };
+  const labels = { high: tr.qtPrioHigh, med: tr.qtPrioMed, low: tr.qtPrioLow, none: tr.qtPrioNone };
   const p = prio || 'none';
-  return `<span class="qt-prio-badge ${p}" title="تغيير الأولوية">${icons[p]} ${labels[p]}</span>`;
+  return `<span class="qt-prio-badge ${p}" title="${tr.qtChangePrioTitle}">${icons[p]} ${labels[p]}</span>`;
 }
 
 function _qtDueBadgeHtml(task) {
   if (!task.dueDate) return '';
+  const tr = T[currentLang] || T.ar;
   const status = _dueStatus(task.dueDate);
   const text   = _formatDueBadgeText(task.dueDate);
-  return `<span class="qt-due-badge ${status}" onclick="event.stopPropagation();_openDuePicker(${task.id})" title="تغيير الموعد">📅 ${text}</span>`;
+  return `<span class="qt-due-badge ${status}" onclick="event.stopPropagation();_openDuePicker(${task.id})" title="${tr.qtChangeDueTitle}">📅 ${text}</span>`;
 }
 
 function _openDuePicker(id) {
@@ -14109,8 +14324,19 @@ function _openDuePicker(id) {
   inp.showPicker ? inp.showPicker() : inp.click();
 }
 
+// تحديث تلقائي لنصوص التاريخ النسبي (منذ X دقيقة/ساعة) كل 60 ثانية دون إعادة رسم كامل القائمة
+if (typeof window !== 'undefined' && !window._qtRelTimeIntervalSet) {
+  window._qtRelTimeIntervalSet = true;
+  setInterval(() => {
+    document.querySelectorAll('.qt-item-created[data-ts]').forEach(el => {
+      const ts = Number(el.getAttribute('data-ts'));
+      if (ts) el.textContent = '🕐 ' + _formatFullDateTime(ts);
+    });
+  }, 60000);
+}
+
 function renderQuickTasks() {
-  const tr = T.ar;
+  const tr = T[currentLang] || T.ar;
   const list = document.getElementById('qtList');
   const badge = document.getElementById('qtCountBadge');
   const bar = document.getElementById('qtProgressBar');
@@ -14163,7 +14389,7 @@ function renderQuickTasks() {
   if (allFiltered.length === 0) {
     const emptyMsg = qtFilter === 'done'    ? (tr.qtEmptyDone    || 'لا توجد مهام مكتملة') :
                      qtFilter === 'pending' ? (tr.qtEmptyPending || 'لا توجد مهام معلقة')  :
-                     qtFilter === 'overdue' ? 'لا توجد مهام متأخرة 🎉'  :
+                     qtFilter === 'overdue' ? (tr.qtEmptyOverdue || 'لا توجد مهام متأخرة 🎉')  :
                                               (tr.qtEmpty        || 'أضف أول مهمة لك!');
     const emptyIcon = qtFilter === 'done' ? '🏁' : qtFilter === 'pending' ? '🎯' : qtFilter === 'overdue' ? '✅' : '📝';
     list.innerHTML = `<div class="qt-empty">
@@ -14179,23 +14405,25 @@ function renderQuickTasks() {
     const prioClass  = `prio-${prio}`;
     const flagHtml   = _qtPrioFlag(prio);
     const dueHtml    = _qtDueBadgeHtml(task);
+    const todayLabel = currentLang === 'ar' ? 'اليوم' : currentLang === 'fr' ? "aujourd'hui" : 'today';
     const dateHtml   = settings.showTaskDate !== false
-      ? `<span class="qt-item-created">🕐 ${task.createdAt ? _formatFullDateTime(task.createdAt) : 'اليوم'}</span>`
+      ? `<span class="qt-item-created"${task.createdAt ? ` data-ts="${task.createdAt}"` : ''}>🕐 ${task.createdAt ? _formatFullDateTime(task.createdAt) : todayLabel}</span>`
       : '';
     const realIdx    = quickTasks.findIndex(t => t.id === task.id);
     const upDis      = realIdx <= 0;
     const downDis    = realIdx >= quickTasks.length - 1;
     const overdueClass = (!task.done && _dueStatus(task.dueDate) === 'overdue') ? ' overdue-task' : '';
+    const toggleLabel = currentLang === 'ar' ? 'تبديل حالة المهمة' : currentLang === 'fr' ? 'Changer le statut de la tâche' : 'Toggle task status';
 
     return `
     <div class="qt-item ${prioClass}${task.done ? ' done-item' : ''}${overdueClass}" data-id="${task.id}" style="animation:qtFadeIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both">
-      <button class="qt-checkbox${task.done ? ' checked' : ''}" onclick="toggleQuickTask(${task.id})" aria-label="تبديل حالة المهمة">
+      <button class="qt-checkbox${task.done ? ' checked' : ''}" onclick="toggleQuickTask(${task.id})" aria-label="${toggleLabel}">
         ${task.done ? `<svg width="13" height="13" viewBox="0 0 14 14"><path d="M2 7l4 4 6-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>` : ''}
       </button>
       <div class="qt-item-body" onclick="startEditTaskById(${task.id})">
         <div class="qt-item-text${task.done ? ' struck' : ''}">${escAttr(task.text)}</div>
         <div class="qt-item-meta">
-          <button class="qt-flag-btn" onclick="event.stopPropagation();_cycleTaskPrio(${task.id})" title="تغيير الأولوية" style="padding:0">${flagHtml}</button>
+          <button class="qt-flag-btn" onclick="event.stopPropagation();_cycleTaskPrio(${task.id})" title="${tr.qtChangePrioTitle}" style="padding:0">${flagHtml}</button>
           ${dueHtml}
           ${dateHtml}
         </div>
@@ -14204,10 +14432,10 @@ function renderQuickTasks() {
         <div class="qt-item-actions" dir="ltr">
           ${qtSort === 'manual' ? `
           <div class="qt-move-group">
-            <button class="qt-move-btn" onclick="event.stopPropagation();moveQuickTask(${task.id},-1)" ${upDis ? 'disabled' : ''}>▲</button>
-            <button class="qt-move-btn" onclick="event.stopPropagation();moveQuickTask(${task.id},1)" ${downDis ? 'disabled' : ''}>▼</button>
+            <button class="qt-move-btn" onclick="event.stopPropagation();moveQuickTask(${task.id},-1)" ${upDis ? 'disabled' : ''} title="${tr.qtMoveUpTitle}">▲</button>
+            <button class="qt-move-btn" onclick="event.stopPropagation();moveQuickTask(${task.id},1)" ${downDis ? 'disabled' : ''} title="${tr.qtMoveDownTitle}">▼</button>
           </div>` : ''}
-          <button class="qt-delete-btn" onclick="event.stopPropagation();deleteQuickTask(${task.id})">✕</button>
+          <button class="qt-delete-btn" onclick="event.stopPropagation();deleteQuickTask(${task.id})" title="${tr.qtDeleteTitle}">✕</button>
         </div>
       </div>
     </div>`;
@@ -14215,11 +14443,26 @@ function renderQuickTasks() {
 
   let html = '';
 
-  // pending section
-  if (pendingTasks.length > 0) {
-    html += pendingTasks.map(taskHtml).join('');
-  } else if (qtFilter === 'all' || qtFilter === 'pending') {
-    html += `<div class="qt-section-empty">✅ لا توجد مهام معلقة</div>`;
+  // فصل المهام المتأخرة عن باقي المهام المعلقة (نمط TickTick)
+  const overdueTasks    = pendingTasks.filter(t => _dueStatus(t.dueDate) === 'overdue');
+  const normalPending    = pendingTasks.filter(t => _dueStatus(t.dueDate) !== 'overdue');
+
+  // قسم المتأخرة — بار أحمر فاصل في الأعلى
+  if (overdueTasks.length > 0 && (qtFilter === 'all' || qtFilter === 'pending')) {
+    html += `
+    <div class="qt-overdue-divider">
+      <div class="qt-overdue-divider-line"></div>
+      <div class="qt-overdue-divider-label">⚠️ ${tr.qtOverdueSectionLabel || 'متأخرة'} · ${overdueTasks.length}</div>
+      <div class="qt-overdue-divider-line"></div>
+    </div>
+    ${overdueTasks.map(taskHtml).join('')}`;
+  }
+
+  // pending section (بدون المتأخرة، لأنها ظهرت أعلاه بقسمها الخاص)
+  if (normalPending.length > 0) {
+    html += normalPending.map(taskHtml).join('');
+  } else if (overdueTasks.length === 0 && (qtFilter === 'all' || qtFilter === 'pending')) {
+    html += `<div class="qt-section-empty">${tr.qtSectionEmptyPending || '✅ لا توجد مهام معلقة'}</div>`;
   }
 
   // completed section (only when moveCompDown and we have done tasks visible)
@@ -14229,7 +14472,7 @@ function renderQuickTasks() {
       <div class="qt-completed-divider-line"></div>
       <div class="qt-completed-divider-label">
         <span id="qtCompletedChevron" class="qt-completed-chevron${_qtCompletedOpen ? ' open' : ''}">▶</span>
-        مكتملة · ${doneTasks.length}
+        ${tr.qtCompletedSectionLabel || 'مكتملة'} · ${doneTasks.length}
       </div>
       <div class="qt-completed-divider-line"></div>
     </div>
