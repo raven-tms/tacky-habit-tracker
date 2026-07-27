@@ -1894,6 +1894,83 @@ body.auth-active {
 .add-btn:hover { box-shadow: 0 6px 20px rgba(59,130,246,0.4); transform: translateY(-1px); }
 .add-btn:active { transform: translateY(0); }
 
+/* ===== HABIT RINGS (per-habit circular progress) ===== */
+.rings-section, .heatmap-section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+.rings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 14px;
+}
+.ring-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.ring-item:hover { background: rgba(0,0,0,0.03); }
+[data-theme="dark"] .ring-item:hover { background: rgba(255,255,255,0.04); }
+.ring-svg-wrap { position: relative; width: 78px; height: 78px; }
+.ring-svg-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: var(--border); stroke-width: 8; }
+.ring-progress { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+.ring-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+.ring-emoji { font-size: 1.4rem; line-height: 1; }
+.ring-pct { font-size: 0.6rem; font-weight: 700; color: var(--text-2); font-family: 'JetBrains Mono', monospace; margin-top: 1px; }
+.ring-name { font-size: 0.68rem; color: var(--text-2); text-align: center; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.ring-streak-tag { font-size: 0.58rem; color: var(--orange); font-weight: 700; }
+
+/* ===== FOCUS MODE (single habit ring screen) ===== */
+.focus-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; z-index: 1200; padding: 20px;
+}
+.focus-modal-card {
+  background: var(--white); border-radius: 22px; padding: 32px 24px; max-width: 340px; width: 100%;
+  text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative;
+}
+.focus-modal-close {
+  position: absolute; top: 12px; left: 12px; background: transparent; border: none; font-size: 1.3rem;
+  color: var(--text-3); cursor: pointer; padding: 4px 8px; border-radius: 8px;
+}
+.focus-modal-close:hover { background: var(--border); }
+.focus-ring-wrap { position: relative; width: 200px; height: 200px; margin: 10px auto 18px; }
+.focus-ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.focus-ring-track { fill: none; stroke: var(--border); stroke-width: 14; }
+.focus-ring-progress { fill: none; stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+.focus-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.focus-emoji { font-size: 2.6rem; }
+.focus-pct { font-size: 1.5rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text); margin-top: 4px; }
+.focus-name { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.focus-stats-row { display: flex; justify-content: center; gap: 18px; margin-top: 14px; }
+.focus-stat { display: flex; flex-direction: column; align-items: center; }
+.focus-stat-val { font-size: 1.1rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text); }
+.focus-stat-lbl { font-size: 0.65rem; color: var(--text-3); margin-top: 2px; }
+
+/* ===== GITHUB-STYLE HEATMAP ===== */
+.heatmap-habit-block { margin-bottom: 20px; }
+.heatmap-habit-block:last-child { margin-bottom: 0; }
+.heatmap-habit-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 700; color: var(--text-2); }
+.heatmap-scroll { overflow-x: auto; padding-bottom: 4px; }
+.heatmap-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px); gap: 3px; width: max-content; }
+.heatmap-cell {
+  width: 12px; height: 12px; border-radius: 3px; background: var(--border);
+  cursor: pointer; transition: transform 0.15s;
+}
+.heatmap-cell:hover { transform: scale(1.3); outline: 1.5px solid var(--text-3); }
+.heatmap-cell.hm-future { background: transparent; }
+.heatmap-legend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 0.65rem; color: var(--text-3); justify-content: flex-end; }
+.heatmap-legend .heatmap-cell { cursor: default; width: 10px; height: 10px; }
+.heatmap-legend .heatmap-cell:hover { transform: none; outline: none; }
+
 /* ===== STREAK BADGES ===== */
 .streaks-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
 .streak-badge {
@@ -2922,22 +2999,117 @@ table { border-collapse: collapse; min-width: 100%; }
 [data-theme="dark"] .wk4-hdr { background: #1e0533; color: #d8b4fe; }
 .week-col-body { padding: 12px; }
 .task-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 4px; border-bottom: 1px solid var(--border);
-  transition: var(--transition); cursor: pointer;
-  border-radius: 6px; margin-bottom: 2px;
+  display: flex; flex-direction: column; gap: 0;
+  padding: 8px 6px; border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+  border-radius: 8px; margin-bottom: 3px; border-right: 3px solid transparent;
 }
+.task-item.priority-high { border-right-color: #ef4444; background: rgba(239,68,68,0.04); }
+.task-item.priority-med  { border-right-color: #f59e0b; background: rgba(245,158,11,0.04); }
+.task-item.priority-low  { border-right-color: #3b82f6; background: rgba(59,130,246,0.04); }
 .task-item:last-child { border-bottom: none; }
-.task-item:hover { background: var(--blue-50); padding-right: 8px; }
+.task-item:hover { background: var(--blue-50); }
+.task-item.priority-high:hover, .task-item.priority-med:hover, .task-item.priority-low:hover { filter: brightness(0.98); }
+.task-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+
+/* Animated circular checkbox */
 .task-chk {
-  width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border);
+  width: 21px; height: 21px; border-radius: 50%; border: 2px solid var(--border);
   flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 0.65rem; color: transparent; background: var(--white); transition: var(--transition);
+  background: var(--white); cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s cubic-bezier(.34,1.56,.64,1);
 }
-.task-chk.done { background: var(--green); border-color: var(--green); color: white; }
-.task-text { font-size: 0.82rem; color: var(--text-2); font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.task-text.done { text-decoration: line-through; color: var(--text-3); }
+.task-chk.done {
+  background: linear-gradient(135deg, #34d399, #16a34a);
+  border-color: transparent;
+  animation: taskChkPop 0.4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes taskChkPop {
+  0%   { transform: scale(0.75); }
+  55%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.task-chk-icon {
+  width: 11px; height: 11px; opacity: 0; transform: scale(0.3) translateY(-3px);
+  transition: opacity 0.2s ease 0.05s, transform 0.25s cubic-bezier(.34,1.56,.64,1) 0.05s;
+}
+.task-chk.done .task-chk-icon { opacity: 1; transform: scale(1) translateY(0); }
+.task-chk-icon path {
+  fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Animated strikethrough (drawn line instead of native text-decoration) */
+.task-text {
+  font-size: 0.82rem; color: var(--text-2); font-weight: 500; flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; position: relative;
+  transition: color 0.3s ease 0.1s;
+}
+.task-text::after {
+  content: ''; position: absolute; right: 0; left: 0; top: 50%; height: 1.5px;
+  background: currentColor; transform: scaleX(0); transform-origin: right;
+  transition: transform 0.35s cubic-bezier(.65,0,.35,1);
+}
+.task-text.done { color: var(--text-3); }
+.task-text.done::after { transform: scaleX(1); }
+
+.task-meta-row { display: flex; align-items: center; gap: 6px; margin-right: 29px; margin-top: 3px; flex-wrap: wrap; }
+.task-flag-btn {
+  background: none; border: none; cursor: pointer; font-size: 0.72rem; padding: 2px 5px;
+  border-radius: 6px; opacity: 0.55; transition: opacity 0.15s; line-height: 1;
+}
+.task-flag-btn:hover { opacity: 1; background: var(--bg2); }
+.task-flag-btn.set { opacity: 1; }
+.task-due-badge {
+  font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+  background: var(--bg2); color: var(--text-3); border: none; cursor: pointer;
+  font-family: 'Tajawal', sans-serif; display: inline-flex; align-items: center; gap: 3px;
+}
+.task-due-badge.overdue { background: #fee2e2; color: #dc2626; }
+.task-due-badge.today { background: #dbeafe; color: #1d4ed8; }
+.task-due-input {
+  font-size: 0.68rem; border: 1px solid var(--border); border-radius: 6px;
+  padding: 2px 4px; background: var(--white); color: var(--text); font-family: 'Tajawal', sans-serif;
+}
+.task-subtask-toggle {
+  font-size: 0.62rem; font-weight: 700; color: var(--text-3); background: none; border: none;
+  cursor: pointer; padding: 2px 6px; border-radius: 6px; font-family: 'Tajawal', sans-serif;
+}
+.task-subtask-toggle:hover { background: var(--bg2); color: var(--blue-500); }
+.task-subtasks { margin-right: 29px; margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
+.task-subtask-row { display: flex; align-items: center; gap: 6px; }
+.task-subchk {
+  width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--border);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  background: var(--white); cursor: pointer; font-size: 0.55rem;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s cubic-bezier(.34,1.56,.64,1);
+}
+.task-subchk.done { background: var(--green); border-color: var(--green); color: white; }
+.task-subtask-text { font-size: 0.74rem; color: var(--text-2); flex: 1; min-width: 0; position: relative; }
+.task-subtask-text::after {
+  content: ''; position: absolute; right: 0; left: 0; top: 50%; height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: right;
+  transition: transform 0.3s cubic-bezier(.65,0,.35,1);
+}
+.task-subtask-text.done { color: var(--text-3); }
+.task-subtask-text.done::after { transform: scaleX(1); }
+.task-subtask-del { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 0.68rem; padding: 2px 5px; flex-shrink: 0; }
+.task-subtask-del:hover { color: var(--red); }
+.task-subtask-add-row { display: flex; gap: 5px; margin-top: 2px; }
+.task-subtask-add-input {
+  flex: 1; min-width: 0; font-size: 0.72rem; padding: 4px 8px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: 'Tajawal', sans-serif;
+}
 .add-task-row { display: flex; gap: 6px; margin-top: 10px; }
+.task-group-divider {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.66rem; font-weight: 800; color: var(--text-3);
+  padding: 6px 4px 4px; margin-top: 2px;
+}
+.task-group-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.task-group-divider.overdue-divider { color: #dc2626; }
+.task-group-divider.overdue-divider::after { background: rgba(220,38,38,0.25); }
 .task-input {
   flex: 1; min-width: 0;
   background: var(--bg); border: 1px solid var(--border);
@@ -3085,17 +3257,28 @@ table { border-collapse: collapse; min-width: 100%; }
 
 .journal-entry-card {
   background: var(--white); border: 1.5px solid var(--border);
-  border-radius: var(--radius); padding: 16px 18px;
+  border-radius: var(--radius); padding: 16px 18px 16px 16px;
   margin-bottom: 12px; box-shadow: var(--shadow-sm);
   transition: all 0.2s; cursor: pointer; position: relative;
-  border-right: 4px solid var(--blue-400);
+  border-right: 4px solid var(--blue-400); overflow: hidden;
+  display: flex; gap: 12px; align-items: flex-start;
 }
-.journal-entry-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.journal-entry-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.journal-entry-mood-avatar {
+  flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.35rem; position: relative; z-index: 1;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+.journal-entry-body { flex: 1; min-width: 0; position: relative; z-index: 1; }
 .journal-entry-top {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px;
 }
-.journal-entry-meta { display: flex; align-items: center; gap: 8px; }
-.journal-entry-date { font-size: 0.72rem; font-weight: 700; color: var(--text-3); }
+.journal-entry-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.journal-entry-date {
+  font-size: 0.78rem; font-weight: 800; color: var(--text);
+  background: var(--bg2); padding: 3px 10px; border-radius: 8px;
+}
 .journal-entry-mood-badge {
   font-size: 0.72rem; font-weight: 700; padding: 2px 8px;
   border-radius: 99px; background: var(--blue-50); color: var(--blue-600);
@@ -3250,6 +3433,84 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .journal-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
 .journal-empty-text { font-size: 0.88rem; }
+
+/* Fun facts banner */
+.journal-funfacts {
+  display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto;
+  padding-bottom: 2px; scrollbar-width: none;
+}
+.journal-funfacts::-webkit-scrollbar { display: none; }
+.journal-funfact-card {
+  flex: 0 0 auto; min-width: 190px; border-radius: 14px;
+  padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+}
+.journal-funfact-emoji { font-size: 1.5rem; flex-shrink: 0; }
+.journal-funfact-text { font-size: 0.78rem; font-weight: 700; color: var(--text); line-height: 1.4; }
+
+/* Draft indicator */
+.journal-draft-indicator {
+  font-size: 0.68rem; color: var(--text-3); display: flex; align-items: center;
+  gap: 4px; opacity: 0; transition: opacity 0.3s;
+}
+.journal-draft-indicator.show { opacity: 1; }
+
+/* View toggle */
+.journal-view-toggle {
+  display: flex; gap: 4px; background: var(--bg2); border-radius: 99px; padding: 3px;
+}
+.journal-view-toggle button {
+  border: none; background: transparent; padding: 5px 12px; border-radius: 99px;
+  font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--text-2);
+  font-family: 'Tajawal', sans-serif; transition: all 0.15s;
+}
+.journal-view-toggle button.active { background: var(--white); color: var(--blue-600); box-shadow: var(--shadow-sm); }
+
+/* Calendar view */
+.journal-calendar-wrap {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.journal-calendar-nav {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.journal-calendar-nav button {
+  border: 1.5px solid var(--border); background: var(--bg); border-radius: 8px;
+  width: 30px; height: 30px; cursor: pointer; font-size: 0.9rem; color: var(--text-2);
+}
+.journal-calendar-month-label { font-size: 0.88rem; font-weight: 800; color: var(--text); }
+.journal-calendar-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+}
+.journal-calendar-dow {
+  text-align: center; font-size: 0.62rem; font-weight: 800; color: var(--text-3);
+  padding-bottom: 4px; text-transform: uppercase;
+}
+.journal-calendar-day {
+  aspect-ratio: 1; border-radius: 10px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700;
+  color: var(--text-2); background: var(--bg2); position: relative; cursor: default;
+  border: 1.5px solid transparent;
+}
+.journal-calendar-day.has-entry {
+  cursor: pointer; color: white; font-weight: 800;
+}
+.journal-calendar-day.has-entry:hover { transform: scale(1.06); box-shadow: var(--shadow-sm); }
+.journal-calendar-day.is-today { border-color: var(--blue-500); }
+.journal-calendar-day.is-empty-cell { background: transparent; }
+.journal-calendar-day-count {
+  font-size: 0.55rem; font-weight: 900; position: absolute; bottom: 2px;
+  opacity: 0.9;
+}
+.journal-calendar-legend {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 0.65rem; color: var(--text-3);
+}
+.journal-calendar-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.journal-calendar-legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+.journal-calendar-empty-hint {
+  text-align: center; font-size: 0.72rem; color: var(--text-3); margin-top: 10px;
+}
 
 /* ===== QUOTES SECTION ===== */
 .quotes-section { margin-bottom: 24px; }
@@ -4925,6 +5186,16 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
 
   <div class="streaks-row fade-up" id="streaksRow"></div>
 
+  <div class="rings-section fade-up">
+    <div class="card-title">⭕ حلقات العادات (Rings)</div>
+    <div class="rings-grid" id="ringsGrid"></div>
+  </div>
+
+  <div class="heatmap-section fade-up">
+    <div class="card-title">🟩 خريطة الحرارة (GitHub Style)</div>
+    <div id="heatmapContainer"></div>
+  </div>
+
   <div class="add-row fade-up" style="position:relative">
     <button class="emoji-pick" id="emojiPickBtn" onclick="toggleEmojiPicker()">😊</button>
     <input class="habit-input" id="newHabitInput" type="text" placeholder="أضف عادة جديدة... مثلاً: استيقظ الساعة 5 صباحاً" maxlength="50" onkeydown="if(event.key==='Enter') openAddHabitModal()">
@@ -5080,50 +5351,54 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
       <div class="journal-stat"><div class="journal-stat-val" id="jStatThisMonth">0</div><div class="journal-stat-label" id="jStatLabelMonth">هذا الشهر</div></div>
     </div>
 
+    <!-- Fun facts -->
+    <div class="journal-funfacts fade-up" id="journalFunFacts"></div>
+
     <!-- Composer -->
     <div class="journal-composer fade-up">
       <div class="journal-composer-top">
         <span style="font-size:1.1rem">✍️</span>
         <span style="font-size:0.85rem;font-weight:700;color:var(--text)" id="journalComposerPrompt">ماذا في بالك اليوم؟</span>
         <span class="journal-date-badge" id="journalTodayDate"></span>
+        <span class="journal-draft-indicator" id="journalDraftIndicator">💾 <span id="journalDraftIndicatorTxt">تم حفظ المسودة</span></span>
       </div>
 
       <!-- Mood -->
       <div class="journal-mood-pick" id="journalMoodPick">
-        <button class="journal-mood-btn active" data-mood="😊 ممتاز" id="journalMoodBtn0" onclick="selectJournalMood(this)">😊 ممتاز</button>
-        <button class="journal-mood-btn" data-mood="🙂 جيد" id="journalMoodBtn1" onclick="selectJournalMood(this)">🙂 جيد</button>
-        <button class="journal-mood-btn" data-mood="😐 عادي" id="journalMoodBtn2" onclick="selectJournalMood(this)">😐 عادي</button>
-        <button class="journal-mood-btn" data-mood="😔 صعب" id="journalMoodBtn3" onclick="selectJournalMood(this)">😔 صعب</button>
-        <button class="journal-mood-btn" data-mood="🔥 متحمس" id="journalMoodBtn4" onclick="selectJournalMood(this)">🔥 متحمس</button>
-        <button class="journal-mood-btn" data-mood="😴 متعب" id="journalMoodBtn5" onclick="selectJournalMood(this)">😴 متعب</button>
+        <button class="journal-mood-btn active" data-mood="😊 ممتاز" id="journalMoodBtn0" onclick="selectJournalMood(this); _scheduleJournalDraftSave()">😊 ممتاز</button>
+        <button class="journal-mood-btn" data-mood="🙂 جيد" id="journalMoodBtn1" onclick="selectJournalMood(this); _scheduleJournalDraftSave()">🙂 جيد</button>
+        <button class="journal-mood-btn" data-mood="😐 عادي" id="journalMoodBtn2" onclick="selectJournalMood(this); _scheduleJournalDraftSave()">😐 عادي</button>
+        <button class="journal-mood-btn" data-mood="😔 صعب" id="journalMoodBtn3" onclick="selectJournalMood(this); _scheduleJournalDraftSave()">😔 صعب</button>
+        <button class="journal-mood-btn" data-mood="🔥 متحمس" id="journalMoodBtn4" onclick="selectJournalMood(this); _scheduleJournalDraftSave()">🔥 متحمس</button>
+        <button class="journal-mood-btn" data-mood="😴 متعب" id="journalMoodBtn5" onclick="selectJournalMood(this); _scheduleJournalDraftSave()">😴 متعب</button>
       </div>
 
       <!-- Structured fields -->
       <div class="journal-section-label">🎯 أهداف اليوم</div>
       <textarea class="journal-field-textarea" id="journalGoalsField"
         placeholder="ما الذي تريد تحقيقه اليوم؟"
-        oninput="_autoResizeJournalField(this)"></textarea>
+        oninput="_autoResizeJournalField(this); _scheduleJournalDraftSave()"></textarea>
 
       <div class="journal-section-label">✅ ما أنجزته</div>
       <textarea class="journal-field-textarea" id="journalDoneField"
         placeholder="ما الذي أنجزته فعلاً؟"
-        oninput="_autoResizeJournalField(this)"></textarea>
+        oninput="_autoResizeJournalField(this); _scheduleJournalDraftSave()"></textarea>
 
       <div class="journal-section-label">✍️ أفكاري وتأملاتي</div>
       <textarea class="journal-field-textarea journal-free-textarea" id="journalTextarea"
         placeholder="اكتب ما يخطر في بالك بحرية..."
-        oninput="updateJournalCharCount(); _autoResizeJournalField(this)"></textarea>
+        oninput="updateJournalCharCount(); _autoResizeJournalField(this); _scheduleJournalDraftSave()"></textarea>
 
       <!-- Tags -->
       <div class="journal-tags-row" id="journalTagsRow" style="margin-top:14px">
         <span style="font-size:0.72rem;color:var(--text-3);font-weight:700;align-self:center" id="journalTagsLabel">وسوم:</span>
-        <button class="journal-tag-chip" data-tag="🎯 أهداف" id="journalTag0" onclick="toggleJournalTag(this)">🎯 أهداف</button>
-        <button class="journal-tag-chip" data-tag="💪 إنجاز" id="journalTag1" onclick="toggleJournalTag(this)">💪 إنجاز</button>
-        <button class="journal-tag-chip" data-tag="🧠 تعلم" id="journalTag2" onclick="toggleJournalTag(this)">🧠 تعلم</button>
-        <button class="journal-tag-chip" data-tag="❤️ علاقات" id="journalTag3" onclick="toggleJournalTag(this)">❤️ علاقات</button>
-        <button class="journal-tag-chip" data-tag="🌱 نمو" id="journalTag4" onclick="toggleJournalTag(this)">🌱 نمو</button>
-        <button class="journal-tag-chip" data-tag="😌 تأمل" id="journalTag5" onclick="toggleJournalTag(this)">😌 تأمل</button>
-        <button class="journal-tag-chip" data-tag="💡 فكرة" id="journalTag6" onclick="toggleJournalTag(this)">💡 فكرة</button>
+        <button class="journal-tag-chip" data-tag="🎯 أهداف" id="journalTag0" onclick="toggleJournalTag(this); _scheduleJournalDraftSave()">🎯 أهداف</button>
+        <button class="journal-tag-chip" data-tag="💪 إنجاز" id="journalTag1" onclick="toggleJournalTag(this); _scheduleJournalDraftSave()">💪 إنجاز</button>
+        <button class="journal-tag-chip" data-tag="🧠 تعلم" id="journalTag2" onclick="toggleJournalTag(this); _scheduleJournalDraftSave()">🧠 تعلم</button>
+        <button class="journal-tag-chip" data-tag="❤️ علاقات" id="journalTag3" onclick="toggleJournalTag(this); _scheduleJournalDraftSave()">❤️ علاقات</button>
+        <button class="journal-tag-chip" data-tag="🌱 نمو" id="journalTag4" onclick="toggleJournalTag(this); _scheduleJournalDraftSave()">🌱 نمو</button>
+        <button class="journal-tag-chip" data-tag="😌 تأمل" id="journalTag5" onclick="toggleJournalTag(this); _scheduleJournalDraftSave()">😌 تأمل</button>
+        <button class="journal-tag-chip" data-tag="💡 فكرة" id="journalTag6" onclick="toggleJournalTag(this); _scheduleJournalDraftSave()">💡 فكرة</button>
       </div>
 
       <div class="journal-composer-actions">
@@ -5137,11 +5412,16 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
       <div class="journal-entries-header">
         <span class="journal-entries-title" id="journalEntriesTitle">📚 المقالات السابقة</span>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="journal-view-toggle" id="journalViewToggle">
+            <button class="active" id="journalViewListBtn" onclick="setJournalView('list')">📚 قائمة</button>
+            <button id="journalViewCalBtn" onclick="setJournalView('calendar')">📅 تقويم</button>
+          </div>
           <input class="journal-search" id="journalSearch" placeholder="🔍 بحث بالنص أو الوسم..." oninput="renderJournalEntries()">
           <input type="month" class="journal-search" id="journalDateFilter" style="width:auto;padding:6px 10px;cursor:pointer" oninput="renderJournalEntries()" title="تصفية بالشهر">
           <button onclick="_clearJournalFilters()" id="journalClearFilter" style="display:none;background:var(--bg2);border:1.5px solid var(--border);border-radius:99px;padding:5px 12px;font-size:0.75rem;font-weight:700;color:var(--text-2);cursor:pointer;font-family:Tajawal,sans-serif">✕ مسح</button>
         </div>
       </div>
+      <div id="journalCalendarView" style="display:none"></div>
       <div id="journalEntriesList"></div>
     </div>
 
@@ -7568,7 +7848,7 @@ function updateAchievementsPageText() {
 }
 
 function updateEditHabitModalText() {
-  const tr = T[currentLang] || T.ar;
+  const tr = T.ar;
   const t1 = document.getElementById('editHabitTitle');
   if (t1) t1.textContent = tr.editHabitTitle;
   const t2 = document.getElementById('editHabitDaysLabel');
@@ -7600,7 +7880,7 @@ function updateSignOutModalText() {
 }
 
 function updateAddHabitModalText() {
-  const tr = T[currentLang] || T.ar;
+  const tr = T.ar;
   const t1 = document.getElementById('addHabitModalTitle');
   if (t1) t1.textContent = tr.addHabitModalTitle;
   const t2 = document.getElementById('addHabitModalSubtitle');
@@ -7945,10 +8225,10 @@ const DEFAULT_HABITS = [
   { id: 5, emoji: '📖', name: 'مراجعة الأهداف', activeDays: [0,1,2,3,4,5,6] },
 ];
 const DEFAULT_WEEKLY = {
-  1: [{ text: 'مراجعة الأهداف الأسبوعية', done: false }, { text: 'تحديد 3 أولويات رئيسية', done: false }, { text: 'ترتيب مساحة العمل', done: false }, { text: 'تخطيط وجبات الأسبوع', done: false }],
-  2: [{ text: 'مراجعة منتصف الأسبوع', done: false }, { text: 'تحليل ما يعمل وما لا يعمل', done: false }, { text: 'تعلم مهارة جديدة', done: false }, { text: 'جلسة تأمل متعمقة', done: false }],
-  3: [{ text: 'مراجعة تقدم الأهداف', done: false }, { text: 'التواصل الاجتماعي المهم', done: false }, { text: 'إنشاء محتوى / إبداع', done: false }, { text: 'تخطيط الأسبوع القادم', done: false }],
-  4: [{ text: 'مراجعة الأهداف الشهرية', done: false }, { text: 'إنهاء المشاريع المعلقة', done: false }, { text: 'نشاط للتعافي والراحة', done: false }, { text: 'احتفل بإنجازاتك', done: false }],
+  1: [{ text: 'مراجعة الأهداف الأسبوعية', done: false, priority: 'high', due: null, subtasks: [] }, { text: 'تحديد 3 أولويات رئيسية', done: false, priority: 'med', due: null, subtasks: [] }, { text: 'ترتيب مساحة العمل', done: false, priority: null, due: null, subtasks: [] }, { text: 'تخطيط وجبات الأسبوع', done: false, priority: null, due: null, subtasks: [] }],
+  2: [{ text: 'مراجعة منتصف الأسبوع', done: false, priority: 'med', due: null, subtasks: [] }, { text: 'تحليل ما يعمل وما لا يعمل', done: false, priority: null, due: null, subtasks: [] }, { text: 'تعلم مهارة جديدة', done: false, priority: null, due: null, subtasks: [] }, { text: 'جلسة تأمل متعمقة', done: false, priority: null, due: null, subtasks: [] }],
+  3: [{ text: 'مراجعة تقدم الأهداف', done: false, priority: 'high', due: null, subtasks: [] }, { text: 'التواصل الاجتماعي المهم', done: false, priority: null, due: null, subtasks: [] }, { text: 'إنشاء محتوى / إبداع', done: false, priority: null, due: null, subtasks: [] }, { text: 'تخطيط الأسبوع القادم', done: false, priority: null, due: null, subtasks: [] }],
+  4: [{ text: 'مراجعة الأهداف الشهرية', done: false, priority: 'high', due: null, subtasks: [] }, { text: 'إنهاء المشاريع المعلقة', done: false, priority: 'med', due: null, subtasks: [] }, { text: 'نشاط للتعافي والراحة', done: false, priority: null, due: null, subtasks: [] }, { text: 'احتفل بإنجازاتك', done: false, priority: null, due: null, subtasks: [] }],
 };
 
 // Data starts with sensible defaults (never null/empty) so the UI is always usable
@@ -8002,7 +8282,7 @@ const DAY_LABELS_SHORT = {
 };
 
 function _dayChipsHtml(activeArr, toggleFnName) {
-  const labels = DAY_LABELS_SHORT[currentLang] || DAY_LABELS_SHORT.ar;
+  const labels = DAY_LABELS_SHORT.ar;
   return [0,1,2,3,4,5,6].map(i => {
     const on = activeArr.includes(i);
     return `<button type="button" onclick="${toggleFnName}(${i})" style="min-width:44px;padding:6px 4px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:0.72rem;font-weight:700;cursor:pointer;border:1.5px solid ${on ? 'var(--blue-500)' : 'var(--border)'};background:${on ? 'var(--blue-500)' : 'var(--bg)'};color:${on ? '#fff' : 'var(--text-2)'};">${labels[i]}</button>`;
@@ -10061,6 +10341,186 @@ function renderTracker() {
   `).join('') || `<div style="font-size:0.78rem;color:var(--text-3);padding:4px">${tr.noStreaks}</div>`;
 
   renderTable();
+  renderHabitRings();
+  renderHeatmaps();
+}
+
+// =========== HABIT RINGS ===========
+function habitCompletionPct(h) {
+  const totalDays = daysInMonth(curY, curM);
+  const sd = curY === today.getFullYear() && curM === today.getMonth() ? today.getDate() : totalDays;
+  let done = 0, scheduled = 0;
+  for (let d = 1; d <= sd; d++) {
+    if (isFuture(d)) continue;
+    if (!isHabitActiveOn(h, d)) continue;
+    scheduled++;
+    if (checks[chkKey(h.id, d)]) done++;
+  }
+  return scheduled > 0 ? Math.round((done / scheduled) * 100) : 0;
+}
+
+function habitCurrentStreak(h) {
+  const totalDays = daysInMonth(curY, curM);
+  const sd = curY === today.getFullYear() && curM === today.getMonth() ? today.getDate() : totalDays;
+  let streak = 0;
+  for (let d = sd; d >= 1; d--) {
+    if (isFuture(d)) continue;
+    if (!isHabitActiveOn(h, d)) continue;
+    if (checks[chkKey(h.id, d)]) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function renderHabitRings() {
+  const grid = document.getElementById('ringsGrid');
+  if (!grid) return;
+  const tr = T[currentLang] || T.ar;
+  if (habits.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-3);font-size:0.85rem;padding:16px">${tr.noStreaks || '—'}</div>`;
+    return;
+  }
+  const accent = settings.accent || '#3b82f6';
+  const R = 31, C = 2 * Math.PI * R;
+  grid.innerHTML = habits.map(h => {
+    const pct = habitCompletionPct(h);
+    const streak = habitCurrentStreak(h);
+    const offset = C - (pct / 100) * C;
+    return `
+    <div class="ring-item" onclick="openFocusRing(${h.id})">
+      <div class="ring-svg-wrap">
+        <svg viewBox="0 0 70 70">
+          <circle class="ring-track" cx="35" cy="35" r="${R}"></circle>
+          <circle class="ring-progress" cx="35" cy="35" r="${R}"
+            stroke="${accent}" stroke-dasharray="${C}" stroke-dashoffset="${offset}"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-emoji">${h.emoji}</div>
+          <div class="ring-pct">${pct}%</div>
+        </div>
+      </div>
+      <div class="ring-name">${h.name}</div>
+      ${streak > 1 ? `<div class="ring-streak-tag">🔥 ${streak}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function openFocusRing(habitId) {
+  const h = habits.find(x => x.id === habitId);
+  if (!h) return;
+  const pct = habitCompletionPct(h);
+  const streak = habitCurrentStreak(h);
+  const totalDays = daysInMonth(curY, curM);
+  const sd = curY === today.getFullYear() && curM === today.getMonth() ? today.getDate() : totalDays;
+  let done = 0, missed = 0;
+  for (let d = 1; d <= sd; d++) {
+    if (isFuture(d) || !isHabitActiveOn(h, d)) continue;
+    if (checks[chkKey(h.id, d)]) done++; else missed++;
+  }
+  const accent = settings.accent || '#3b82f6';
+  const R = 84, C = 2 * Math.PI * R;
+  const offset = C - (pct / 100) * C;
+  const overlay = document.createElement('div');
+  overlay.className = 'focus-modal-overlay';
+  overlay.id = 'focusRingOverlay';
+  overlay.onclick = (e) => { if (e.target === overlay) closeFocusRing(); };
+  overlay.innerHTML = `
+    <div class="focus-modal-card">
+      <button class="focus-modal-close" onclick="closeFocusRing()">✕</button>
+      <div class="focus-name">${h.name}</div>
+      <div class="focus-ring-wrap">
+        <svg viewBox="0 0 200 200">
+          <circle class="focus-ring-track" cx="100" cy="100" r="${R}"></circle>
+          <circle class="focus-ring-progress" cx="100" cy="100" r="${R}"
+            stroke="${accent}" stroke-dasharray="${C}" stroke-dashoffset="${offset}"></circle>
+        </svg>
+        <div class="focus-ring-center">
+          <div class="focus-emoji">${h.emoji}</div>
+          <div class="focus-pct">${pct}%</div>
+        </div>
+      </div>
+      <div class="focus-stats-row">
+        <div class="focus-stat"><div class="focus-stat-val">✅ ${done}</div><div class="focus-stat-lbl">مكتملة</div></div>
+        <div class="focus-stat"><div class="focus-stat-val">🔥 ${streak}</div><div class="focus-stat-lbl">سلسلة حالية</div></div>
+        <div class="focus-stat"><div class="focus-stat-val">❌ ${missed}</div><div class="focus-stat-lbl">فائتة</div></div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function closeFocusRing() {
+  const el = document.getElementById('focusRingOverlay');
+  if (el) el.remove();
+}
+
+// =========== GITHUB-STYLE HEATMAP ===========
+function renderHeatmaps() {
+  const container = document.getElementById('heatmapContainer');
+  if (!container) return;
+  const tr = T[currentLang] || T.ar;
+  if (habits.length === 0) {
+    container.innerHTML = `<div style="text-align:center;color:var(--text-3);font-size:0.85rem;padding:16px">${tr.noStreaks || '—'}</div>`;
+    return;
+  }
+  const DAYS_BACK = 91; // ~13 weeks, GitHub-style
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - (DAYS_BACK - 1));
+  // Align start to a Sunday so weeks stack cleanly into 7-row columns
+  const alignBack = startDate.getDay();
+  startDate.setDate(startDate.getDate() - alignBack);
+
+  container.innerHTML = habits.map(h => {
+    const streaksByDate = [];
+    let runningStreak = 0;
+    const cursor = new Date(startDate);
+    const cells = [];
+    while (cursor <= today) {
+      const y = cursor.getFullYear(), m = cursor.getMonth(), d = cursor.getDate();
+      const isFut = cursor > today;
+      const active = isHabitActiveOnDate(h, y, m, d);
+      const done = active && !!checks[chkKeyFor(y, m, h.id, d)];
+      if (done) runningStreak++; else if (active) runningStreak = 0;
+      let level = 0;
+      if (done) {
+        if (runningStreak >= 30) level = 4;
+        else if (runningStreak >= 14) level = 3;
+        else if (runningStreak >= 7) level = 2;
+        else level = 1;
+      }
+      cells.push({ y, m, d, isFut, active, done, level });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    const cellsHtml = cells.map(c => {
+      if (c.isFut) return `<div class="heatmap-cell hm-future"></div>`;
+      const bg = !c.active ? 'var(--border)' : heatmapLevelColor(c.level);
+      const dateStr = `${c.y}-${String(c.m+1).padStart(2,'0')}-${String(c.d).padStart(2,'0')}`;
+      const title = c.active ? (c.done ? `✅ ${dateStr}` : `❌ ${dateStr}`) : `— ${dateStr}`;
+      return `<div class="heatmap-cell" style="background:${bg}" title="${title}"></div>`;
+    }).join('');
+    return `
+    <div class="heatmap-habit-block">
+      <div class="heatmap-habit-header"><span>${h.emoji}</span><span>${h.name}</span></div>
+      <div class="heatmap-scroll">
+        <div class="heatmap-grid">${cellsHtml}</div>
+      </div>
+    </div>`;
+  }).join('') + `
+    <div class="heatmap-legend">
+      <span>أقل</span>
+      <div class="heatmap-cell" style="background:var(--border)"></div>
+      <div class="heatmap-cell" style="background:${heatmapLevelColor(1)}"></div>
+      <div class="heatmap-cell" style="background:${heatmapLevelColor(2)}"></div>
+      <div class="heatmap-cell" style="background:${heatmapLevelColor(3)}"></div>
+      <div class="heatmap-cell" style="background:${heatmapLevelColor(4)}"></div>
+      <span>أكثر</span>
+    </div>`;
+}
+
+function heatmapLevelColor(level) {
+  const accent = settings.accent || '#3b82f6';
+  const alphas = { 1: 0.28, 2: 0.5, 3: 0.72, 4: 1 };
+  if (level === 0) return 'var(--border)';
+  return hexToRgba(accent, alphas[level] || 1);
 }
 
 // =========== DONUT CHART ===========
@@ -10226,16 +10686,16 @@ function renderTable() {
     : weekGroups;
 
   let html = '';
-  const habitColLabel1 = '<th class="habit-col">' + (currentLang === 'ar' ? 'عاداتي' : currentLang === 'fr' ? 'Mes Habitudes' : 'My Habits') + '</th>';
+  const habitColLabel1 = '<th class="habit-col">' + 'عاداتي' + '</th>';
   let weekCellsHtml = '';
   renderGroups.forEach((wg, wi) => {
     const isLast = wi === renderGroups.length - 1;
-    const wkLabel = currentLang === 'ar' ? `الأسبوع ${wg.n}` : currentLang === 'fr' ? `Semaine ${wg.n}` : `Week ${wg.n}`;
+    const wkLabel = `الأسبوع ${wg.n}`;
     weekCellsHtml += `<th colspan="${wg.days.length}" class="${WEEK_COLORS[wi]}${isLast ? '' : ' week-sep'}">${wkLabel}</th>`;
   });
   html += '<tr class="week-header-row">' + (isAr ? weekCellsHtml + habitColLabel1 : habitColLabel1 + weekCellsHtml) + '</tr>';
 
-  const habitColLabel2 = '<th class="habit-col" id="habitColHeader">' + (currentLang === 'ar' ? 'العادة / اليوم' : currentLang === 'fr' ? 'Habitude / Jour' : 'Habit / Day') + '<div class="habit-col-resizer" id="habitColResizer"></div></th>';
+  const habitColLabel2 = '<th class="habit-col" id="habitColHeader">' + 'العادة / اليوم' + '<div class="habit-col-resizer" id="habitColResizer"></div></th>';
   let dayCellsHtml = '';
   renderGroups.forEach((wg, wi) => {
     const isLastWk = wi === renderGroups.length - 1;
@@ -10248,7 +10708,7 @@ function renderTable() {
   html += '<tr class="daynum-row">' + (isAr ? dayCellsHtml + habitColLabel2 : habitColLabel2 + dayCellsHtml) + '</tr>';
 
   if (habits.length === 0) {
-    html += `<tr><td class="habit-name-cell" colspan="100" style="padding:30px;text-align:center;color:var(--text-3);font-size:0.9rem">${currentLang === 'ar' ? 'لا توجد عادات بعد — أضف عادتك الأولى أعلاه ✨' : currentLang === 'fr' ? 'Pas encore d\'habitudes — ajoutez votre première habitude ci-dessus ✨' : 'No habits yet — add your first habit above ✨'}</td></tr>`;
+    html += `<tr><td class="habit-name-cell" colspan="100" style="padding:30px;text-align:center;color:var(--text-3);font-size:0.9rem">لا توجد عادات بعد — أضف عادتك الأولى أعلاه ✨</td></tr>`;
   }
 
   habits.forEach((h, hIdx) => {
@@ -10258,9 +10718,9 @@ function renderTable() {
       else break; }
     const nameHtml = `<span class="habit-text" title="${escAttr(h.name)}" ondblclick="startEditHabit(${h.id})">${escAttr(h.name)}</span>`;
     const nameCellHtml = `<td class="habit-name-cell"><div class="habit-name-inner">
-      <button class="del-btn" onclick="deleteHabit(${h.id})" title="${currentLang === 'ar' ? 'حذف' : currentLang === 'fr' ? 'Supprimer' : 'Delete'}">✕</button>
-      <button class="edit-btn" onclick="startEditHabit(${h.id})" title="${currentLang === 'ar' ? 'تعديل الاسم' : currentLang === 'fr' ? 'Modifier' : 'Edit name'}">✎</button>
-      <button type="button" class="habit-reorder-btn" onclick="event.stopPropagation();openHabitReorderMenu(${h.id})" title="${currentLang === 'ar' ? 'تغيير الترتيب' : currentLang === 'fr' ? 'Réorganiser' : 'Reorder'}">⠿</button>
+      <button class="del-btn" onclick="deleteHabit(${h.id})" title="حذف">✕</button>
+      <button class="edit-btn" onclick="startEditHabit(${h.id})" title="تعديل الاسم">✎</button>
+      <button type="button" class="habit-reorder-btn" onclick="event.stopPropagation();openHabitReorderMenu(${h.id})" title="تغيير الترتيب">⠿</button>
       ${streak > 1 ? `<span class="streak-mini">🔥${streak}</span>` : ''}${nameHtml}<span class="habit-emoji">${h.emoji}</span></div></td>`;
     let dayCellsRow = '';
     renderGroups.forEach((wg, wi) => {
@@ -10278,7 +10738,7 @@ function renderTable() {
         else if (done) { cls = 'done'; symbol = '✓'; }
         else if (isTodayCell) { cls = ''; symbol = ''; } // still today — no verdict yet, plain empty box
         else { cls = 'missed-day'; symbol = '✕'; } // scheduled, already passed, never checked
-        const title = !scheduled ? (currentLang === 'ar' ? 'غير مجدولة لهذا اليوم' : currentLang === 'fr' ? 'Non prévue ce jour' : 'Not scheduled this day') : '';
+        const title = !scheduled ? 'غير مجدولة لهذا اليوم' : '';
         dayCellsRow += `<td style="${isLastDay && !isLastWk ? 'border-right:2px solid var(--border)' : ''}"><button class="chk ${cls}" ${title ? `title="${title}"` : ''} onclick="${clickable ? 'toggleCheck(' + h.id + ',' + d + ')' : ''}">${symbol}</button></td>`;
       });
     });
@@ -10286,13 +10746,13 @@ function renderTable() {
   });
 
   const rowDefs = [
-    { label: currentLang === 'ar' ? 'التقدم' : currentLang === 'fr' ? 'Progrès' : 'Progress', fn: (d) => { if (isFuture(d)) return '<span style="color:var(--text-3)">—</span>'; let dc = 0, sc = 0;
+    { label: 'التقدم', fn: (d) => { if (isFuture(d)) return '<span style="color:var(--text-3)">—</span>'; let dc = 0, sc = 0;
       habits.forEach(h => { if (isHabitActiveOn(h, d)) { sc++; if (checks[chkKey(h.id, d)]) dc++; } });
       const pct = sc > 0 ? Math.round(dc / sc * 100) : 0;
       const cl = pct >= 80 ? 'pct-high' : pct >= 50 ? 'pct-mid' : pct > 0 ? 'pct-low' : 'pct-zero'; return `<span class="pct-chip ${cl}">${pct}%</span>`; } },
-    { label: currentLang === 'ar' ? 'مكتملة ✅' : currentLang === 'fr' ? 'Complétées ✅' : 'Done ✅', fn: (d) => { let dc = 0;
+    { label: 'مكتملة ✅', fn: (d) => { let dc = 0;
       habits.forEach(h => { if (isHabitActiveOn(h, d) && checks[chkKey(h.id, d)]) dc++; }); return isFuture(d) ? '<span style="color:var(--text-3)">—</span>' : `<span style="color:var(--green);font-weight:700">${dc}</span>`; } },
-    { label: currentLang === 'ar' ? 'فائتة ❌' : currentLang === 'fr' ? 'Manquées ❌' : 'Missed ❌', fn: (d) => { let dc = 0, sc = 0;
+    { label: 'فائتة ❌', fn: (d) => { let dc = 0, sc = 0;
       habits.forEach(h => { if (isHabitActiveOn(h, d)) { sc++; if (checks[chkKey(h.id, d)]) dc++; } });
       const nd = sc - dc; return isFuture(d) ? '<span style="color:var(--text-3)">—</span>' : `<span style="color:var(--red);font-weight:700">${nd}</span>`; } },
   ];
@@ -10961,6 +11421,44 @@ function renderThoughtNotes() {
 }
 
 // =========== RENDER WEEKLY ===========
+// ── Relative-day labels for due dates, TickTick-style: "Today", "Yesterday",
+// "3 days ago", "last week", "last month" — instead of always showing a raw
+// calendar date. Falls back to a short date once it's too far away to be
+// useful as a relative phrase.
+function relativeDueLabel(dueStr) {
+  const due = new Date(dueStr + 'T00:00:00');
+  const today0 = new Date(); today0.setHours(0,0,0,0);
+  const diffDays = Math.round((due - today0) / 86400000);
+  const ar = currentLang === 'ar', fr = currentLang === 'fr';
+
+  if (diffDays === 0) return ar ? 'اليوم' : fr ? "Aujourd'hui" : 'Today';
+  if (diffDays === 1) return ar ? 'غداً' : fr ? 'Demain' : 'Tomorrow';
+  if (diffDays === -1) return ar ? 'أمس' : fr ? 'Hier' : 'Yesterday';
+
+  if (diffDays < -1 && diffDays >= -6) {
+    const n = Math.abs(diffDays);
+    return ar ? `قبل ${n} أيام` : fr ? `il y a ${n} j` : `${n}d ago`;
+  }
+  if (diffDays <= -7 && diffDays > -14) return ar ? 'الأسبوع الماضي' : fr ? 'la semaine dernière' : 'last week';
+  if (diffDays <= -14 && diffDays > -30) {
+    const w = Math.round(Math.abs(diffDays) / 7);
+    return ar ? `قبل ${w} أسابيع` : fr ? `il y a ${w} sem` : `${w}w ago`;
+  }
+  if (diffDays <= -30 && diffDays > -60) return ar ? 'الشهر الماضي' : fr ? 'le mois dernier' : 'last month';
+  if (diffDays <= -60) {
+    const mo = Math.round(Math.abs(diffDays) / 30);
+    return ar ? `قبل ${mo} أشهر` : fr ? `il y a ${mo} mois` : `${mo}mo ago`;
+  }
+
+  if (diffDays > 1 && diffDays <= 6) {
+    return ar ? `خلال ${diffDays} أيام` : fr ? `dans ${diffDays} j` : `in ${diffDays}d`;
+  }
+  if (diffDays > 6 && diffDays <= 13) return ar ? 'الأسبوع القادم' : fr ? 'la semaine prochaine' : 'next week';
+
+  // Too far in the future/past to phrase relatively — fall back to a short date
+  return due.toLocaleDateString(ar ? 'ar-DZ' : fr ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' });
+}
+
 function renderWeekly() {
   let totalTasks = 0,
     doneTasks = 0;
@@ -11006,20 +11504,104 @@ function renderWeekly() {
       </div>
       <div class="week-progress-mini"><div class="week-progress-fill" style="width:${pctW}%"></div></div>
       <div class="week-col-body">`;
-    tasks.forEach((t, i) => {
+
+    // Group overdue (incomplete + past due) tasks at the top, separated by a
+    // divider bar — same pattern TickTick uses so overdue items don't blend
+    // into the rest of the list. Order within each group is preserved.
+    const _today0 = new Date(); _today0.setHours(0,0,0,0);
+    const isTaskOverdue = tk => tk.due && !tk.done && new Date(tk.due + 'T00:00:00') < _today0;
+    const overdueOrder = [];
+    const restOrder = [];
+    tasks.forEach((tk, idx) => (isTaskOverdue(tk) ? overdueOrder : restOrder).push(idx));
+    const renderOrder = [...overdueOrder, ...restOrder];
+
+    if (overdueOrder.length) {
+      html += `<div class="task-group-divider overdue-divider">⚠️ ${currentLang === 'ar' ? 'متأخرة' : currentLang === 'fr' ? 'En retard' : 'Overdue'} · ${overdueOrder.length}</div>`;
+    }
+
+    renderOrder.forEach((i, orderPos) => {
+      const t = tasks[i];
+      if (overdueOrder.length && orderPos === overdueOrder.length) {
+        html += `<div class="task-group-divider">📋 ${currentLang === 'ar' ? 'المهام' : currentLang === 'fr' ? 'Tâches' : 'Tasks'}</div>`;
+      }
       const isEditingTask = editingTask && editingTask.w === w && editingTask.i === i;
       const upDis = i === 0;
       const downDis = i === tasks.length - 1;
       const taskInner = isEditingTask
         ? `<input class="habit-edit-input" id="taskEditInput-${w}-${i}" type="text" maxlength="80" style="flex:1;min-width:0;width:auto" value="${escAttr(t.text)}" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTaskText(${w},${i},this.value);}else if(event.key==='Escape'){editingTask=null;renderWeekly();}" onblur="saveTaskText(${w},${i},this.value)">`
         : `<span class="task-text ${t.done ? 'done' : ''}" title="${escAttr(t.text)}" ondblclick="event.stopPropagation();startEditTask(${w},${i})">${escAttr(t.text)}</span>`;
-      html += `<div class="task-item">
-        <div class="task-chk ${t.done ? 'done' : ''}" onclick="event.stopPropagation();toggleTask(${w},${i})" style="cursor:pointer">${t.done ? '✓' : ''}</div>
-        ${taskInner}
-        <button onclick="event.stopPropagation();moveTask(${w},${i},-1)" ${upDis ? 'disabled' : ''} style="background:none;border:none;color:var(--text-3);cursor:${upDis ? 'default' : 'pointer'};opacity:${upDis ? '0.3' : '1'};font-size:0.6rem;padding:6px 3px;min-width:22px;min-height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;touch-action:manipulation" title="${currentLang === 'ar' ? 'نقل للأعلى' : 'Move up'}">▲</button>
-        <button onclick="event.stopPropagation();moveTask(${w},${i},1)" ${downDis ? 'disabled' : ''} style="background:none;border:none;color:var(--text-3);cursor:${downDis ? 'default' : 'pointer'};opacity:${downDis ? '0.3' : '1'};font-size:0.6rem;padding:6px 3px;min-width:22px;min-height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;touch-action:manipulation" title="${currentLang === 'ar' ? 'نقل للأسفل' : 'Move down'}">▼</button>
-        <button onclick="event.stopPropagation();startEditTask(${w},${i})" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem;padding:6px;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s;touch-action:manipulation" onmouseover="this.style.color='var(--blue-500)'" onmouseout="this.style.color='var(--text-3)'" title="${currentLang === 'ar' ? 'تعديل' : 'Edit'}">✎</button>
-        <button onclick="event.stopPropagation();deleteTask(${w},${i})" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem;padding:6px;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s;touch-action:manipulation" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-3)'">✕</button>
+
+      // Checkmark drawn as SVG so it can animate in (drop + fade) instead of popping instantly
+      const checkSvg = `<svg class="task-chk-icon" viewBox="0 0 24 24"><path d="M4 12.5L9.5 18L20 6"/></svg>`;
+
+      // Priority flag: cycles none → high → medium → low on click
+      const prio = t.priority || null;
+      const prioColors = { high: '#ef4444', med: '#f59e0b', low: '#3b82f6' };
+      const prioIcon = prio ? '🚩' : '⚑';
+      const prioTitle = currentLang === 'ar'
+        ? (prio === 'high' ? 'أولوية عالية' : prio === 'med' ? 'أولوية متوسطة' : prio === 'low' ? 'أولوية منخفضة' : 'تحديد أولوية')
+        : (prio === 'high' ? 'High priority' : prio === 'med' ? 'Medium priority' : prio === 'low' ? 'Low priority' : 'Set priority');
+
+      // Due date badge/editor
+      let dueHtml = '';
+      const isEditingDue = _editingTaskDue && _editingTaskDue.w === w && _editingTaskDue.i === i;
+      if (isEditingDue) {
+        dueHtml = `<input type="date" class="task-due-input" id="taskDueInput-${w}-${i}" value="${t.due || ''}"
+          onclick="event.stopPropagation()"
+          onchange="setTaskDue(${w},${i},this.value)"
+          onblur="setTaskDue(${w},${i},this.value)">`;
+      } else if (t.due) {
+        const dueDate = new Date(t.due + 'T00:00:00');
+        const today0 = new Date(); today0.setHours(0,0,0,0);
+        const isOverdue = !t.done && dueDate < today0;
+        const isToday = dueDate.getTime() === today0.getTime();
+        const dueLabel = relativeDueLabel(t.due);
+        dueHtml = `<button class="task-due-badge ${isOverdue ? 'overdue' : isToday ? 'today' : ''}" onclick="event.stopPropagation();openTaskDueEditor(${w},${i})" title="${currentLang === 'ar' ? 'تعديل تاريخ الاستحقاق' : 'Edit due date'}">📅 ${dueLabel}</button>`;
+      } else {
+        dueHtml = `<button class="task-due-badge" onclick="event.stopPropagation();openTaskDueEditor(${w},${i})" title="${currentLang === 'ar' ? 'إضافة تاريخ استحقاق' : 'Add due date'}">📅 ${currentLang === 'ar' ? 'تاريخ' : 'Due'}</button>`;
+      }
+
+      // Subtasks
+      const subtasks = t.subtasks || [];
+      const subDone = subtasks.filter(s => s.done).length;
+      const isAddingSubtask = _addingSubtaskFor && _addingSubtaskFor.w === w && _addingSubtaskFor.i === i;
+      const subtaskToggleLabel = subtasks.length
+        ? `☰ ${subDone}/${subtasks.length}`
+        : (currentLang === 'ar' ? '+ خطوة فرعية' : '+ Subtask');
+      let subtasksHtml = '';
+      if (subtasks.length || isAddingSubtask) {
+        subtasksHtml = `<div class="task-subtasks">
+          ${subtasks.map((s, si) => `
+            <div class="task-subtask-row">
+              <div class="task-subchk ${s.done ? 'done' : ''}" onclick="event.stopPropagation();toggleSubtask(${w},${i},${si})">${s.done ? '✓' : ''}</div>
+              <span class="task-subtask-text ${s.done ? 'done' : ''}">${escAttr(s.text)}</span>
+              <button class="task-subtask-del" onclick="event.stopPropagation();deleteSubtask(${w},${i},${si})">✕</button>
+            </div>`).join('')}
+          ${isAddingSubtask ? `
+            <div class="task-subtask-add-row">
+              <input type="text" class="task-subtask-add-input" id="subtaskInput-${w}-${i}" maxlength="60"
+                placeholder="${currentLang === 'ar' ? 'خطوة فرعية جديدة...' : 'New subtask...'}"
+                onclick="event.stopPropagation()"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();addSubtask(${w},${i},this.value);}else if(event.key==='Escape'){toggleAddSubtaskRow(${w},${i});}">
+            </div>` : ''}
+        </div>`;
+      }
+
+      html += `<div class="task-item ${prio ? 'priority-' + prio : ''}">
+        <div class="task-row">
+          <div class="task-chk ${t.done ? 'done' : ''}" onclick="event.stopPropagation();toggleTask(${w},${i})">${checkSvg}</div>
+          ${taskInner}
+          <button onclick="event.stopPropagation();moveTask(${w},${i},-1)" ${upDis ? 'disabled' : ''} style="background:none;border:none;color:var(--text-3);cursor:${upDis ? 'default' : 'pointer'};opacity:${upDis ? '0.3' : '1'};font-size:0.6rem;padding:6px 3px;min-width:22px;min-height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;touch-action:manipulation" title="${currentLang === 'ar' ? 'نقل للأعلى' : 'Move up'}">▲</button>
+          <button onclick="event.stopPropagation();moveTask(${w},${i},1)" ${downDis ? 'disabled' : ''} style="background:none;border:none;color:var(--text-3);cursor:${downDis ? 'default' : 'pointer'};opacity:${downDis ? '0.3' : '1'};font-size:0.6rem;padding:6px 3px;min-width:22px;min-height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;touch-action:manipulation" title="${currentLang === 'ar' ? 'نقل للأسفل' : 'Move down'}">▼</button>
+          <button onclick="event.stopPropagation();startEditTask(${w},${i})" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem;padding:6px;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s;touch-action:manipulation" onmouseover="this.style.color='var(--blue-500)'" onmouseout="this.style.color='var(--text-3)'" title="${currentLang === 'ar' ? 'تعديل' : 'Edit'}">✎</button>
+          <button onclick="event.stopPropagation();deleteTask(${w},${i})" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:0.8rem;padding:6px;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color 0.15s;touch-action:manipulation" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-3)'">✕</button>
+        </div>
+        <div class="task-meta-row">
+          <button class="task-flag-btn ${prio ? 'set' : ''}" style="${prio ? 'color:' + prioColors[prio] : ''}" onclick="event.stopPropagation();cycleTaskPriority(${w},${i})" title="${prioTitle}">${prioIcon}${prio ? '' : ''}</button>
+          ${dueHtml}
+          <button class="task-subtask-toggle" onclick="event.stopPropagation();toggleAddSubtaskRow(${w},${i})">${subtaskToggleLabel}</button>
+        </div>
+        ${subtasksHtml}
       </div>`;
     });
     html += `<div class="add-task-row">
@@ -11036,7 +11618,8 @@ function toggleTask(w, i) {
     _saveImmediate('weeklyTasks'); // FIX: فوري مثل toggleCheck — بدون انتظار 800ms
     renderWeekly();
     if (weeklyTasks[w][i].done) { showToast(t('toastTaskDone'));
-      playHabitCheckSound(); }
+      playHabitCheckSound();
+      _tryVibrate(15); }
     renderGamificationBar();
   }
 }
@@ -11090,11 +11673,88 @@ function addTask(w) {
   const inp = document.getElementById('wtask-' + w);
   if (!inp || !inp.value.trim()) return;
   if (!weeklyTasks[w]) weeklyTasks[w] = [];
-  weeklyTasks[w].push({ text: inp.value.trim(), done: false });
+  weeklyTasks[w].push({ text: inp.value.trim(), done: false, priority: null, due: null, subtasks: [] });
   _saveImmediate('weeklyTasks');
   inp.value = '';
   renderWeekly();
   showToast(t('toastTaskAdded'));
+}
+
+// ── Priority: tap the flag to cycle none → high → medium → low → none ───
+const TASK_PRIORITY_CYCLE = [null, 'high', 'med', 'low'];
+function cycleTaskPriority(w, i) {
+  const task = weeklyTasks[w] && weeklyTasks[w][i];
+  if (!task) return;
+  const cur = TASK_PRIORITY_CYCLE.indexOf(task.priority || null);
+  task.priority = TASK_PRIORITY_CYCLE[(cur + 1) % TASK_PRIORITY_CYCLE.length];
+  _saveImmediate('weeklyTasks');
+  renderWeekly();
+}
+
+// ── Due date ──────────────────────────────────────────────────────────
+let _editingTaskDue = null; // {w,i}
+function openTaskDueEditor(w, i) {
+  _editingTaskDue = { w, i };
+  renderWeekly();
+  setTimeout(() => {
+    const inp = document.getElementById(`taskDueInput-${w}-${i}`);
+    if (inp) { inp.focus(); if (inp.showPicker) { try { inp.showPicker(); } catch(e){} } }
+  }, 0);
+}
+function setTaskDue(w, i, value) {
+  const task = weeklyTasks[w] && weeklyTasks[w][i];
+  if (task) { task.due = value || null; _saveImmediate('weeklyTasks'); }
+  _editingTaskDue = null;
+  renderWeekly();
+}
+function clearTaskDue(w, i) {
+  const task = weeklyTasks[w] && weeklyTasks[w][i];
+  if (task) { task.due = null; _saveImmediate('weeklyTasks'); }
+  renderWeekly();
+}
+
+// ── Subtasks ──────────────────────────────────────────────────────────
+let _addingSubtaskFor = null; // {w,i}
+function toggleAddSubtaskRow(w, i) {
+  _addingSubtaskFor = (_addingSubtaskFor && _addingSubtaskFor.w === w && _addingSubtaskFor.i === i)
+    ? null : { w, i };
+  renderWeekly();
+  if (_addingSubtaskFor) {
+    setTimeout(() => { const inp = document.getElementById(`subtaskInput-${w}-${i}`); if (inp) inp.focus(); }, 0);
+  }
+}
+function addSubtask(w, i, value) {
+  const task = weeklyTasks[w] && weeklyTasks[w][i];
+  const text = (value || '').trim();
+  if (!task || !text) return;
+  if (!task.subtasks) task.subtasks = [];
+  task.subtasks.push({ text, done: false });
+  _saveImmediate('weeklyTasks');
+  const inp = document.getElementById(`subtaskInput-${w}-${i}`);
+  if (inp) inp.value = '';
+  renderWeekly();
+}
+function toggleSubtask(w, i, si) {
+  const task = weeklyTasks[w] && weeklyTasks[w][i];
+  if (!task || !task.subtasks || !task.subtasks[si]) return;
+  task.subtasks[si].done = !task.subtasks[si].done;
+  _saveImmediate('weeklyTasks');
+  if (task.subtasks[si].done) { try { playSound(520, 0.06); } catch(e){} _tryVibrate(10); }
+  renderWeekly();
+}
+function deleteSubtask(w, i, si) {
+  const task = weeklyTasks[w] && weeklyTasks[w][i];
+  if (!task || !task.subtasks) return;
+  task.subtasks.splice(si, 1);
+  _saveImmediate('weeklyTasks');
+  renderWeekly();
+}
+
+// ── Haptics: small vibration on completion, gated by the sound setting so
+// it respects the same "quiet mode" the person already controls ──────────
+function _tryVibrate(ms) {
+  if (!settings.sound) return;
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e) {}
 }
 
 // =========== RENDER QUOTES ===========
@@ -11188,6 +11848,21 @@ function applyStickyTopnavSetting() {
 // =========== JOURNAL ===========
 let _journalMood = '😊 ممتاز'; // fallback default; actual value set per-language on first mood button select
 let _journalTags = [];
+let _journalView = 'list'; // 'list' | 'calendar'
+let _journalCalDate = new Date(); // current month shown in calendar view
+let _journalDraftSaveTimer = null;
+let _journalDraftRestored = false;
+const JOURNAL_DRAFT_KEY = 'hb2_journalDraft';
+const JOURNAL_MOOD_COLORS = {
+  '😊 ممتاز': '#22c55e', '🙂 جيد': '#3b82f6', '😐 عادي': '#94a3b8',
+  '😔 صعب': '#f97316', '🔥 متحمس': '#ef4444', '😴 متعب': '#a855f7',
+  '😊 Excellent': '#22c55e', '🙂 Bon': '#3b82f6', '😐 Normal': '#94a3b8',
+  '😔 Difficile': '#f97316', '🔥 Motivé': '#ef4444', '😴 Fatigué': '#a855f7',
+  '🙂 Good': '#3b82f6', '😐 Okay': '#94a3b8', '😔 Tough': '#f97316',
+  '🔥 Energized': '#ef4444', '😴 Tired': '#a855f7'
+};
+// Moods considered "positive" for the fun-facts percentage calculation
+const JOURNAL_POSITIVE_MOODS = ['😊 ممتاز','😊 Excellent','🔥 متحمس','🔥 Energized','🙂 جيد','🙂 Bon','🙂 Good'];
 
 function selectJournalMood(btn) {
   document.querySelectorAll('.journal-mood-btn').forEach(b => b.classList.remove('active'));
@@ -11214,6 +11889,76 @@ function updateJournalCharCount() {
 function _autoResizeJournalField(el) {
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
+}
+
+// ── Draft autosave: protects against losing text if the app closes/reloads
+// before the entry is saved. Stored locally only (not synced to cloud); it's
+// a safety net, not a data field. Cleared automatically once a real entry is saved.
+function _scheduleJournalDraftSave() {
+  clearTimeout(_journalDraftSaveTimer);
+  _journalDraftSaveTimer = setTimeout(_saveJournalDraftNow, 500);
+}
+
+function _saveJournalDraftNow() {
+  try {
+    const ta    = document.getElementById('journalTextarea');
+    const goals = document.getElementById('journalGoalsField');
+    const done  = document.getElementById('journalDoneField');
+    const text  = ta ? ta.value : '';
+    const goalsText = goals ? goals.value : '';
+    const doneText  = done  ? done.value  : '';
+    if (!text && !goalsText && !doneText) { _clearJournalDraft(); return; }
+    const draft = {
+      text, goals: goalsText, done: doneText,
+      mood: _journalMood, tags: [..._journalTags],
+      savedAt: Date.now(),
+    };
+    localStorage.setItem(JOURNAL_DRAFT_KEY, JSON.stringify(draft));
+    _showJournalDraftIndicator();
+  } catch (e) { /* localStorage may be unavailable — fail silently */ }
+}
+
+function _showJournalDraftIndicator() {
+  const el = document.getElementById('journalDraftIndicator');
+  if (!el) return;
+  el.classList.add('show');
+  clearTimeout(_showJournalDraftIndicator._t);
+  _showJournalDraftIndicator._t = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+function _clearJournalDraft() {
+  try { localStorage.removeItem(JOURNAL_DRAFT_KEY); } catch (e) {}
+}
+
+function _restoreJournalDraft() {
+  let draft = null;
+  try {
+    const raw = localStorage.getItem(JOURNAL_DRAFT_KEY);
+    if (raw) draft = JSON.parse(raw);
+  } catch (e) { draft = null; }
+  if (!draft) return;
+
+  const ta    = document.getElementById('journalTextarea');
+  const goals = document.getElementById('journalGoalsField');
+  const done  = document.getElementById('journalDoneField');
+  if (ta)    { ta.value = draft.text || '';   _autoResizeJournalField(ta); }
+  if (goals) { goals.value = draft.goals || ''; _autoResizeJournalField(goals); }
+  if (done)  { done.value = draft.done || '';  _autoResizeJournalField(done); }
+  updateJournalCharCount();
+
+  if (draft.mood) {
+    _journalMood = draft.mood;
+    document.querySelectorAll('.journal-mood-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-mood') === draft.mood);
+    });
+  }
+  if (Array.isArray(draft.tags)) {
+    _journalTags = [...draft.tags];
+    document.querySelectorAll('.journal-tag-chip').forEach(b => {
+      b.classList.toggle('active', draft.tags.includes(b.getAttribute('data-tag')));
+    });
+  }
+  showToast(t('journalDraftRestoredToast') || '📝 تم استرجاع مسودتك المحفوظة');
 }
 
 function saveJournalEntry() {
@@ -11244,6 +11989,9 @@ function saveJournalEntry() {
 
   journalEntries.unshift(entry);
   _saveImmediate('journalEntries');
+  _clearJournalDraft();
+  const draftIndicatorEl = document.getElementById('journalDraftIndicator');
+  if (draftIndicatorEl) draftIndicatorEl.classList.remove('show');
 
   // Reset composer
   if (ta) { ta.value = ''; ta.style.height = 'auto'; }
@@ -11281,11 +12029,7 @@ function openJournalModal(id) {
   _journalModalId = id;
   _journalModalEditMode = false;
 
-  const moodColors = {
-    '😊 ممتاز':'#22c55e','🙂 جيد':'#3b82f6','😐 عادي':'#94a3b8',
-    '😔 صعب':'#f97316','🔥 متحمس':'#ef4444','😴 متعب':'#a855f7',
-  };
-  const mColor = moodColors[e.mood] || '#3b82f6';
+  const mColor = JOURNAL_MOOD_COLORS[e.mood] || '#3b82f6';
 
   document.getElementById('jModalDate').textContent = '📅 ' + e.dateStr + ' · ' + (e.timeStr || '');
   const moodEl = document.getElementById('jModalMood');
@@ -11452,33 +12196,30 @@ function renderJournalEntries() {
     return;
   }
 
-  const moodColors = {
-    '😊 ممتاز': '#22c55e', '🙂 جيد': '#3b82f6', '😐 عادي': '#94a3b8',
-    '😔 صعب': '#f97316', '🔥 متحمس': '#ef4444', '😴 متعب': '#a855f7',
-    '😊 Excellent': '#22c55e', '🙂 Bon': '#3b82f6', '😐 Normal': '#94a3b8',
-    '😔 Difficile': '#f97316', '🔥 Motivé': '#ef4444', '😴 Fatigué': '#a855f7',
-    '🙂 Good': '#3b82f6', '😐 Okay': '#94a3b8', '😔 Tough': '#f97316',
-    '🔥 Energized': '#ef4444', '😴 Tired': '#a855f7'
-  };
-
   list.innerHTML = filtered.map(e => {
     const preview = [e.goals, e.done, e.text].filter(Boolean).join(' ').slice(0, 120);
-    const mColor = moodColors[e.mood] || '#3b82f6';
+    const mColor = JOURNAL_MOOD_COLORS[e.mood] || '#3b82f6';
+    const mEmoji = (e.mood || '').split(' ')[0] || '📝';
+    const tagIcons = (e.tags || []).slice(0, 4).map(tag => tag.split(' ')[0]).join('');
     return `
-    <div class="journal-entry-card" style="border-right-color:${mColor}" onclick="openJournalModal(${e.id})">
-      <div class="journal-entry-top">
-        <div class="journal-entry-meta">
-          <span class="journal-entry-date">📅 ${e.dateStr} · ${e.timeStr || ''}</span>
-          <span class="journal-entry-mood-badge" style="background:${mColor}22;color:${mColor}">${e.mood}</span>
+    <div class="journal-entry-card" style="border-right-color:${mColor};--_mood-grad:linear-gradient(135deg, ${mColor}14, transparent 65%)" onclick="openJournalModal(${e.id})">
+      <div class="journal-entry-mood-avatar" style="background:${mColor}22;color:${mColor}">${mEmoji}</div>
+      <div class="journal-entry-body">
+        <div class="journal-entry-top">
+          <div class="journal-entry-meta">
+            <span class="journal-entry-date">📅 ${e.dateStr}${e.timeStr ? ' · ' + e.timeStr : ''}</span>
+            <span class="journal-entry-mood-badge" style="background:${mColor}22;color:${mColor}">${e.mood}</span>
+            ${tagIcons ? `<span class="journal-entry-icon-strip" title="${(e.tags||[]).join(', ')}"><span class="journal-entry-icon-chip">${tagIcons}</span></span>` : ''}
+          </div>
+          <div class="journal-entry-actions">
+            <span style="font-size:0.65rem;color:var(--text-3)">${e.wordCount || 0} ${t('journalWordUnit')}</span>
+            <button class="journal-del-btn" onclick="event.stopPropagation();deleteJournalEntry(${e.id})" title="${t('journalDeleteTitle')}">🗑</button>
+          </div>
         </div>
-        <div class="journal-entry-actions">
-          <span style="font-size:0.65rem;color:var(--text-3)">${e.wordCount || 0} ${t('journalWordUnit')}</span>
-          <button class="journal-del-btn" onclick="event.stopPropagation();deleteJournalEntry(${e.id})" title="${t('journalDeleteTitle')}">🗑</button>
-        </div>
+        ${e.goals ? `<div style="font-size:0.72rem;font-weight:700;color:var(--text-3);margin-bottom:3px">🎯 ${e.goals.slice(0,60)}${e.goals.length>60?'...':''}</div>` : ''}
+        <div class="journal-entry-text">${preview}${preview.length >= 120 ? '...' : ''}</div>
+        ${(e.tags||[]).length ? `<div class="journal-entry-tags">${e.tags.map(tag=>`<span class="journal-entry-tag">${tag}</span>`).join('')}</div>` : ''}
       </div>
-      ${e.goals ? `<div style="font-size:0.72rem;font-weight:700;color:var(--text-3);margin-bottom:3px">🎯 ${e.goals.slice(0,60)}${e.goals.length>60?'...':''}</div>` : ''}
-      <div class="journal-entry-text">${preview}${preview.length >= 120 ? '...' : ''}</div>
-      ${(e.tags||[]).length ? `<div class="journal-entry-tags">${e.tags.map(tag=>`<span class="journal-entry-tag">${tag}</span>`).join('')}</div>` : ''}
     </div>
   `}).join('');
 }
@@ -11521,13 +12262,182 @@ function renderJournalStats() {
   if (sb) sb.textContent = `🔥 ${streak} ${t('journalStreakDay')}`;
 }
 
+// ── View toggle: list vs calendar ───────────────────────────────
+function setJournalView(view) {
+  _journalView = view;
+  const listBtn = document.getElementById('journalViewListBtn');
+  const calBtn  = document.getElementById('journalViewCalBtn');
+  const listEl  = document.getElementById('journalEntriesList');
+  const calEl   = document.getElementById('journalCalendarView');
+  if (listBtn) listBtn.classList.toggle('active', view === 'list');
+  if (calBtn)  calBtn.classList.toggle('active', view === 'calendar');
+  if (listEl)  listEl.style.display = view === 'list' ? '' : 'none';
+  if (calEl)   calEl.style.display  = view === 'calendar' ? '' : 'none';
+  if (view === 'calendar') renderJournalCalendar();
+}
+
+function journalCalMonthDelta(delta) {
+  _journalCalDate.setMonth(_journalCalDate.getMonth() + delta);
+  renderJournalCalendar();
+}
+
+// Renders a monthly grid so the person can see, at a glance, which days
+// already have an entry (colored by mood) versus which are still empty —
+// the empty gaps are the nudge to go write something.
+function renderJournalCalendar() {
+  const wrap = document.getElementById('journalCalendarView');
+  if (!wrap) return;
+
+  const year = _journalCalDate.getFullYear();
+  const month = _journalCalDate.getMonth();
+  const locale = t('journalDateLocale') || 'ar-DZ';
+  const monthLabel = _journalCalDate.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+
+  // Map each day-of-month -> entries on that day
+  const entriesByDay = {};
+  journalEntries.forEach(e => {
+    const d = new Date(e.date);
+    if (d.getFullYear() === year && d.getMonth() === month) {
+      const day = d.getDate();
+      (entriesByDay[day] = entriesByDay[day] || []).push(e);
+    }
+  });
+
+  const firstDow = new Date(year, month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayD = new Date();
+  const isCurMonth = todayD.getFullYear() === year && todayD.getMonth() === month;
+
+  const dowNames = currentLang === 'ar'
+    ? ['أحد','اثن','ثلا','أرب','خمي','جمع','سبت']
+    : currentLang === 'fr'
+      ? ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']
+      : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  let cells = '';
+  for (let i = 0; i < firstDow; i++) cells += `<div class="journal-calendar-day is-empty-cell"></div>`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayEntries = entriesByDay[day];
+    const isToday = isCurMonth && todayD.getDate() === day;
+    if (dayEntries && dayEntries.length) {
+      // Use the most recent entry of the day for the color
+      const mColor = JOURNAL_MOOD_COLORS[dayEntries[dayEntries.length - 1].mood] || '#3b82f6';
+      cells += `<div class="journal-calendar-day has-entry${isToday ? ' is-today' : ''}" style="background:${mColor}" onclick="openJournalModal(${dayEntries[0].id})">
+        ${day}${dayEntries.length > 1 ? `<span class="journal-calendar-day-count">×${dayEntries.length}</span>` : ''}
+      </div>`;
+    } else {
+      cells += `<div class="journal-calendar-day${isToday ? ' is-today' : ''}">${day}</div>`;
+    }
+  }
+
+  const totalDaysSoFar = isCurMonth ? todayD.getDate() : daysInMonth;
+  const filledDays = Object.keys(entriesByDay).length;
+  const emptyHint = filledDays < totalDaysSoFar
+    ? `<div class="journal-calendar-empty-hint">${t('journalCalendarEmptyHint') || '📝 لديك أيام فارغة هذا الشهر — اكتب شيئاً اليوم!'}</div>`
+    : '';
+
+  wrap.innerHTML = `
+    <div class="journal-calendar-wrap">
+      <div class="journal-calendar-nav">
+        <button onclick="journalCalMonthDelta(-1)">‹</button>
+        <span class="journal-calendar-month-label">📅 ${monthLabel}</span>
+        <button onclick="journalCalMonthDelta(1)">›</button>
+      </div>
+      <div class="journal-calendar-grid">
+        ${dowNames.map(d => `<div class="journal-calendar-dow">${d}</div>`).join('')}
+        ${cells}
+      </div>
+      <div class="journal-calendar-legend">
+        <span><i style="background:${JOURNAL_MOOD_COLORS['😊 ممتاز']}"></i>${t('journalMoodExcellent') || '😊 ممتاز'}</span>
+        <span><i style="background:${JOURNAL_MOOD_COLORS['🙂 جيد']}"></i>${t('journalMoodGood') || '🙂 جيد'}</span>
+        <span><i style="background:${JOURNAL_MOOD_COLORS['😐 عادي']}"></i>${t('journalMoodOk') || '😐 عادي'}</span>
+        <span><i style="background:${JOURNAL_MOOD_COLORS['😔 صعب']}"></i>${t('journalMoodHard') || '😔 صعب'}</span>
+      </div>
+      ${emptyHint}
+    </div>`;
+}
+
+// ── Fun, shareable stats ("wrote 3 days straight this week", mood %) ─────
+function renderJournalFunFacts() {
+  const wrap = document.getElementById('journalFunFacts');
+  if (!wrap) return;
+  if (!journalEntries.length) { wrap.innerHTML = ''; return; }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const facts = [];
+
+  // 1) Days written in the last 7 days
+  let daysThisWeek = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const ds = d.toDateString();
+    if (journalEntries.some(e => new Date(e.date).toDateString() === ds)) daysThisWeek++;
+  }
+  if (daysThisWeek > 0) {
+    facts.push({
+      emoji: '🔥',
+      text: (t('journalFunFactWeek') || 'كتبت {n} أيام هذا الأسبوع').replace('{n}', daysThisWeek)
+    });
+  }
+
+  // 2) % of days this month that were logged with a positive mood
+  const monthEntries = journalEntries.filter(e => {
+    const d = new Date(e.date);
+    return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  });
+  if (monthEntries.length) {
+    const positiveCount = monthEntries.filter(e => JOURNAL_POSITIVE_MOODS.includes(e.mood)).length;
+    const pct = Math.round((positiveCount / monthEntries.length) * 100);
+    facts.push({
+      emoji: '🌈',
+      text: (t('journalFunFactMoodPct') || 'مزاجك كان ممتازاً/جيداً {p}% من الأيام هذا الشهر').replace('{p}', pct)
+    });
+  }
+
+  // 3) Longest streak ever
+  let longest = 0, cur = 0;
+  const sortedDates = [...new Set(journalEntries.map(e => new Date(e.date).toDateString()))]
+    .map(ds => new Date(ds)).sort((a,b) => a - b);
+  for (let i = 0; i < sortedDates.length; i++) {
+    if (i === 0 || (sortedDates[i] - sortedDates[i-1]) / 86400000 === 1) cur++; else cur = 1;
+    longest = Math.max(longest, cur);
+  }
+  if (longest > 1) {
+    facts.push({
+      emoji: '🏆',
+      text: (t('journalFunFactLongest') || 'أطول سلسلة كتابة لك: {n} يوماً متواصلاً').replace('{n}', longest)
+    });
+  }
+
+  // 4) Most common mood overall
+  const moodCounts = {};
+  journalEntries.forEach(e => { if (e.mood) moodCounts[e.mood] = (moodCounts[e.mood]||0) + 1; });
+  const topMood = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0];
+  if (topMood) {
+    facts.push({
+      emoji: topMood[0].split(' ')[0] || '📝',
+      text: (t('journalFunFactTopMood') || 'مزاجك الأكثر تكراراً: {mood}').replace('{mood}', topMood[0])
+    });
+  }
+
+  wrap.innerHTML = facts.map(f => `
+    <div class="journal-funfact-card">
+      <span class="journal-funfact-emoji">${f.emoji}</span>
+      <span class="journal-funfact-text">${f.text}</span>
+    </div>
+  `).join('');
+}
+
 function renderJournalPage() {
   // Set today's date
   const today = new Date();
   const dateEl = document.getElementById('journalTodayDate');
   if (dateEl) dateEl.textContent = today.toLocaleDateString(t('journalDateLocale') || 'ar-DZ', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
   renderJournalStats();
+  renderJournalFunFacts();
   renderJournalEntries();
+  if (_journalView === 'calendar') renderJournalCalendar();
+  if (!_journalDraftRestored) { _journalDraftRestored = true; _restoreJournalDraft(); }
 }
 
 // =========== RENDER ALL ===========
@@ -12629,10 +13539,7 @@ function deleteQuickTask(id) {
 function clearDoneQuickTasks() {
   const doneCount = quickTasks.filter(t => t.done).length;
   if (!doneCount) return;
-  const lang = currentLang || 'ar';
-  const countLabel = lang === 'ar' ? `${doneCount} مهمة مكتملة ✅`
-    : lang === 'fr' ? `${doneCount} tâche(s) terminée(s) ✅`
-    : `${doneCount} completed task(s) ✅`;
+  const countLabel = `${doneCount} مهمة مكتملة ✅`;
   openGenericDeleteConfirm(countLabel, () => {
     quickTasks = quickTasks.filter(t => !t.done);
     _saveImmediate('quickTasks');
@@ -12648,7 +13555,7 @@ function setQtFilter(filter, btn) {
 }
 
 function updateQuickTasksText() {
-  const tr = T[currentLang] || T.ar;
+  const tr = T.ar;
   const titleEl = document.querySelector('.quick-tasks-title-text');
   if (titleEl) titleEl.textContent = tr.qtTitle;
   const subEl = document.querySelector('.quick-tasks-title-sub');
@@ -12710,7 +13617,7 @@ function _formatFullDateTime(ts) {
 }
 
 function renderQuickTasks() {
-  const tr = T[currentLang] || T.ar;
+  const tr = T.ar;
   const list = document.getElementById('qtList');
   const badge = document.getElementById('qtCountBadge');
   const bar = document.getElementById('qtProgressBar');
@@ -12758,7 +13665,7 @@ function renderQuickTasks() {
       <div class="qt-checkbox${task.done ? ' checked' : ''}" onclick="toggleQuickTask(${task.id})">${task.done ? '✓' : ''}</div>
       <div class="qt-item-body">
         <div class="qt-item-text${task.done ? ' struck' : ''}" ondblclick="startEditQuickTask(${task.id}, this)">${escAttr(task.text)}</div>
-        ${settings.showTaskDate !== false ? `<div class="qt-item-date"><span class="qt-clock-icon">🕐</span>${task.createdAt ? _formatFullDateTime(task.createdAt) : (currentLang === 'fr' ? "Aujourd'hui" : currentLang === 'en' ? 'Today' : 'اليوم')}</div>` : ''}
+        ${settings.showTaskDate !== false ? `<div class="qt-item-date"><span class="qt-clock-icon">🕐</span>${task.createdAt ? _formatFullDateTime(task.createdAt) : 'اليوم'}</div>` : ''}
       </div>
       ${task.done ? `<div class="qt-done-label">✓</div>` : ''}
       <div class="qt-item-actions" dir="ltr">
@@ -13292,7 +14199,7 @@ function confirmAddHabit() {
 }
 
 function renderModalDayPickerChips() {
-  const DAY_NAMES = currentLang === 'ar' ? ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'] : currentLang === 'fr' ? ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'] : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const DAY_NAMES = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   const cont = document.getElementById('modalDayPickerChips');
   if (!cont) return;
   cont.innerHTML = DAY_NAMES.map((d, i) => `
