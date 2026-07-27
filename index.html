@@ -2450,6 +2450,246 @@ table { border-collapse: collapse; min-width: 100%; }
   box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
 }
 
+/* ===== TICKTICK PRIORITY STYLES ===== */
+@keyframes qtFadeIn {
+  from { opacity:0; transform: translateY(8px) scale(0.98); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+@keyframes qtSlideOut {
+  from { opacity:1; transform: translateX(0) scale(1); max-height:80px; margin-bottom:10px; }
+  to   { opacity:0; transform: translateX(-30px) scale(0.95); max-height:0; margin-bottom:0; padding:0; }
+}
+.qt-item.completing {
+  animation: qtSlideOut 0.35s cubic-bezier(0.4,0,0.2,1) forwards !important;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Priority left stripe */
+.qt-item.prio-high { border-right: 3px solid #ef4444 !important; background: linear-gradient(135deg, rgba(239,68,68,0.06), transparent 60%) !important; }
+.qt-item.prio-med  { border-right: 3px solid #f97316 !important; background: linear-gradient(135deg, rgba(249,115,22,0.06), transparent 60%) !important; }
+.qt-item.prio-low  { border-right: 3px solid #22c55e !important; background: linear-gradient(135deg, rgba(34,197,94,0.06),  transparent 60%) !important; }
+.qt-item.prio-none { border-right: 3px solid var(--border) !important; }
+
+.qt-item.prio-high::before { background: linear-gradient(180deg, #ef4444, #dc2626) !important; }
+.qt-item.prio-med::before  { background: linear-gradient(180deg, #f97316, #ea580c) !important; }
+.qt-item.prio-low::before  { background: linear-gradient(180deg, #22c55e, #16a34a) !important; }
+
+/* Overdue task pulse */
+.qt-item.overdue-task { box-shadow: 0 0 0 1.5px rgba(239,68,68,0.35), var(--shadow-sm) !important; }
+
+/* Priority flag icon */
+.qt-flag-icon { font-size: 1rem; transition: transform 0.2s; display: inline-block; filter: grayscale(0); line-height:1; }
+.qt-flag-icon.high { filter: none; color: #ef4444; }
+.qt-flag-icon.med  { filter: none; color: #f97316; }
+.qt-flag-icon.low  { filter: none; color: #22c55e; }
+.qt-flag-icon.none { filter: grayscale(1); opacity: 0.35; }
+
+.qt-flag-btn {
+  background: none; border: none; cursor: pointer; padding: 4px;
+  border-radius: 8px; transition: all 0.18s; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.qt-flag-btn:hover { background: var(--bg2); transform: scale(1.2); }
+.qt-flag-btn:hover .qt-flag-icon { transform: rotate(-10deg); }
+
+/* Item right column */
+.qt-item-right {
+  display: flex; align-items: center; gap: 2px; flex-shrink: 0; margin-inline-start: auto;
+}
+
+/* Meta row (due + created) */
+.qt-item-meta {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 3px;
+}
+.qt-item-created {
+  font-size: 0.68rem; color: var(--text-3); font-family: 'JetBrains Mono', monospace;
+  font-weight: 600; white-space: nowrap;
+}
+
+/* Due badge */
+.qt-due-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 99px; cursor: pointer; transition: all 0.2s;
+  font-family: 'Tajawal', sans-serif; white-space: nowrap;
+}
+.qt-due-badge.future        { background: #dbeafe; color: #1d4ed8; }
+.qt-due-badge.today         { background: #dbeafe; color: #1d4ed8; border: 1.5px solid #93c5fd; font-weight: 800; }
+.qt-due-badge.overdue       { background: #fee2e2; color: #dc2626; border: 1.5px solid #fca5a5; animation: pulseRed 2s ease-in-out infinite; font-weight: 800; }
+.qt-due-badge.yesterday-due { background: #ffedd5; color: #c2410c; border: 1.5px solid #fed7aa; }
+.qt-due-badge:hover { transform: scale(1.05); filter: brightness(0.94); }
+@keyframes pulseRed {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+  50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+}
+
+/* Completed section divider — already defined below but make it nicer */
+.qt-section-empty {
+  text-align: center; padding: 12px; font-size: 0.78rem;
+  color: var(--text-3); font-weight: 600;
+}
+
+.prio-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.prio-dot.high { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.6); }
+.prio-dot.med  { background: #f97316; box-shadow: 0 0 6px rgba(249,115,22,0.6); }
+.prio-dot.low  { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+.prio-dot.none { background: var(--border); }
+
+/* Priority Picker Popup */
+.qt-prio-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 8px;
+  display: flex; gap: 6px;
+  z-index: 999;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.14);
+  animation: prioPop 0.18s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes prioPop {
+  from { opacity:0; transform: scale(0.85) translateY(-4px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.qt-prio-opt {
+  width: 34px; height: 34px; border-radius: 10px; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s; font-size: 1rem;
+  background: var(--bg);
+}
+.qt-prio-opt:hover { transform: scale(1.15); }
+.qt-prio-opt.high { background: #fee2e2; }
+.qt-prio-opt.med  { background: #ffedd5; }
+.qt-prio-opt.low  { background: #dcfce7; }
+.qt-prio-opt.none { background: var(--bg2); }
+.qt-prio-opt.active { outline: 2px solid currentColor; }
+
+/* Due Date badge */
+.qt-due-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 99px; cursor: pointer; transition: all 0.2s;
+  font-family: 'Tajawal', sans-serif;
+}
+.qt-due-badge.future  { background: #dbeafe; color: #1d4ed8; }
+.qt-due-badge.today   { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.qt-due-badge.overdue { background: #fee2e2; color: #dc2626; animation: pulseRed 2s ease-in-out infinite; }
+.qt-due-badge.yesterday-due { background: #ffedd5; color: #c2410c; }
+@keyframes pulseRed {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+  50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+}
+.qt-due-input-hidden {
+  position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;
+}
+
+/* Completed section divider */
+.qt-completed-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 12px 0 8px;
+  cursor: pointer; user-select: none;
+}
+.qt-completed-divider-line {
+  flex: 1; height: 1px; background: var(--border);
+}
+.qt-completed-divider-label {
+  font-size: 0.72rem; font-weight: 800; color: var(--text-3);
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 10px; background: var(--bg2);
+  border-radius: 99px; border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.qt-completed-divider:hover .qt-completed-divider-label {
+  background: var(--bg3); color: var(--text-2);
+}
+.qt-completed-chevron {
+  display: inline-block; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  font-size: 0.6rem;
+}
+.qt-completed-chevron.open { transform: rotate(90deg); }
+
+/* Sort controls */
+.qt-sort-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.qt-sort-label {
+  font-size: 0.7rem; font-weight: 700; color: var(--text-3);
+}
+.qt-sort-btn {
+  padding: 4px 11px; border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--white); color: var(--text-3);
+  font-family: 'Tajawal', sans-serif; font-size: 0.7rem; font-weight: 700;
+  cursor: pointer; transition: var(--transition);
+}
+.qt-sort-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
+.qt-sort-btn.active { background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-color: transparent; color: white; box-shadow: 0 2px 8px rgba(124,58,237,0.35); }
+
+/* Add task expanded row */
+.qt-add-expanded {
+  display: none;
+  gap: 8px; align-items: center; flex-wrap: wrap;
+  margin-top: 8px; padding: 10px 12px;
+  background: var(--bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  animation: slideDown 0.2s ease;
+}
+.qt-add-expanded.show { display: flex; }
+@keyframes slideDown {
+  from { opacity:0; transform: translateY(-6px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.qt-add-prio-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--white); cursor: pointer;
+  font-family: 'Tajawal', sans-serif; font-size: 0.75rem; font-weight: 700;
+  color: var(--text-2); transition: all 0.2s;
+}
+.qt-add-prio-btn:hover { border-color: #8b5cf6; }
+.qt-add-prio-btn.sel-high { border-color: #ef4444; background: #fee2e2; color: #dc2626; }
+.qt-add-prio-btn.sel-med  { border-color: #f97316; background: #ffedd5; color: #c2410c; }
+.qt-add-prio-btn.sel-low  { border-color: #22c55e; background: #dcfce7; color: #15803d; }
+.qt-add-prio-btn.sel-none { border-color: var(--border); }
+
+.qt-add-date-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: var(--white); cursor: pointer;
+  font-family: 'Tajawal', sans-serif; font-size: 0.75rem; font-weight: 700;
+  color: var(--text-2); transition: all 0.2s;
+}
+.qt-add-date-btn:hover { border-color: #3b82f6; color: #2563eb; }
+.qt-add-date-btn.has-date { border-color: #3b82f6; background: #dbeafe; color: #1d4ed8; }
+
+/* Slide-out animation for completed tasks */
+@keyframes qtSlideDown {
+  from { opacity:1; transform: translateY(0) scale(1); max-height: 200px; }
+  to   { opacity:0; transform: translateY(16px) scale(0.97); max-height: 0; padding: 0; margin: 0; }
+}
+.qt-item.completing {
+  animation: qtSlideDown 0.38s cubic-bezier(0.4,0,0.2,1) forwards;
+  overflow: hidden; pointer-events: none;
+}
+/* Entry animation */
+@keyframes qtSlideIn {
+  from { opacity:0; transform: translateY(-10px) scale(0.97); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+.qt-item.entering {
+  animation: qtSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
 /* ===== CELEBRATION OVERLAY ===== */
 #celebrationOverlay {
   position: fixed; inset: 0; z-index: 9999;
@@ -5282,10 +5522,24 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
     </div>
 
     <div class="qt-add-row">
-      <input class="qt-input" id="qtInput" placeholder="أضف مهمة جديدة..." />
+      <input class="qt-input" id="qtInput" placeholder="أضف مهمة جديدة..." onkeydown="if(event.key==='Enter')addQuickTask()" oninput="_qtShowExpanded()" />
       <button class="qt-add-btn" onclick="addQuickTask()">
         <span style="font-size:1rem">＋</span> إضافة
       </button>
+    </div>
+
+    <!-- Expanded options row (priority + due date) -->
+    <div class="qt-add-expanded" id="qtAddExpanded">
+      <span style="font-size:0.72rem;font-weight:700;color:var(--text-3)">الأولوية:</span>
+      <button class="qt-add-prio-btn sel-high" id="qtNewPrioHigh" onclick="setNewTaskPrio('high')">🔴 عالية</button>
+      <button class="qt-add-prio-btn sel-med"  id="qtNewPrioMed"  onclick="setNewTaskPrio('med')">🟠 متوسطة</button>
+      <button class="qt-add-prio-btn sel-low"  id="qtNewPrioLow"  onclick="setNewTaskPrio('low')">🟢 منخفضة</button>
+      <button class="qt-add-prio-btn sel-none" id="qtNewPrioNone" onclick="setNewTaskPrio('none')" style="opacity:0.5">⬜ بلا</button>
+      <span style="font-size:0.72rem;font-weight:700;color:var(--text-3);margin-right:4px">الموعد:</span>
+      <button class="qt-add-date-btn" id="qtNewDateBtn" onclick="document.getElementById('qtNewDateInput').showPicker?.() || document.getElementById('qtNewDateInput').click()">
+        📅 <span id="qtNewDateLabel">تاريخ</span>
+      </button>
+      <input type="date" id="qtNewDateInput" class="qt-due-input-hidden" onchange="_onNewDateChange(this.value)">
     </div>
 
     <div class="qt-progress-bar-wrap">
@@ -5296,10 +5550,19 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
       <button class="qt-clear-done-btn" onclick="clearDoneQuickTasks()">🗑 حذف المنجزة</button>
     </div>
 
+    <!-- Filters + Sort -->
     <div class="qt-filters">
       <button class="qt-filter-btn active" onclick="setQtFilter('all', this)">الكل</button>
       <button class="qt-filter-btn" onclick="setQtFilter('pending', this)">⏳ المعلقة</button>
       <button class="qt-filter-btn" onclick="setQtFilter('done', this)">✅ المنجزة</button>
+      <button class="qt-filter-btn" onclick="setQtFilter('overdue', this)">🔴 متأخرة</button>
+    </div>
+    <div class="qt-sort-row">
+      <span class="qt-sort-label">ترتيب:</span>
+      <button class="qt-sort-btn active" id="qtsortManual"   onclick="setQtSort('manual',this)">يدوي</button>
+      <button class="qt-sort-btn" id="qtsortPrio"     onclick="setQtSort('prio',this)">🎯 الأولوية</button>
+      <button class="qt-sort-btn" id="qtsortDue"      onclick="setQtSort('due',this)">📅 الموعد</button>
+      <button class="qt-sort-btn" id="qtsortCreated"  onclick="setQtSort('created',this)">🕐 الأحدث</button>
     </div>
 
     <div class="qt-list" id="qtList"></div>
@@ -13467,9 +13730,13 @@ function launchConfetti() {
 let quickTasks = []; // loaded from Firestore after login
 let journalEntries = []; // loaded from Firestore after login
 let qtFilter = 'all';
+let qtSort   = 'manual'; // manual | prio | due | created
+let _qtNewPrio = 'none';
+let _qtNewDate = '';
+let _qtCompletedOpen = true; // completed section collapsed/expanded
 
 function saveQuickTasks() {
-  _saveImmediate('quickTasks'); // FIX: فوري — بدل الاعتماد على debounce الـ 800ms
+  _saveImmediate('quickTasks');
 }
 
 function playCheckSound() {
@@ -13479,14 +13746,105 @@ function playCheckSound() {
   } catch(e) {}
 }
 
+/* ---- New task expanded row helpers ---- */
+function _qtShowExpanded() {
+  const exp = document.getElementById('qtAddExpanded');
+  if (exp && document.getElementById('qtInput').value.trim()) exp.classList.add('show');
+}
+function setNewTaskPrio(p) {
+  _qtNewPrio = p;
+  ['high','med','low','none'].forEach(x => {
+    const b = document.getElementById('qtNewPrio' + x.charAt(0).toUpperCase() + x.slice(1));
+    if (b) b.style.opacity = (x === p) ? '1' : '0.45';
+  });
+  // highlight selected
+  const map = { high:'sel-high', med:'sel-med', low:'sel-low', none:'sel-none' };
+  ['high','med','low','none'].forEach(x => {
+    const b = document.getElementById('qtNewPrio' + x.charAt(0).toUpperCase() + x.slice(1));
+    if (b) { b.className = 'qt-add-prio-btn ' + (x===p ? map[x]+' active-prio' : map[x]); }
+  });
+}
+function _onNewDateChange(val) {
+  _qtNewDate = val;
+  const btn = document.getElementById('qtNewDateBtn');
+  const lbl = document.getElementById('qtNewDateLabel');
+  if (!btn || !lbl) return;
+  if (val) {
+    btn.classList.add('has-date');
+    lbl.textContent = _formatDueBadgeText(val);
+  } else {
+    btn.classList.remove('has-date');
+    lbl.textContent = 'تاريخ';
+  }
+}
+
+/* ---- Sort ---- */
+function setQtSort(s, btn) {
+  qtSort = s;
+  document.querySelectorAll('.qt-sort-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderQuickTasks();
+}
+
+/* ---- Due date helpers ---- */
+function _todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function _yesterdayStr() {
+  const d = new Date(Date.now() - 86400000);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function _dueStatus(dueDate) {
+  if (!dueDate) return null;
+  const t = _todayStr(), y = _yesterdayStr();
+  if (dueDate < y)  return 'overdue';
+  if (dueDate === y) return 'yesterday-due';
+  if (dueDate === t) return 'today';
+  return 'future';
+}
+function _formatDueBadgeText(dueDate) {
+  if (!dueDate) return '';
+  const t = _todayStr(), y = _yesterdayStr();
+  if (dueDate === t) return 'اليوم';
+  if (dueDate === y) return 'الأمس';
+  // days diff
+  const now = new Date(); now.setHours(0,0,0,0);
+  const due = new Date(dueDate + 'T00:00:00');
+  const diff = Math.round((due - now) / 86400000);
+  if (diff < -1) return `منذ ${Math.abs(diff)} أيام`;
+  if (diff > 0 && diff <= 7) return `بعد ${diff} أيام`;
+  // date
+  try {
+    return new Intl.DateTimeFormat('ar-DZ', { day:'numeric', month:'short' }).format(due);
+  } catch(e) { return dueDate; }
+}
+function _prioOrder(p) {
+  return p === 'high' ? 0 : p === 'med' ? 1 : p === 'low' ? 2 : 3;
+}
+
+/* ---- Add Task ---- */
 function addQuickTask() {
   const inp = document.getElementById('qtInput');
   const text = inp.value.trim();
   if (!text) { inp.focus(); return; }
-  quickTasks.unshift({ id: Date.now(), text, done: false, createdAt: Date.now() });
+  const newTask = {
+    id: Date.now(), text, done: false,
+    createdAt: Date.now(),
+    priority: _qtNewPrio || 'none',
+    dueDate:  _qtNewDate || null
+  };
+  quickTasks.unshift(newTask);
   inp.value = '';
-  // FIX (Android): استخدم _saveImmediate بدل save() ذات الـ 800ms debounce —
-  // على أندرويد المستخدم قد يغلق التطبيق فوراً بعد الإضافة فتضيع المهمة.
+  // reset new task state
+  _qtNewPrio = 'none'; _qtNewDate = '';
+  const exp = document.getElementById('qtAddExpanded');
+  if (exp) exp.classList.remove('show');
+  setNewTaskPrio('none');
+  const dateInp = document.getElementById('qtNewDateInput');
+  if (dateInp) dateInp.value = '';
+  _onNewDateChange('');
+
   _saveImmediate('quickTasks');
   renderQuickTasks();
   inp.focus();
@@ -13495,14 +13853,36 @@ function addQuickTask() {
 function toggleQuickTask(id) {
   const task = quickTasks.find(t => t.id === id);
   if (!task) return;
-  task.done = !task.done;
-  saveQuickTasks();
-  renderQuickTasks();
-  if (task.done) {
+  const wasUndone = !task.done;
+
+  // Animate out then toggle
+  if (wasUndone && settings.moveCompletedDown !== false) {
+    const el = document.querySelector(`.qt-item[data-id="${id}"]`);
+    if (el) {
+      el.classList.add('completing');
+      setTimeout(() => {
+        task.done = true;
+        saveQuickTasks();
+        renderQuickTasks();
+        renderGamificationBar();
+      }, 360);
+    } else {
+      task.done = true;
+      saveQuickTasks();
+      renderQuickTasks();
+      renderGamificationBar();
+    }
+  } else {
+    task.done = !task.done;
+    saveQuickTasks();
+    renderQuickTasks();
+    renderGamificationBar();
+  }
+
+  if (wasUndone) {
     playHabitCheckSound();
     if (settings.confetti) launchConfetti();
   }
-  renderGamificationBar();
 }
 
 function deleteQuickTask(id) {
@@ -13511,9 +13891,6 @@ function deleteQuickTask(id) {
   openGenericDeleteConfirm(task.text || '', () => {
     quickTasks = quickTasks.filter(t => t.id !== id);
     renderQuickTasks();
-    // Immediate (non-debounced) save so the deletion reaches the cloud
-    // right away. This now goes through the same write queue as every
-    // other save, so it can never be overtaken by an older, slower write.
     _saveImmediate('quickTasks');
   });
 }
@@ -13534,6 +13911,37 @@ function setQtFilter(filter, btn) {
   document.querySelectorAll('.qt-filter-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderQuickTasks();
+}
+
+/* ---- Set priority on existing task ---- */
+function setTaskPriority(id, prio) {
+  const task = quickTasks.find(t => t.id === id);
+  if (!task) return;
+  task.priority = prio;
+  saveQuickTasks();
+  renderQuickTasks();
+  // close any open pickers
+  document.querySelectorAll('.qt-prio-picker').forEach(el => el.remove());
+}
+
+/* ---- Set due date on existing task ---- */
+function setTaskDueDate(id, val) {
+  const task = quickTasks.find(t => t.id === id);
+  if (!task) return;
+  task.dueDate = val || null;
+  saveQuickTasks();
+  renderQuickTasks();
+}
+
+/* ---- Toggle completed section ---- */
+function toggleCompletedSection() {
+  _qtCompletedOpen = !_qtCompletedOpen;
+  const ch = document.getElementById('qtCompletedChevron');
+  const body = document.getElementById('qtCompletedBody');
+  if (ch) ch.classList.toggle('open', _qtCompletedOpen);
+  if (body) {
+    body.style.display = _qtCompletedOpen ? '' : 'none';
+  }
 }
 
 function updateQuickTasksText() {
@@ -13598,6 +14006,35 @@ function _formatFullDateTime(ts) {
   }
 }
 
+function _qtPrioFlag(prio) {
+  if (prio === 'high') return `<span class="qt-flag-icon high" title="أولوية عالية">🚩</span>`;
+  if (prio === 'med')  return `<span class="qt-flag-icon med"  title="أولوية متوسطة">🚩</span>`;
+  if (prio === 'low')  return `<span class="qt-flag-icon low"  title="أولوية منخفضة">🚩</span>`;
+  return `<span class="qt-flag-icon none" title="بلا أولوية">🏳️</span>`;
+}
+
+function _qtDueBadgeHtml(task) {
+  if (!task.dueDate) return '';
+  const status = _dueStatus(task.dueDate);
+  const text   = _formatDueBadgeText(task.dueDate);
+  return `<span class="qt-due-badge ${status}" onclick="event.stopPropagation();_openDuePicker(${task.id})" title="تغيير الموعد">📅 ${text}</span>`;
+}
+
+function _openDuePicker(id) {
+  // inject a temporary date input and trigger it
+  let inp = document.getElementById('_qtDuePickerHidden');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type = 'date'; inp.id = '_qtDuePickerHidden';
+    inp.style.cssText = 'position:fixed;opacity:0;pointer-events:none;width:0;height:0;top:0;left:0;';
+    document.body.appendChild(inp);
+  }
+  const task = quickTasks.find(t => t.id === id);
+  inp.value = task && task.dueDate ? task.dueDate : '';
+  inp.onchange = function() { setTaskDueDate(id, this.value); };
+  inp.showPicker ? inp.showPicker() : inp.click();
+}
+
 function renderQuickTasks() {
   const tr = T.ar;
   const list = document.getElementById('qtList');
@@ -13606,29 +14043,55 @@ function renderQuickTasks() {
   const ptext = document.getElementById('qtProgressText');
   if (!list) return;
 
+  // counts
   const total = quickTasks.length;
-  const done = quickTasks.filter(t => t.done).length;
-  const pct = total ? Math.round((done / total) * 100) : 0;
-
+  const done  = quickTasks.filter(t => t.done).length;
+  const pct   = total ? Math.round((done / total) * 100) : 0;
   if (badge) badge.textContent = `${done} / ${total}`;
-  if (bar) bar.style.width = pct + '%';
+  if (bar)   bar.style.width   = pct + '%';
   if (ptext) {
-    if (total === 0) ptext.textContent = tr.qtProgressNone || 'No tasks yet';
-    else if (done === total && total > 0) ptext.textContent = tr.qtProgressAll || '🎉 All done!';
-    else ptext.textContent = `${done} / ${total} ${tr.qtProgressOf || 'done'} (${pct}%)`;
+    if (total === 0)                  ptext.textContent = tr.qtProgressNone || 'لا توجد مهام';
+    else if (done === total && total > 0) ptext.textContent = tr.qtProgressAll || '🎉 أنجزت كل المهام!';
+    else ptext.textContent = `${done} / ${total} ${tr.qtProgressOf || 'مكتملة'} (${pct}%)`;
   }
 
-  const filtered = quickTasks.filter(t => {
+  // --- sort helper ---
+  function _sortedCopy(arr) {
+    const a = [...arr];
+    if (qtSort === 'prio') {
+      const order = { high:0, med:1, low:2, none:3 };
+      a.sort((x,y) => (order[x.priority||'none']||3) - (order[y.priority||'none']||3));
+    } else if (qtSort === 'due') {
+      a.sort((x,y) => {
+        if (!x.dueDate && !y.dueDate) return 0;
+        if (!x.dueDate) return 1;
+        if (!y.dueDate) return -1;
+        return x.dueDate.localeCompare(y.dueDate);
+      });
+    } else if (qtSort === 'created') {
+      a.sort((x,y) => (y.createdAt||0) - (x.createdAt||0));
+    }
+    return a;
+  }
+
+  // separate pending vs done
+  let allFiltered = quickTasks.filter(t => {
     if (qtFilter === 'pending') return !t.done;
-    if (qtFilter === 'done') return t.done;
+    if (qtFilter === 'done')    return t.done;
+    if (qtFilter === 'overdue') return !t.done && _dueStatus(t.dueDate) === 'overdue';
     return true;
   });
 
-  if (filtered.length === 0) {
-    const emptyMsg = qtFilter === 'done' ? (tr.qtEmptyDone || 'No completed tasks') :
-                     qtFilter === 'pending' ? (tr.qtEmptyPending || 'No pending tasks') :
-                     (tr.qtEmpty || 'Add your first task!');
-    const emptyIcon = qtFilter === 'done' ? '🏁' : qtFilter === 'pending' ? '🎯' : '📝';
+  const pendingTasks = _sortedCopy(allFiltered.filter(t => !t.done));
+  const doneTasks    = _sortedCopy(allFiltered.filter(t =>  t.done));
+  const moveCompDown = settings.moveCompletedDown !== false;
+
+  if (allFiltered.length === 0) {
+    const emptyMsg = qtFilter === 'done'    ? (tr.qtEmptyDone    || 'لا توجد مهام مكتملة') :
+                     qtFilter === 'pending' ? (tr.qtEmptyPending || 'لا توجد مهام معلقة')  :
+                     qtFilter === 'overdue' ? 'لا توجد مهام متأخرة 🎉'  :
+                                              (tr.qtEmpty        || 'أضف أول مهمة لك!');
+    const emptyIcon = qtFilter === 'done' ? '🏁' : qtFilter === 'pending' ? '🎯' : qtFilter === 'overdue' ? '✅' : '📝';
     list.innerHTML = `<div class="qt-empty">
       <div class="qt-empty-icon">${emptyIcon}</div>
       <div class="qt-empty-text">${emptyMsg}</div>
@@ -13636,30 +14099,85 @@ function renderQuickTasks() {
     return;
   }
 
-  const doneLabel = tr.qtDoneLabel || '✓ Done';
-  list.innerHTML = filtered.map((task, fi) => {
-    // Real index in quickTasks array for move operations
-    const realIdx = quickTasks.findIndex(t => t.id === task.id);
-    const upDis = realIdx === 0;
-    const downDis = realIdx === quickTasks.length - 1;
+  // ---- build task item HTML ----
+  function taskHtml(task) {
+    const prio       = task.priority || 'none';
+    const prioClass  = `prio-${prio}`;
+    const flagHtml   = _qtPrioFlag(prio);
+    const dueHtml    = _qtDueBadgeHtml(task);
+    const dateHtml   = settings.showTaskDate !== false
+      ? `<span class="qt-item-created">🕐 ${task.createdAt ? _formatFullDateTime(task.createdAt) : 'اليوم'}</span>`
+      : '';
+    const realIdx    = quickTasks.findIndex(t => t.id === task.id);
+    const upDis      = realIdx <= 0;
+    const downDis    = realIdx >= quickTasks.length - 1;
+    const overdueClass = (!task.done && _dueStatus(task.dueDate) === 'overdue') ? ' overdue-task' : '';
+
     return `
-    <div class="qt-item${task.done ? ' done-item' : ''}" data-id="${task.id}">
-      <div class="qt-checkbox${task.done ? ' checked' : ''}" onclick="toggleQuickTask(${task.id})">${task.done ? '✓' : ''}</div>
-      <div class="qt-item-body">
-        <div class="qt-item-text${task.done ? ' struck' : ''}" ondblclick="startEditQuickTask(${task.id}, this)">${escAttr(task.text)}</div>
-        ${settings.showTaskDate !== false ? `<div class="qt-item-date"><span class="qt-clock-icon">🕐</span>${task.createdAt ? _formatFullDateTime(task.createdAt) : 'اليوم'}</div>` : ''}
-      </div>
-      ${task.done ? `<div class="qt-done-label">✓</div>` : ''}
-      <div class="qt-item-actions" dir="ltr">
-        <div class="qt-move-group">
-          <button class="qt-move-btn" onclick="moveQuickTask(${task.id},-1)" ${upDis ? 'disabled' : ''} title="▲">▲</button>
-          <button class="qt-move-btn" onclick="moveQuickTask(${task.id},1)" ${downDis ? 'disabled' : ''} title="▼">▼</button>
+    <div class="qt-item ${prioClass}${task.done ? ' done-item' : ''}${overdueClass}" data-id="${task.id}" style="animation:qtFadeIn 0.28s ease both">
+      <button class="qt-checkbox${task.done ? ' checked' : ''}" onclick="toggleQuickTask(${task.id})" aria-label="تبديل حالة المهمة">
+        ${task.done ? `<svg width="13" height="13" viewBox="0 0 14 14"><path d="M2 7l4 4 6-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>` : ''}
+      </button>
+      <div class="qt-item-body" onclick="startEditTaskById(${task.id})">
+        <div class="qt-item-text${task.done ? ' struck' : ''}">${escAttr(task.text)}</div>
+        <div class="qt-item-meta">
+          ${dueHtml}
+          ${dateHtml}
         </div>
-        <button class="qt-edit-btn" onclick="startEditTaskById(${task.id})" title="✎">✎</button>
-        <button class="qt-delete-btn" onclick="deleteQuickTask(${task.id})">✕</button>
+      </div>
+      <div class="qt-item-right">
+        <button class="qt-flag-btn" onclick="event.stopPropagation();_cycleTaskPrio(${task.id})" title="تغيير الأولوية">${flagHtml}</button>
+        <div class="qt-item-actions" dir="ltr">
+          ${qtSort === 'manual' ? `
+          <div class="qt-move-group">
+            <button class="qt-move-btn" onclick="event.stopPropagation();moveQuickTask(${task.id},-1)" ${upDis ? 'disabled' : ''}>▲</button>
+            <button class="qt-move-btn" onclick="event.stopPropagation();moveQuickTask(${task.id},1)" ${downDis ? 'disabled' : ''}>▼</button>
+          </div>` : ''}
+          <button class="qt-delete-btn" onclick="event.stopPropagation();deleteQuickTask(${task.id})">✕</button>
+        </div>
       </div>
     </div>`;
-  }).join('');
+  }
+
+  let html = '';
+
+  // pending section
+  if (pendingTasks.length > 0) {
+    html += pendingTasks.map(taskHtml).join('');
+  } else if (qtFilter === 'all' || qtFilter === 'pending') {
+    html += `<div class="qt-section-empty">✅ لا توجد مهام معلقة</div>`;
+  }
+
+  // completed section (only when moveCompDown and we have done tasks visible)
+  if (moveCompDown && doneTasks.length > 0 && (qtFilter === 'all' || qtFilter === 'done')) {
+    html += `
+    <div class="qt-completed-divider" onclick="toggleCompletedSection()">
+      <div class="qt-completed-divider-line"></div>
+      <div class="qt-completed-divider-label">
+        <span id="qtCompletedChevron" class="qt-completed-chevron${_qtCompletedOpen ? ' open' : ''}">▶</span>
+        مكتملة · ${doneTasks.length}
+      </div>
+      <div class="qt-completed-divider-line"></div>
+    </div>
+    <div id="qtCompletedBody" style="${_qtCompletedOpen ? '' : 'display:none'}">
+      ${doneTasks.map(taskHtml).join('')}
+    </div>`;
+  } else if (!moveCompDown && doneTasks.length > 0 && (qtFilter === 'all' || qtFilter === 'done')) {
+    // no separation — just append done inline
+    html += doneTasks.map(taskHtml).join('');
+  }
+
+  list.innerHTML = html;
+}
+
+function _cycleTaskPrio(id) {
+  const CYCLE = ['none','high','med','low'];
+  const task = quickTasks.find(t => t.id === id);
+  if (!task) return;
+  const cur = CYCLE.indexOf(task.priority || 'none');
+  task.priority = CYCLE[(cur + 1) % CYCLE.length];
+  saveQuickTasks();
+  renderQuickTasks();
 }
 
 function moveQuickTask(id, dir) {
