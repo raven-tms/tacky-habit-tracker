@@ -2529,16 +2529,15 @@ table { border-collapse: collapse; min-width: 100%; }
   box-shadow: none;
 }
 
-/* completing animation — slides down to done section */
+/* completing animation — slides down to done section (transform/opacity only — لا max-height لتفادي إعادة حساب التخطيط المكلفة وتفادي التهنيج) */
 .qt-item.completing {
-  animation: qtCompleteSlide 0.45s cubic-bezier(0.4,0,0.2,1) forwards !important;
-  overflow: hidden;
+  animation: qtCompleteSlide 0.32s cubic-bezier(0.4,0,0.2,1) forwards !important;
   pointer-events: none;
+  will-change: transform, opacity;
 }
 @keyframes qtCompleteSlide {
-  0%   { opacity:1; transform: translateY(0) scale(1); max-height:120px; margin-bottom:10px; }
-  30%  { opacity:0.8; transform: translateY(4px) scale(0.99); background: rgba(34,197,94,0.08); }
-  100% { opacity:0; transform: translateY(16px) scale(0.96); max-height:0; margin-bottom:0; padding:0 14px; }
+  0%   { opacity:1; transform: translateY(0) scale(1); }
+  100% { opacity:0; transform: translateY(10px) scale(0.97); }
 }
 /* Keep the old flag button style (hidden now, replaced by badge) */
 .qt-flag-btn {
@@ -5352,7 +5351,7 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
 </div>
 
 <!-- ===== AUTH OVERLAY (shown when not logged in) ===== -->
-<div id="authOverlay">
+<div id="authOverlay" class="hidden">
   <div class="auth-card">
     <div class="lang-switcher auth-lang-switcher">
       <button class="lang-opt" id="authLangAr" data-lang="ar" onclick="setLang('ar')">ع</button>
@@ -14410,6 +14409,16 @@ function renderQuickTasks() {
   const ptext = document.getElementById('qtProgressText');
   if (!list) return;
 
+  // 🔧 FIX: كانت كل عناصر القائمة تُعاد بناؤها بالكامل (innerHTML) في كل render،
+  // وكل عنصر يحمل animation:qtFadeIn بشكل ثابت في الـ HTML — فحتى العناصر التي
+  // لم تتغيّر كانت "تُعيد تشغيل" انيميشن الظهور من جديد في كل مرة (عند تشييك أي
+  // مهمة، أو تغيير الترتيب بالسحب). هذا هو سبب التهنيج/الذبذبة: القائمة كلها
+  // "ترفرف" بدل ما يتحرك العنصر المعني فقط. الحل: نحتفظ بمجموعة IDs التي
+  // ظهرت سابقاً، ونُطبّق انيميشن الدخول فقط على العناصر الجديدة فعلاً.
+  const _qtPrevIds = window._qtRenderedIds || new Set();
+  const _qtCurrIds = new Set(quickTasks.map(t => t.id));
+  window._qtRenderedIds = _qtCurrIds;
+
   // counts
   const total = quickTasks.length;
   const done  = quickTasks.filter(t => t.done).length;
@@ -14481,9 +14490,12 @@ function renderQuickTasks() {
     const downDis    = realIdx >= quickTasks.length - 1;
     const overdueClass = (!task.done && _dueStatus(task.dueDate) === 'overdue') ? ' overdue-task' : '';
     const toggleLabel = currentLang === 'ar' ? 'تبديل حالة المهمة' : currentLang === 'fr' ? 'Changer le statut de la tâche' : 'Toggle task status';
+    // فقط العناصر الجديدة فعلاً (لم تكن موجودة في الرندر السابق) تحصل على انيميشن الدخول
+    const isNewItem = !_qtPrevIds.has(task.id);
+    const entryAnimStyle = isNewItem ? ' style="animation:qtFadeIn 0.28s cubic-bezier(0.34,1.56,0.64,1) both"' : '';
 
     return `
-    <div class="qt-item ${prioClass}${task.done ? ' done-item' : ''}${overdueClass}" data-id="${task.id}" style="animation:qtFadeIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both">
+    <div class="qt-item ${prioClass}${task.done ? ' done-item' : ''}${overdueClass}" data-id="${task.id}"${entryAnimStyle}>
       <button class="qt-checkbox${task.done ? ' checked' : ''}" onclick="toggleQuickTask(${task.id})" aria-label="${toggleLabel}">
         ${task.done ? `<svg width="13" height="13" viewBox="0 0 14 14"><path d="M2 7l4 4 6-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>` : ''}
       </button>
@@ -15255,7 +15267,11 @@ async function _checkUserAccess(user) {
 }
 
 // Called by the Firebase module script when auth state changes
+window._authStateFired = 0; // عدد مرات استدعاء onAuthStateChanged منذ تحميل الصفحة
+
 window._onAuthReady = async function(user) {
+  window._authStateFired++;
+
   // أغلق جميع الأوفرلايز عند أي تغيير في حالة المصادقة
   const soOverlay = document.getElementById('signOutOverlay');
   if (soOverlay) soOverlay.style.display = 'none';
@@ -15265,6 +15281,32 @@ window._onAuthReady = async function(user) {
   if (settingsOverlay) settingsOverlay.classList.remove('open');
 
   if (!user) {
+    // 🔧 FIX: أول استدعاء لـ onAuthStateChanged عند تحميل الصفحة يكون غالباً
+    // user=null بشكل مؤقت — قبل أن يسترجع Firebase جلسة المستخدم المحفوظة
+    // من IndexedDB (وهذا يأخذ جزءاً من الثانية إضافياً). لو أخفينا شاشة
+    // التحميل وأظهرنا شاشة الدخول فوراً عند هذا الاستدعاء الأول، ستظهر
+    // شاشة الدخول "ومضة" لكل مستخدم مسجّل دخول عند كل ريفريش قبل أن
+        // يتم اكتشاف جلسته الفعلية. لذلك: إن كان هذا هو الاستدعاء الأول
+    // فقط، ننتظر قليلاً لنرى هل سيصل استدعاء ثانٍ بمستخدم حقيقي قبل أن
+    // نستسلم ونعرض شاشة تسجيل الدخول.
+    if (window._authStateFired === 1) {
+      const fired = window._authStateFired;
+      setTimeout(() => {
+        // لو ما انفتح ريفريش actual ثاني بمستخدم حقيقي خلال هذه المهلة،
+        // يبقى فعلاً مسجّل خروج → أظهر شاشة الدخول الآن.
+        if (window._authStateFired === fired) {
+          const sk = document.getElementById('skeletonScreen');
+          if (sk && !sk.classList.contains('hidden')) {
+            sk.classList.add('hiding');
+            setTimeout(() => sk.classList.add('hidden'), 280);
+          }
+          _hideAccessLockOverlay();
+          _updateNavUserUI(null);
+        }
+      }, 700);
+      return;
+    }
+
     // No user — hide skeleton immediately and let auth overlay take over
     const sk = document.getElementById('skeletonScreen');
     if (sk && !sk.classList.contains('hidden')) {
@@ -18885,13 +18927,18 @@ renderWeekly = function() {
   }
 
   /* ─── تشغيل ─── */
-  if (isInAppBrowser()) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () { setTimeout(showPopup, 400); });
-    } else {
-      setTimeout(showPopup, 400);
-    }
-  }
+  // 🔧 تم تعطيل هذا البوب أب بناءً على طلب المستخدم: كان يظهر عند فتح
+  // الرابط من داخل متصفحات التطبيقات المدمجة (Telegram, Messenger,
+  // Instagram, إلخ) على آيفون وسامسونج ويطلب من المستخدم فتح الرابط في
+  // متصفح خارجي. تسجيل الدخول بجوجل قد لا يعمل داخل هذه المتصفحات، لكن
+  // الإزعاج غير مرغوب فيه، فتم إبقاء الكشف (isInAppBrowser) دون استدعاء showPopup.
+  // if (isInAppBrowser()) {
+  //   if (document.readyState === 'loading') {
+  //     document.addEventListener('DOMContentLoaded', function () { setTimeout(showPopup, 400); });
+  //   } else {
+  //     setTimeout(showPopup, 400);
+  //   }
+  // }
 })();
 </script>
 
