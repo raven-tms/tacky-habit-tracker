@@ -2197,21 +2197,21 @@ table { border-collapse: collapse; min-width: 100%; }
 .quick-tasks-section {
   position: relative;
   margin-bottom: 28px;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--blue-500) 8%, transparent), rgba(109,40,217,0.02) 65%, transparent);
-  border: 1px solid color-mix(in srgb, var(--blue-500) 16%, transparent);
+  background: linear-gradient(160deg, rgba(139,92,246,0.08), rgba(109,40,217,0.02) 65%, transparent);
+  border: 1px solid rgba(139,92,246,0.16);
   border-radius: 24px;
   padding: 22px 20px 20px;
   box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 24px 54px -26px rgba(109,40,217,0.32), var(--shadow-sm);
   overflow: hidden;
 }
 [data-theme="dark"] .quick-tasks-section {
-  background: linear-gradient(160deg, color-mix(in srgb, var(--blue-500) 12%, transparent), rgba(109,40,217,0.03) 65%, transparent);
+  background: linear-gradient(160deg, rgba(139,92,246,0.12), rgba(109,40,217,0.03) 65%, transparent);
   box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 24px 54px -26px rgba(0,0,0,0.55), var(--shadow-sm);
 }
 .quick-tasks-section::after {
   content: ''; position: absolute; top: -60px; inset-inline-end: -60px;
   width: 200px; height: 200px; border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--blue-500) 18%, transparent), transparent 70%);
+  background: radial-gradient(circle, rgba(139,92,246,0.18), transparent 70%);
   pointer-events: none;
 }
 .quick-tasks-header {
@@ -2224,18 +2224,18 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .quick-tasks-title-icon {
   width: 44px; height: 44px; border-radius: 14px;
-  background: linear-gradient(135deg, var(--blue-400), var(--blue-500));
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
   display: flex; align-items: center; justify-content: center;
   font-size: 1.2rem;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--blue-500) 40%, transparent), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow: 0 6px 18px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 .quick-tasks-title-text { font-size: 1.02rem; font-weight: 800; color: var(--text); }
 .quick-tasks-title-sub { font-size: 0.72rem; color: var(--text-3); font-weight: 500; margin-top: 1px; }
 .quick-tasks-count-badge {
-  background: linear-gradient(135deg, var(--blue-400), var(--blue-500));
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
   color: white; border-radius: 99px; padding: 4px 13px;
   font-size: 0.75rem; font-weight: 800; font-family: 'JetBrains Mono', monospace;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--blue-500) 38%, transparent), inset 0 1px 0 rgba(255,255,255,0.25);
+  box-shadow: 0 4px 12px rgba(124,58,237,0.38), inset 0 1px 0 rgba(255,255,255,0.25);
 }
 .qt-add-row {
   position: relative; z-index: 1;
@@ -2244,7 +2244,7 @@ table { border-collapse: collapse; min-width: 100%; }
 .qt-input {
   flex: 1; min-width: 0;
   background: var(--white);
-  border: 1.5px solid color-mix(in srgb, var(--blue-500) 20%, transparent);
+  border: 1.5px solid rgba(139,92,246,0.2);
   border-radius: 13px;
   color: var(--text);
   padding: 11px 18px;
@@ -2255,23 +2255,23 @@ table { border-collapse: collapse; min-width: 100%; }
   transition: var(--transition);
 }
 .qt-input:focus {
-  border-color: var(--blue-500);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue-500) 14%, transparent);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.14);
 }
 .qt-input::placeholder { color: var(--text-3); }
 .qt-add-btn {
-  background: linear-gradient(135deg, var(--blue-400), var(--blue-500));
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
   color: white; border: none;
   border-radius: 13px;
   padding: 11px 22px;
   font-family: 'Tajawal', sans-serif;
   font-weight: 700; font-size: 0.92rem;
   cursor: pointer;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--blue-500) 40%, transparent), inset 0 1px 0 rgba(255,255,255,0.25);
+  box-shadow: 0 6px 18px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.25);
   transition: var(--transition); white-space: nowrap; flex-shrink: 0;
   display: flex; align-items: center; gap: 6px;
 }
-.qt-add-btn:hover { box-shadow: 0 8px 24px color-mix(in srgb, var(--blue-500) 55%, transparent), inset 0 1px 0 rgba(255,255,255,0.25); transform: translateY(-1px); }
+.qt-add-btn:hover { box-shadow: 0 8px 24px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.25); transform: translateY(-1px); }
 .qt-add-btn:active { transform: translateY(0); }
 
 .qt-filters {
@@ -2285,8 +2285,8 @@ table { border-collapse: collapse; min-width: 100%; }
   font-family: 'Tajawal', sans-serif; font-size: 0.78rem; font-weight: 700;
   cursor: pointer; transition: var(--transition);
 }
-.qt-filter-btn:hover { border-color: var(--blue-500); color: var(--blue-500); }
-.qt-filter-btn.active { background: linear-gradient(135deg, var(--blue-400), var(--blue-500)); border-color: transparent; color: white; box-shadow: 0 3px 10px color-mix(in srgb, var(--blue-500) 35%, transparent); }
+.qt-filter-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
+.qt-filter-btn.active { background: linear-gradient(135deg, #a78bfa, #7c3aed); border-color: transparent; color: white; box-shadow: 0 3px 10px rgba(124,58,237,0.35); }
 
 .qt-list {
   position: relative; z-index: 1;
@@ -2294,7 +2294,7 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .qt-item {
   display: flex; align-items: center; gap: 10px;
-  background: linear-gradient(160deg, var(--white), color-mix(in srgb, var(--blue-500) 2%, transparent));
+  background: linear-gradient(160deg, var(--white), rgba(139,92,246,0.02));
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 11px 14px;
@@ -2308,11 +2308,11 @@ table { border-collapse: collapse; min-width: 100%; }
   content: '';
   position: absolute; inset-inline-end: 0; top: 0; bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, var(--blue-400), var(--blue-500));
+  background: linear-gradient(180deg, #a78bfa, #7c3aed);
   border-start-end-radius: 16px; border-end-end-radius: 16px;
   transition: var(--transition);
 }
-.qt-item:hover { box-shadow: 0 12px 30px -16px color-mix(in srgb, var(--blue-500) 40%, transparent), var(--shadow); transform: translateY(-2px); border-color: color-mix(in srgb, var(--blue-500) 35%, transparent); }
+.qt-item:hover { box-shadow: 0 12px 30px -16px rgba(124,58,237,0.4), var(--shadow); transform: translateY(-2px); border-color: rgba(139,92,246,0.35); }
 .qt-item.done-item {
   opacity: 0.7;
   background: var(--bg);
@@ -2330,7 +2330,7 @@ table { border-collapse: collapse; min-width: 100%; }
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
   transition: background 0.15s cubic-bezier(0.4,0,0.2,1), border-color 0.15s cubic-bezier(0.4,0,0.2,1), box-shadow 0.15s cubic-bezier(0.4,0,0.2,1), color 0.15s cubic-bezier(0.4,0,0.2,1);
 }
-.qt-item:hover .qt-checkbox { border-color: var(--blue-500); }
+.qt-item:hover .qt-checkbox { border-color: #8b5cf6; }
 .qt-checkbox.checked {
   background: linear-gradient(135deg, var(--green), #16a34a);
   border-color: var(--green); color: white;
@@ -2376,8 +2376,8 @@ table { border-collapse: collapse; min-width: 100%; }
 
 .qt-empty {
   text-align: center; padding: 40px 20px;
-  background: linear-gradient(160deg, var(--white), color-mix(in srgb, var(--blue-500) 4%, transparent));
-  border: 2px dashed color-mix(in srgb, var(--blue-500) 28%, transparent);
+  background: linear-gradient(160deg, var(--white), rgba(139,92,246,0.04));
+  border: 2px dashed rgba(139,92,246,0.28);
   border-radius: 18px;
   position: relative; z-index: 1;
 }
@@ -2391,7 +2391,7 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .qt-progress-bar-fill {
   height: 100%; border-radius: 99px;
-  background: linear-gradient(90deg, var(--blue-500), var(--green));
+  background: linear-gradient(90deg, #8b5cf6, var(--green));
   transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
 }
 .qt-progress-text {
@@ -2424,7 +2424,7 @@ table { border-collapse: collapse; min-width: 100%; }
   font-size: 0.65rem; transition: var(--transition); flex-shrink: 0;
   padding: 0; line-height: 1;
 }
-.qt-move-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--blue-500) 12%, transparent); color: var(--blue-500); border-radius: 5px; }
+.qt-move-btn:hover:not(:disabled) { background: rgba(139,92,246,0.12); color: #8b5cf6; border-radius: 5px; }
 .qt-move-btn:disabled { opacity: 0.15; cursor: default; }
 
 .qt-edit-btn {
@@ -2440,14 +2440,14 @@ table { border-collapse: collapse; min-width: 100%; }
 .qt-inline-edit {
   flex: 1; min-width: 0;
   background: var(--bg);
-  border: 1.5px solid var(--blue-500);
+  border: 1.5px solid #8b5cf6;
   border-radius: 8px;
   color: var(--text);
   padding: 4px 10px;
   font-family: 'Tajawal', sans-serif;
   font-size: 0.9rem;
   outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue-500) 12%, transparent);
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.12);
 }
 
 /* ===== TICKTICK PRIORITY STYLES — ENHANCED ===== */
@@ -2476,7 +2476,7 @@ table { border-collapse: collapse; min-width: 100%; }
   background: linear-gradient(130deg, rgba(34,197,94,0.08) 0%, rgba(34,197,94,0.02) 40%, transparent 70%) !important;
   box-shadow: 0 2px 12px rgba(34,197,94,0.10), var(--shadow-sm) !important;
 }
-.qt-item.prio-none { border-right: 3px solid color-mix(in srgb, var(--blue-500) 20%, transparent) !important; }
+.qt-item.prio-none { border-right: 3px solid rgba(139,92,246,0.2) !important; }
 
 .qt-item.prio-high::before { background: linear-gradient(180deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%) !important; width:5px !important; }
 .qt-item.prio-med::before  { background: linear-gradient(180deg, #f97316 0%, #ea580c 50%, #c2410c 100%) !important; width:5px !important; }
@@ -2747,8 +2747,8 @@ table { border-collapse: collapse; min-width: 100%; }
   font-family: 'Tajawal', sans-serif; font-size: 0.7rem; font-weight: 700;
   cursor: pointer; transition: var(--transition);
 }
-.qt-sort-btn:hover { border-color: var(--blue-500); color: var(--blue-500); }
-.qt-sort-btn.active { background: linear-gradient(135deg, var(--blue-400), var(--blue-500)); border-color: transparent; color: white; box-shadow: 0 2px 8px color-mix(in srgb, var(--blue-500) 35%, transparent); }
+.qt-sort-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
+.qt-sort-btn.active { background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-color: transparent; color: white; box-shadow: 0 2px 8px rgba(124,58,237,0.35); }
 
 /* Add task expanded row */
 .qt-add-expanded {
@@ -2773,7 +2773,7 @@ table { border-collapse: collapse; min-width: 100%; }
   font-family: 'Tajawal', sans-serif; font-size: 0.75rem; font-weight: 700;
   color: var(--text-2); transition: all 0.2s;
 }
-.qt-add-prio-btn:hover { border-color: var(--blue-500); }
+.qt-add-prio-btn:hover { border-color: #8b5cf6; }
 .qt-add-prio-btn.sel-high { border-color: #ef4444; background: #fee2e2; color: #dc2626; }
 .qt-add-prio-btn.sel-med  { border-color: #f97316; background: #ffedd5; color: #c2410c; }
 .qt-add-prio-btn.sel-low  { border-color: #22c55e; background: #dcfce7; color: #15803d; }
@@ -3155,18 +3155,18 @@ table { border-collapse: collapse; min-width: 100%; }
   font-family: inherit;
 }
 .habit-row:hover .habit-reorder-btn { opacity: 1; }
-.habit-reorder-btn:hover, .habit-reorder-btn:active { color: var(--blue-500); opacity: 1; }
+.habit-reorder-btn:hover, .habit-reorder-btn:active { color: #8b5cf6; opacity: 1; }
 /* إظهار مقبض السحب عند تمرير الفأرة فوق العنصر (سطح المكتب) — كان مخفياً دائماً بسبب opacity:0 بلا شرط hover */
 .qt-item:hover .drag-handle, .task-item:hover .drag-handle { opacity: 1; }
-.qt-item.drag-over { border: 2px dashed var(--blue-500); background: color-mix(in srgb, var(--blue-500) 6%, transparent); border-radius: 16px; }
+.qt-item.drag-over { border: 2px dashed #8b5cf6; background: rgba(139,92,246,0.06); border-radius: 16px; }
 .task-item.drag-over { border: 2px dashed var(--blue-400); background: var(--blue-50); border-radius: 6px; }
 .qt-item.dragging { opacity: 0.4; }
 .task-item.dragging { opacity: 0.4; }
 .habit-row.dragging { opacity: 0.4; }
 .habit-row.drag-over-touch td { background: var(--blue-50) !important; }
-[data-theme="dark"] .habit-row.drag-over-touch td { background: color-mix(in srgb, var(--blue-500) 15%, transparent) !important; }
-.habit-row.drag-over td { background: var(--blue-50) !important; box-shadow: inset 0 2px 0 var(--blue-500); }
-[data-theme="dark"] .habit-row.drag-over td { background: color-mix(in srgb, var(--blue-500) 15%, transparent) !important; }
+[data-theme="dark"] .habit-row.drag-over-touch td { background: rgba(139,92,246,0.15) !important; }
+.habit-row.drag-over td { background: var(--blue-50) !important; box-shadow: inset 0 2px 0 #8b5cf6; }
+[data-theme="dark"] .habit-row.drag-over td { background: rgba(139,92,246,0.15) !important; }
 
 /* ===== EMOJI PICKER ===== */
 .emoji-popup {
@@ -4289,6 +4289,78 @@ table { border-collapse: collapse; min-width: 100%; }
 }
 .log-textarea:focus { border-color: var(--orange); }
 .log-textarea::placeholder, .gym-input::placeholder { color: var(--text-3); }
+/* Per-set dynamic inputs */
+.log-sets-inputs { display: flex; flex-direction: column; gap: 8px; }
+.log-set-input-row {
+  display: grid; grid-template-columns: auto 1fr 1fr; gap: 8px;
+  align-items: center; background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 10px;
+}
+.log-set-input-num {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--orange); color: white; font-weight: 800;
+  font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
+}
+.log-set-input-row .log-number-input { padding: 6px 8px; font-size: 0.88rem; }
+.log-set-input-field { display: flex; flex-direction: column; gap: 3px; }
+.log-set-input-field-label { font-size: 0.62rem; color: var(--text-3); font-weight: 700; text-align: center; }
+/* Set details modal */
+.set-modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9100;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; padding: 16px;
+}
+.set-modal-overlay.open { display: flex; }
+.set-modal {
+  background: var(--white); border-radius: var(--radius);
+  width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+  animation: journalModalIn 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+.set-modal-header {
+  padding: 16px 20px 12px; border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.set-modal-title { font-size: 1rem; font-weight: 800; color: var(--text); }
+.set-modal-close {
+  background: var(--bg2); border: none; border-radius: 99px;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 1rem; color: var(--text-2); transition: all 0.15s; flex-shrink: 0;
+}
+.set-modal-close:hover { background: var(--border); }
+.set-modal-body { padding: 16px 20px; }
+.set-modal-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 14px; margin-bottom: 8px;
+}
+.set-modal-row-left { display: flex; align-items: center; gap: 10px; }
+.set-modal-num {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--orange); color: white; font-weight: 800;
+  font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
+}
+.set-modal-name { font-size: 0.85rem; font-weight: 700; color: var(--text-2); }
+.set-modal-vals { display: flex; gap: 8px; }
+.set-modal-val {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700;
+  color: var(--orange); background: var(--bg2); padding: 3px 9px; border-radius: 99px;
+}
+.set-modal-footer {
+  padding: 12px 20px 16px; border-top: 1.5px solid var(--border);
+  display: flex; justify-content: flex-end;
+}
+.log-entry { cursor: pointer; }
+/* Trend badge (session-over-session comparison) */
+.log-trend-badge {
+  font-size: 0.65rem; font-weight: 800; font-family: 'JetBrains Mono', monospace;
+  padding: 2px 7px; border-radius: 99px; white-space: nowrap;
+}
+.log-trend-badge.up { background: var(--green-light, #dcfce7); color: var(--green, #16a34a); }
+.log-trend-badge.down { background: var(--red-light, #fee2e2); color: var(--red, #dc2626); }
+.log-trend-badge.flat { background: var(--bg2); color: var(--text-3); }
 /* PB Badge */
 .pb-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -4691,7 +4763,7 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
   .drag-handle { opacity: 1 !important; font-size: 1.05rem; padding: 6px 5px; color: var(--text-3); touch-action: none; cursor: grab; flex-shrink: 0; }
   .qt-item .drag-handle, .task-item .drag-handle { opacity: 1 !important; }
   .habit-reorder-btn { opacity: 1 !important; display: flex !important; min-width: 32px; min-height: 32px; padding: 6px 6px; justify-content: center; align-items: center; background: transparent; border-radius: 8px; font-size: 1.2rem !important; transition: background 0.15s, color 0.15s, transform 0.1s; }
-  .habit-reorder-btn:active { background: var(--blue-500) !important; color: #fff !important; transform: scale(1.1); }
+  .habit-reorder-btn:active { background: #8b5cf6 !important; color: #fff !important; transform: scale(1.1); }
   /* مقبض تحكم بعرض عمود اسم العادة */
   .habit-col-resizer {
     position: absolute; top: 0; bottom: 0; left: 0; width: 14px;
@@ -4702,7 +4774,7 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
     content: ''; width: 3px; height: 22px; border-radius: 3px;
     background: var(--border); opacity: 0.8;
   }
-  .habit-col-resizer:active::after { background: var(--blue-500); opacity: 1; }
+  .habit-col-resizer:active::after { background: #8b5cf6; opacity: 1; }
   th.habit-col { position: relative; }
 
   /* ══════════ MOOD PAGE ══════════ */
@@ -5272,8 +5344,8 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
 }
 [data-theme="dark"] .ach-badge-cat-tag { background: var(--catbg-dark); color: var(--cattext-dark); }
 .ach-badges-cat-filter { margin-top: 8px; flex-wrap: wrap; }
-.ach-cat-btn.active { background: var(--blue-500); border-color: var(--blue-500); }
-.ach-cat-btn.active:hover { background: var(--blue-500); }
+.ach-cat-btn.active { background: #8b5cf6; border-color: #8b5cf6; }
+.ach-cat-btn.active:hover { background: #7c3aed; }
 
 /* Heatmap tooltip */
 .hm-tooltip {
@@ -5815,6 +5887,20 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
   </div>
 </div>
 
+<!-- Gym Log Set Details Modal -->
+<div class="set-modal-overlay" id="setModalOverlay" onclick="_setModalClickOutside(event)">
+  <div class="set-modal" id="setModal" onclick="event.stopPropagation()">
+    <div class="set-modal-header">
+      <div class="set-modal-title" id="setModalTitle">تفاصيل التمرين</div>
+      <button class="set-modal-close" onclick="closeSetModal()">✕</button>
+    </div>
+    <div class="set-modal-body" id="setModalBody"></div>
+    <div class="set-modal-footer">
+      <button class="journal-modal-edit-btn" id="setModalCloseBtn" onclick="closeSetModal()" style="background:var(--bg2);color:var(--text-2)">إغلاق</button>
+    </div>
+  </div>
+</div>
+
 <!-- Journal Read/Edit Modal -->
 <div class="journal-modal-overlay" id="journalModalOverlay" onclick="_journalModalClickOutside(event)">
   <div class="journal-modal" id="journalModal">
@@ -6000,33 +6086,37 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
             <input type="date" class="gym-input" id="logDate" style="min-width:0">
           </div>
         </div>
-        <div class="log-form-grid">
-          <div>
-            <div class="log-form-label" id="logLabelSets">عدد السيتات 🔢</div>
-            <input type="number" class="log-number-input" id="logSets" placeholder="3" min="1" max="99">
-          </div>
-          <div>
-            <div class="log-form-label" id="logLabelReps">عدد الرباحة (Reps) 🔁</div>
-            <input type="number" class="log-number-input" id="logReps" placeholder="12" min="1" max="999">
-          </div>
-          <div>
-            <div class="log-form-label" id="logLabelWeight">الوزن (كغ) ⚖️</div>
-            <input type="number" class="log-number-input" id="logWeight" placeholder="50" min="0" max="999" step="0.5">
-          </div>
+        <div style="margin-bottom:10px">
+          <div class="log-form-label" id="logLabelSets">عدد المجموعات (سيتات) 🔢</div>
+          <input type="number" class="log-number-input" id="logSets" placeholder="3" min="1" max="20" onchange="renderSetsInputs()" oninput="renderSetsInputs()" style="max-width:140px">
+        </div>
+        <div id="logSetsDetailWrap" style="display:none;margin-bottom:10px">
+          <div class="log-form-label" id="logSetsDetailTitle" style="margin-bottom:8px">تفاصيل المجموعات — عدّل كل مجموعة على حدة</div>
+          <div id="logSetsContainer" class="log-sets-inputs"></div>
         </div>
         <div style="margin-bottom:10px">
           <div class="log-form-label" id="logLabelNote">ملاحظات التمرين</div>
           <textarea class="log-textarea" id="logNote" placeholder="مثلاً: شعرت بإرهاق في السيت الأخير..."></textarea>
         </div>
-        <button class="gym-add-btn" id="logSaveBtn" onclick="addProgressLog()" style="width:100%">💾 تسجيل التمرين</button>
+        <div style="display:flex;gap:8px">
+          <button class="gym-add-btn" id="logSaveBtn" onclick="addProgressLog()" style="width:100%">💾 تسجيل التمرين</button>
+          <button class="gym-add-btn" id="logCancelEditBtn" onclick="cancelEditLog()" style="width:auto;display:none;background:var(--bg2);color:var(--text-2);box-shadow:none">✕</button>
+        </div>
       </div>
 
       <!-- Progress Entries -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap">
         <div style="font-size:0.8rem;font-weight:700;color:var(--text-2)" id="logHistoryTitle">📋 سجل التقدم (<span id="logCount">0</span> تسجيل)</div>
-        <select class="gym-select" id="logFilterSelect" onchange="renderProgressLog()" style="font-size:0.78rem;padding:5px 10px">
-          <option value="" id="logFilterAll">كل التمارين</option>
-        </select>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select class="gym-select" id="logSortSelect" onchange="renderProgressLog()" style="font-size:0.78rem;padding:5px 10px">
+            <option value="newest" id="logSortNewest">الأحدث أولاً</option>
+            <option value="oldest" id="logSortOldest">الأقدم أولاً</option>
+            <option value="weight" id="logSortWeight">الأعلى وزناً</option>
+          </select>
+          <select class="gym-select" id="logFilterSelect" onchange="renderProgressLog()" style="font-size:0.78rem;padding:5px 10px">
+            <option value="" id="logFilterAll">كل التمارين</option>
+          </select>
+        </div>
       </div>
       <div class="progress-log" id="progressLog"></div>
     </div>
@@ -6055,7 +6145,7 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
       </div>
     </div>
 
-    <!-- CARD 7: Workout Notes (today's session) -->
+    <!-- CARD 7: Workout Notes (today's session + full history) -->
     <div class="gym-card">
       <div class="gym-section-title" id="gymCard7Title">✍️ ملاحظات جلسة اليوم</div>
       <div style="font-size:0.75rem;color:var(--text-3);margin-bottom:8px" id="gymCard7Desc">اكتب تفاصيل تمرينك اليوم، ما شعرت به، ما تريد تحسينه...</div>
@@ -6064,7 +6154,10 @@ body[data-fontsize="large"] .mood-cell { width: 36px; height: 36px; }
         <button class="notes-save-btn" id="notesSaveBtn" onclick="saveWorkoutNotes()">💾 حفظ الملاحظات</button>
         <div style="font-size:0.7rem;color:var(--text-3)" id="notesSavedDate"></div>
       </div>
+      <div style="font-size:0.8rem;font-weight:700;color:var(--text-2);margin-top:16px;padding-top:14px;border-top:1px solid var(--border)" id="notesHistoryTitle">📚 سجل الملاحظات (<span id="notesHistoryCount">0</span>)</div>
+      <div id="workoutNotesHistory" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
     </div>
+
 
     <!-- CARD 8: BMI + Body Measurements -->
     <div class="gym-card">
@@ -6850,7 +6943,7 @@ const T = {
     gymCard3Title: '📊 تسجيل التقدم — سجّل تمرينك اليوم',
     gymLogExercise: 'التمرين',
     gymLogDate: 'التاريخ',
-    gymLogSets: 'عدد السيتات 🔢',
+    gymLogSets: 'عدد المجموعات (سيتات) 🔢',
     gymLogReps: 'عدد الرباحة (Reps) 🔁',
     gymLogWeight: 'الوزن (كغ) ⚖️',
     gymLogNote: 'ملاحظات التمرين',
@@ -6858,13 +6951,22 @@ const T = {
     gymLogSave: '💾 تسجيل التمرين',
     gymLogHistory: '📋 سجل التقدم',
     gymLogFilterAll: 'كل التمارين',
+    gymSetLabel: 'مجموعة',
+    gymSetReps: 'عدات',
+    gymSetWeight: 'وزن (كغ)',
+    gymSetsDetailTitle: 'تفاصيل المجموعات — عدّل كل مجموعة على حدة',
+    gymSetsFillWarning: 'رجاءً أدخل عدد العدات والوزن لكل مجموعة',
+    gymModalDetailsTitle: 'تفاصيل التمرين',
+    gymModalTotalVolume: 'الحجم الكلي',
+    gymModalClose: 'إغلاق',
+    gymModalSetWord: 'المجموعة',
     gymPRs: '🏆 الأرقام القياسية (PRs)',
     gymVolumeBars: '📈 أعلى الأوزان المرفوعة',
     gymBWTitle: '⚖️ تتبع وزن الجسم — آخر 14 يوم',
-    gymBWTrend: 'الاتجاه',
+    gymBWTrend: 'الاتجاه', gymBWMin: 'أقل', gymBWMax: 'أعلى', gymBWAvg: 'متوسط',
     gymCard7Title: '✍️ ملاحظات جلسة اليوم',
     gymCard7Desc: 'اكتب تفاصيل تمرينك اليوم، ما شعرت به، ما تريد تحسينه...',
-    gymNotesSave: '💾 حفظ الملاحظات',
+    gymNotesSave: '💾 حفظ الملاحظات', gymNotesHistory: '📚 سجل الملاحظات', gymNotesHistoryEmpty: 'لا توجد ملاحظات سابقة بعد', gymNotesDeleteConfirm: 'هل تريد حذف ملاحظة هذا اليوم؟',
     gymWorkoutNotesPlaceholder: 'مثلاً: بدأت بإحماء 10 دقائق، أديت 4 سيتات بنش برس، رفعت 80 كغ وهو أعلى وزن لي. شعرت بقوة في البداية لكن السيت الأخير كان صعباً...',
     gymBMITitle: '📐 حاسبة BMI + قياسات الجسم',
     gymBMIWeight: 'الوزن (كغ) ⚖️',
@@ -7294,13 +7396,22 @@ const T = {
     gymLogSave: '💾 Enregistrer la séance',
     gymLogHistory: '📋 Historique des progrès',
     gymLogFilterAll: 'Tous les exercices',
+    gymSetLabel: 'Série',
+    gymSetReps: 'Répétitions',
+    gymSetWeight: 'Poids (kg)',
+    gymSetsDetailTitle: 'Détails des séries — modifiez chaque série individuellement',
+    gymSetsFillWarning: 'Veuillez saisir les répétitions et le poids pour chaque série',
+    gymModalDetailsTitle: "Détails de l'exercice",
+    gymModalTotalVolume: 'Volume total',
+    gymModalClose: 'Fermer',
+    gymModalSetWord: 'Série',
     gymPRs: '🏆 Records personnels (PRs)',
     gymVolumeBars: '📈 Poids maximum soulevé',
     gymBWTitle: "⚖️ Suivi du poids corporel — 14 derniers jours",
-    gymBWTrend: 'Tendance',
+    gymBWTrend: 'Tendance', gymBWMin: 'Min', gymBWMax: 'Max', gymBWAvg: 'Moy',
     gymCard7Title: "✍️ Notes de la séance d'aujourd'hui",
     gymCard7Desc: "Écrivez les détails de votre entraînement, ce que vous avez ressenti...",
-    gymNotesSave: '💾 Enregistrer les notes',
+    gymNotesSave: '💾 Enregistrer les notes', gymNotesHistory: '📚 Historique des notes', gymNotesHistoryEmpty: 'Aucune note précédente pour le moment', gymNotesDeleteConfirm: 'Supprimer la note de ce jour ?',
     gymWorkoutNotesPlaceholder: "Ex: J'ai commencé par 10 min d'échauffement, j'ai fait 4 séries de développé couché...",
     gymBMITitle: '📐 Calculateur IMC + Mensurations',
     gymBMIWeight: 'Poids (kg) ⚖️',
@@ -7733,13 +7844,22 @@ const T = {
     gymLogSave: '💾 Log Workout',
     gymLogHistory: '📋 Progress Log',
     gymLogFilterAll: 'All Exercises',
+    gymSetLabel: 'Set',
+    gymSetReps: 'Reps',
+    gymSetWeight: 'Weight (kg)',
+    gymSetsDetailTitle: 'Set Details — edit each set individually',
+    gymSetsFillWarning: 'Please enter reps and weight for each set',
+    gymModalDetailsTitle: 'Exercise Details',
+    gymModalTotalVolume: 'Total Volume',
+    gymModalClose: 'Close',
+    gymModalSetWord: 'Set',
     gymPRs: '🏆 Personal Records (PRs)',
     gymVolumeBars: '📈 Maximum Weight Lifted',
     gymBWTitle: '⚖️ Body Weight Tracking — Last 14 days',
-    gymBWTrend: 'Trend',
+    gymBWTrend: 'Trend', gymBWMin: 'Min', gymBWMax: 'Max', gymBWAvg: 'Avg',
     gymCard7Title: "✍️ Today's Workout Notes",
     gymCard7Desc: "Write details about today's workout, what you felt, what you want to improve...",
-    gymNotesSave: '💾 Save Notes',
+    gymNotesSave: '💾 Save Notes', gymNotesHistory: '📚 Notes History', gymNotesHistoryEmpty: 'No previous notes yet', gymNotesDeleteConfirm: 'Delete this day\'s note?',
     gymWorkoutNotesPlaceholder: "Ex: Started with 10 min warm-up, did 4 sets of bench press, lifted 80kg which is my PR...",
     gymBMITitle: '📐 BMI Calculator + Body Measurements',
     gymBMIWeight: 'Weight (kg) ⚖️',
@@ -8321,6 +8441,18 @@ function setLang(lang, _skipSave) {
   const qpEl = document.getElementById('quotePageMain');
   if (qpEl) qpEl.textContent = qs[quoteIdx];
   updateGymPageText();
+  // FIX: تبديل اللغة كان يحدّث فقط العناوين الثابتة لصفحة الجيم، لكن يترك
+  // القوائم الديناميكية (سجل التقدم، الأرقام القياسية، أعمدة الأوزان، سجل
+  // وزن الجسم، سجل التغذية، مخطط التقدم) بنصوص اللغة القديمة المطبوعة داخل
+  // الـ HTML وقت آخر رسم لها — لأنها لا تُعاد بناءها هنا. نعيد رسمها الآن
+  // حتى تُترجم فوراً مثل باقي الصفحة.
+  if (typeof renderProgressLog === 'function') renderProgressLog();
+  if (typeof renderGymPRs === 'function') renderGymPRs();
+  if (typeof renderGymVolumeBars === 'function') renderGymVolumeBars();
+  if (typeof renderBWGrid === 'function') renderBWGrid();
+  if (typeof renderNutriHistory === 'function') renderNutriHistory();
+  if (typeof renderProgChart === 'function') renderProgChart();
+  if (typeof loadWorkoutNotes === 'function') loadWorkoutNotes();
   updateQuickTasksText();
   updateSignOutModalText();
   updateAddHabitModalText();
@@ -8520,17 +8652,29 @@ function updateGymPageText() {
   // Card 3 - Log Progress
   const gc3 = document.getElementById('gymCard3Title');
   if (gc3) gc3.textContent = tr.gymCard3Title;
-  const lfl = document.querySelectorAll('.log-form-label');
-  if (lfl[0]) lfl[0].textContent = tr.gymLogExercise;
-  if (lfl[1]) lfl[1].textContent = tr.gymLogDate;
-  if (lfl[2]) lfl[2].textContent = tr.gymLogSets;
-  if (lfl[3]) lfl[3].textContent = tr.gymLogReps;
-  if (lfl[4]) lfl[4].textContent = tr.gymLogWeight;
-  if (lfl[5]) lfl[5].textContent = tr.gymLogNote;
+  const lLabelEx = document.getElementById('logLabelExercise');
+  if (lLabelEx) lLabelEx.textContent = tr.gymLogExercise;
+  const lLabelDate = document.getElementById('logLabelDate');
+  if (lLabelDate) lLabelDate.textContent = tr.gymLogDate;
+  const lLabelSets = document.getElementById('logLabelSets');
+  if (lLabelSets) lLabelSets.textContent = tr.gymLogSets;
+  const lLabelNote = document.getElementById('logLabelNote');
+  if (lLabelNote) lLabelNote.textContent = tr.gymLogNote;
+  const lSetsDetailTitle = document.getElementById('logSetsDetailTitle');
+  if (lSetsDetailTitle) lSetsDetailTitle.textContent = tr.gymSetsDetailTitle;
+  renderSetsInputs(); // refresh per-set input labels in new language
   const lna = document.getElementById('logNote');
   if (lna) lna.placeholder = tr.gymLogNotePlaceholder;
   const lsb = document.querySelector('.gym-card-full .gym-add-btn');
-  if (lsb) lsb.textContent = tr.gymLogSave;
+  // FIX: كان يستبدل نص الزر دائماً بـ "تسجيل التمرين" حتى لو كان المستخدم
+  // في وضع تعديل تسجيل موجود مسبقاً (editLog) — فيظهر الزر بنص "حفظ" بينما
+  // سلوكه الفعلي لا يزال "تحديث"، وهذا يربك المستخدم. الآن نحافظ على نص
+  // التحديث المترجم إذا كنا لا نزال في وضع التعديل.
+  if (lsb) {
+    lsb.textContent = (typeof _editingLogId !== 'undefined' && _editingLogId !== null)
+      ? (currentLang === 'ar' ? '💾 تحديث التسجيل' : currentLang === 'fr' ? '💾 Mettre à jour' : '💾 Update log')
+      : tr.gymLogSave;
+  }
   const lht = document.getElementById('logHistoryTitle');
   if (lht) {
     const count = document.getElementById('logCount');
@@ -8538,6 +8682,14 @@ function updateGymPageText() {
   }
   const lfa = document.getElementById('logFilterAll');
   if (lfa) lfa.textContent = tr.gymLogFilterAll;
+  const sortLabels = currentLang === 'ar'
+    ? { newest: 'الأحدث أولاً', oldest: 'الأقدم أولاً', weight: 'الأعلى وزناً' }
+    : currentLang === 'fr'
+    ? { newest: 'Plus récent', oldest: 'Plus ancien', weight: 'Poids le plus élevé' }
+    : { newest: 'Newest first', oldest: 'Oldest first', weight: 'Highest weight' };
+  const lsn = document.getElementById('logSortNewest'); if (lsn) lsn.textContent = sortLabels.newest;
+  const lso = document.getElementById('logSortOldest'); if (lso) lso.textContent = sortLabels.oldest;
+  const lsw = document.getElementById('logSortWeight'); if (lsw) lsw.textContent = sortLabels.weight;
 
   // Card 4 - PRs
   const gc4 = document.querySelector('#gymPRs')?.closest('.gym-card')?.querySelector('.gym-section-title');
@@ -8550,15 +8702,17 @@ function updateGymPageText() {
   // Card 6 - Body Weight
   const gc6 = document.querySelector('#bwGrid')?.closest('.gym-card')?.querySelector('.gym-section-title');
   if (gc6) gc6.textContent = tr.gymBWTitle;
+  // FIX: كانت الثلاثة (أقل/أعلى/متوسط) تستخدم نفس تسمية "الاتجاه" (gymBWTrend)
+  // فبعد أي تبديل لغة تصير الثلاث قيم معنونة بنفس الكلمة الخاطئة.
   const bwMin = document.getElementById('bwMin');
-  if (bwMin) { const v = bwMin.textContent.split(' ')[1] || '—';
-    bwMin.textContent = tr.gymBWTrend + ': ' + v; }
+  if (bwMin) { const v = bwMin.textContent.split(': ')[1] || '—';
+    bwMin.textContent = tr.gymBWMin + ': ' + v; }
   const bwMax = document.getElementById('bwMax');
-  if (bwMax) { const v = bwMax.textContent.split(' ')[1] || '—';
-    bwMax.textContent = tr.gymBWTrend + ': ' + v; }
+  if (bwMax) { const v = bwMax.textContent.split(': ')[1] || '—';
+    bwMax.textContent = tr.gymBWMax + ': ' + v; }
   const bwAvg = document.getElementById('bwAvg');
-  if (bwAvg) { const v = bwAvg.textContent.split(' ')[1] || '—';
-    bwAvg.textContent = tr.gymBWTrend + ': ' + v; }
+  if (bwAvg) { const v = bwAvg.textContent.split(': ')[1] || '—';
+    bwAvg.textContent = tr.gymBWAvg + ': ' + v; }
 
   // Card 7 - Workout Notes
   const gc7 = document.querySelector('#workoutNotesArea')?.closest('.gym-card')?.querySelector('.gym-section-title');
@@ -8569,6 +8723,12 @@ function updateGymPageText() {
   if (wna) wna.placeholder = tr.gymWorkoutNotesPlaceholder;
   const wnsb = document.querySelector('.notes-save-btn');
   if (wnsb) wnsb.textContent = tr.gymNotesSave;
+  const nht2 = document.getElementById('notesHistoryTitle');
+  if (nht2) {
+    const count = document.getElementById('notesHistoryCount');
+    nht2.innerHTML = tr.gymNotesHistory + ' (<span id="notesHistoryCount">' + (count ? count.textContent : '0') + '</span>)';
+  }
+  renderWorkoutNotesHistory(); // إعادة رسم السجل باللغة الجديدة (نص "لا توجد ملاحظات" إلخ)
 
   // Card 8 - BMI
   const gc8 = document.querySelector('#bmiWeight')?.closest('.gym-card')?.querySelector('.gym-section-title');
@@ -8608,7 +8768,7 @@ function updateGymPageText() {
   if (ndl) {
     const d = new Date();
     d.setDate(d.getDate() + (typeof nutriDayOffset !== 'undefined' ? nutriDayOffset : 0));
-    const dateStr = d.toISOString().slice(0, 10);
+    const dateStr = _localDateStr(d);
     ndl.textContent = `${(typeof nutriDayOffset !== 'undefined' ? nutriDayOffset : 0) === 0 ? tr.gymNutriToday : tr.gymNutriYest} — ${dateStr}`;
   }
   const nru = document.querySelector('.nutri-ring-unit');
@@ -8763,6 +8923,32 @@ function updateSettingsText() {
   if (legItems[0]) legItems[0].lastChild.textContent = tr.legendDone;
   if (legItems[1]) legItems[1].lastChild.textContent = tr.legendMissed;
   if (legItems[2]) legItems[2].lastChild.textContent = tr.legendFuture;
+}
+
+// ── FIX: تاريخ محلي آمن (بدل toISOString اللي يستعمل UTC) ──────────────────
+// toISOString().slice(0,10) يرجّع تاريخ UTC وليس تاريخ الجهاز المحلي.
+// في أي بلد بتوقيت +UTC (مثلاً الجزائر UTC+1)، بين الساعة 00:00 و 01:00 بالتوقيت
+// المحلي، يكون تاريخ UTC لا يزال "أمس" — فأي بيانات تُسجَّل بهذي الساعة (وزن الجسم،
+// التغذية، تسجيل الجيم، البومودورو...) كانت تُحفظ تحت تاريخ اليوم السابق بالخطأ.
+// هذي الدالة تستخدم التاريخ المحلي دائماً بنفس صيغة YYYY-MM-DD.
+function _localDateStr(d) {
+  d = d || new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function _localYearMonthStr(d) {
+  d = d || new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+// ── FIX: معرّف فريد آمن من التصادم ──────────────────────────────────────────
+// Date.now() وحده يعطي نفس الرقم لو استُدعي مرتين بنفس المليثانية (نادر لكن
+// وارد، مثلاً ضغط سريع جداً أو استيراد بيانات). إضافة عدّاد يضمن التفرد دائماً.
+let _uidCounter = 0;
+function _uniqueId() {
+  _uidCounter = (_uidCounter + 1) % 1000;
+  return Date.now() * 1000 + _uidCounter;
 }
 
 const today = new Date();
@@ -9223,7 +9409,12 @@ function _saveImmediate(fieldName) {
 // ملاحظة: على الموبايل beforeunload لا يُطلَق دائماً — لهذا نعتمد أيضاً على
 // visibilitychange أدناه كخط دفاع ثانٍ (الأكثر موثوقية على iOS/Android).
 window.addEventListener('beforeunload', () => {
-  if (window._currentUser) {
+  // FIX: لا نكتب إلا إذا كانت هذه التبويبة فعلاً فيها تعديل حقيقي معلّق
+  // (_pendingLocalEdit أو مؤقّت debounce نشط). بدون هذا الفحص، أي تبويبة
+  // قديمة/خاملة فُتحت من قبل بذاكرة قديمة (بيانات افتراضية أو غير محدّثة)
+  // كانت تكتب تلك البيانات القديمة فوق الوثيقة الحقيقية في Firestore
+  // بمجرد إغلاقها — وتمسح تعديلات حقيقية حصلت من جهاز آخر بعد فتحها.
+  if (window._currentUser && (_saveDebounceTimer || _pendingLocalEdit)) {
     clearTimeout(_saveDebounceTimer);
     _saveDebounceTimer = null;
     // استخدام _saveQueue المتزامن — لكن المتصفح قد يقطع الطلب
@@ -9999,7 +10190,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `habit-tracker-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `habit-tracker-backup-${_localDateStr()}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   showToast(t('toastExported'));
@@ -13063,7 +13254,7 @@ function renderGym() {
   const dateInp = document.getElementById('logDate');
   if (dateInp && !dateInp.value) {
     const now = new Date();
-    dateInp.value = now.toISOString().slice(0, 10);
+    dateInp.value = _localDateStr(now);
   }
 }
 
@@ -13074,7 +13265,7 @@ function renderGymSummary() {
     const d = new Date(l.date);
     const now = new Date();
     const diff = (now - d) / (1000 * 60 * 60 * 24);
-    return diff <= 7;
+    return diff >= 0 && diff <= 7;
   }).length;
   const daysChecked = Object.values(gymSchedule).filter(d => d.done).length;
   const totalVol = gymLogs.reduce((acc, l) => acc + (l.sets * l.reps * (l.weight || 0)), 0);
@@ -13249,28 +13440,113 @@ function populateLogSelects() {
     gymExercises.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
 }
 
+function renderSetsInputs() {
+  const tr = T[currentLang] || T.ar;
+  const setsCount = Math.max(0, Math.min(20, parseInt(document.getElementById('logSets').value) || 0));
+  const wrap = document.getElementById('logSetsDetailWrap');
+  const container = document.getElementById('logSetsContainer');
+  if (!setsCount) {
+    wrap.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'block';
+
+  // Preserve previously entered values when the count changes
+  const prevReps = [], prevWeights = [];
+  container.querySelectorAll('.log-set-reps-input').forEach(el => prevReps.push(el.value));
+  container.querySelectorAll('.log-set-weight-input').forEach(el => prevWeights.push(el.value));
+
+  let html = '';
+  for (let i = 0; i < setsCount; i++) {
+    const repVal = prevReps[i] !== undefined ? prevReps[i] : '';
+    const wVal = prevWeights[i] !== undefined ? prevWeights[i] : '';
+    html += `<div class="log-set-input-row">
+      <div class="log-set-input-num">${i + 1}</div>
+      <div class="log-set-input-field">
+        <div class="log-set-input-field-label">${tr.gymSetReps} 🔁</div>
+        <input type="number" class="log-number-input log-set-reps-input" placeholder="12" min="0" max="999" value="${escAttr(repVal)}">
+      </div>
+      <div class="log-set-input-field">
+        <div class="log-set-input-field-label">${tr.gymSetWeight} ⚖️</div>
+        <input type="number" class="log-number-input log-set-weight-input" placeholder="50" min="0" max="999" step="0.5" value="${escAttr(wVal)}">
+      </div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+let _editingLogId = null;
+
 function addProgressLog() {
   const tr = T[currentLang] || T.ar;
   const exId = parseInt(document.getElementById('logExerciseSelect').value);
   const date = document.getElementById('logDate').value;
   const sets = parseInt(document.getElementById('logSets').value) || 0;
-  const reps = parseInt(document.getElementById('logReps').value) || 0;
-  const weight = parseFloat(document.getElementById('logWeight').value) || 0;
   const note = document.getElementById('logNote').value.trim();
 
-  if (!exId || !date || !sets || !reps) {
+  const repInputs = document.querySelectorAll('#logSetsContainer .log-set-reps-input');
+  const weightInputs = document.querySelectorAll('#logSetsContainer .log-set-weight-input');
+
+  if (!exId || !date || !sets || repInputs.length !== sets) {
     showToast(tr.gymFillFields);
     return;
   }
 
+  const setsData = [];
+  for (let i = 0; i < sets; i++) {
+    const r = parseInt(repInputs[i].value) || 0;
+    const w = parseFloat(weightInputs[i].value) || 0;
+    if (!r) {
+      showToast(tr.gymSetsFillWarning);
+      return;
+    }
+    setsData.push({ reps: r, weight: w });
+  }
+
+  // Backward-compatible aggregate fields (used by PRs/volume charts)
+  const maxReps = Math.max(...setsData.map(s => s.reps));
+  const maxWeight = Math.max(...setsData.map(s => s.weight));
+  // FIX: 1RM التقريبي (معادلة Epley) لازم يُحسب من نفس المجموعة (وزن+تكرار
+  // سويةً)، مو من أعلى وزن وأعلى تكرار حتى لو صارا بمجموعتين مختلفتين —
+  // هذا كان يعطي رقماً وهمياً أعلى من الحقيقة. نحسب 1RM لكل مجموعة على حدة
+  // ونأخذ الأعلى (= أفضل مجموعة فعلية أدّاها المستخدم).
+  const weightedSets = setsData.filter(s => s.weight > 0);
+  const best1RM = weightedSets.length
+    ? Math.max(...weightedSets.map(s => Math.round(s.weight * (1 + s.reps / 30))))
+    : 0;
+
   const ex = gymExercises.find(e => e.id === exId);
-  gymLogs.unshift({ id: Date.now(), exId, date, sets, reps, weight, note, exName: ex ? ex.name : '?' });
+
+  if (_editingLogId !== null) {
+    // Update existing entry in place instead of creating a new one
+    const idx = gymLogs.findIndex(l => l.id === _editingLogId);
+    if (idx !== -1) {
+      gymLogs[idx] = {
+        ...gymLogs[idx], exId, date, sets,
+        reps: maxReps, weight: maxWeight, best1RM,
+        setsData, note, exName: ex ? ex.name : '?'
+      };
+    }
+    _editingLogId = null;
+    const saveBtn = document.getElementById('logSaveBtn');
+    if (saveBtn) saveBtn.textContent = tr.gymLogSave;
+    const cancelBtn = document.getElementById('logCancelEditBtn');
+    if (cancelBtn) cancelBtn.style.display = 'none';
+  } else {
+    gymLogs.unshift({
+      id: _uniqueId(), exId, date, sets,
+      reps: maxReps, weight: maxWeight, best1RM,
+      setsData, note, exName: ex ? ex.name : '?'
+    });
+  }
   _saveImmediate('gymLogs'); // FIX: فوري
 
   document.getElementById('logSets').value = '';
-  document.getElementById('logReps').value = '';
-  document.getElementById('logWeight').value = '';
   document.getElementById('logNote').value = '';
+  document.getElementById('logDate').value = '';
+  document.getElementById('logExerciseSelect').value = '';
+  renderSetsInputs();
 
   renderProgressLog();
   renderGymPRs();
@@ -13280,10 +13556,63 @@ function addProgressLog() {
   renderGamificationBar();
 }
 
+function editLog(id) {
+  const tr = T[currentLang] || T.ar;
+  const l = gymLogs.find(x => x.id === id);
+  if (!l) return;
+  _editingLogId = id;
+
+  document.getElementById('logExerciseSelect').value = l.exId;
+  document.getElementById('logDate').value = l.date;
+  document.getElementById('logSets').value = l.sets;
+  document.getElementById('logNote').value = l.note || '';
+  renderSetsInputs();
+
+  const setsData = (l.setsData && l.setsData.length)
+    ? l.setsData
+    : Array.from({ length: l.sets || 1 }, () => ({ reps: l.reps, weight: l.weight }));
+  const repInputs = document.querySelectorAll('#logSetsContainer .log-set-reps-input');
+  const weightInputs = document.querySelectorAll('#logSetsContainer .log-set-weight-input');
+  setsData.forEach((s, i) => {
+    if (repInputs[i]) repInputs[i].value = s.reps || '';
+    if (weightInputs[i]) weightInputs[i].value = s.weight || '';
+  });
+
+  const saveBtn = document.getElementById('logSaveBtn');
+  if (saveBtn) saveBtn.textContent = currentLang === 'ar' ? '💾 تحديث التسجيل' : currentLang === 'fr' ? '💾 Mettre à jour' : '💾 Update log';
+  const cancelBtn = document.getElementById('logCancelEditBtn');
+  if (cancelBtn) cancelBtn.style.display = 'block';
+
+  const formEl = document.querySelector('.log-form');
+  if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelEditLog() {
+  const tr = T[currentLang] || T.ar;
+  _editingLogId = null;
+  document.getElementById('logSets').value = '';
+  document.getElementById('logNote').value = '';
+  document.getElementById('logDate').value = '';
+  document.getElementById('logExerciseSelect').value = '';
+  renderSetsInputs();
+  const saveBtn = document.getElementById('logSaveBtn');
+  if (saveBtn) saveBtn.textContent = tr.gymLogSave;
+  const cancelBtn = document.getElementById('logCancelEditBtn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
+}
+
 function renderProgressLog() {
   const tr = T[currentLang] || T.ar;
   const filterExId = document.getElementById('logFilterSelect') ? parseInt(document.getElementById('logFilterSelect').value) || 0 : 0;
-  const filtered = filterExId ? gymLogs.filter(l => l.exId === filterExId) : gymLogs;
+  const sortMode = document.getElementById('logSortSelect') ? document.getElementById('logSortSelect').value : 'newest';
+  let filtered = filterExId ? gymLogs.filter(l => l.exId === filterExId) : gymLogs.slice();
+  if (sortMode === 'oldest') {
+    filtered = filtered.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+  } else if (sortMode === 'weight') {
+    filtered = filtered.slice().sort((a, b) => (b.weight || 0) - (a.weight || 0));
+  } else {
+    filtered = filtered.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
   const logEl = document.getElementById('progressLog');
   const countEl = document.getElementById('logCount');
   if (countEl) countEl.textContent = filtered.length;
@@ -13301,22 +13630,60 @@ function renderProgressLog() {
 
   logEl.innerHTML = filtered.map(l => {
     const ex = gymExercises.find(e => e.id === l.exId);
+    // FIX: كان يعرض دائماً l.exName (الاسم وقت التسجيل) حتى لو غيّرت اسم
+    // التمرين لاحقاً من قائمة التمارين — فيصير التسجيل القديم عالق باسم
+    // قديم للأبد. الصحيح: اعرض الاسم الحالي إذا التمرين لسه موجود، وارجع
+    // للاسم المحفوظ فقط لو التمرين انحذف كلياً.
+    const displayName = ex ? ex.name : l.exName;
     const catTag = ex ? `<span class="exercise-tag ${CAT_TAGS[ex.cat] || ''}" style="font-size:0.62rem;padding:1px 6px">${getCatLabels()[ex.cat] || ''}</span>` : '';
     const exLogs = gymLogs.filter(x => x.exId === l.exId);
     const maxW = Math.max(...exLogs.map(x => x.weight || 0));
-    const isPR = l.weight > 0 && l.weight >= maxW && exLogs[0].id === l.id;
+    // FIX: قبل كان الشرط يتطلب إضافةً إن هذا التسجيل هو "الأحدث" حتى تظهر
+    // شارة الرقم القياسي (exLogs[0].id === l.id) — يعني لو سجّلت رقماً قياسياً
+    // ثم سجّلت بعده أوزان أخف، الشارة تختفي من التسجيل القياسي القديم لأنه
+    // عاد "مو الأحدث". الصحيح: الشارة تظهر على أي تسجيل حقق فعلاً أعلى وزن،
+    // بغض النظر متى سُجّل.
+    const isPR = l.weight > 0 && l.weight >= maxW;
     const prBadge = isPR ? '<span class="pb-badge">🏆 ' + (currentLang === 'ar' ? 'رقم قياسي' : currentLang === 'fr' ? 'Record' : 'PR') + '</span>' : '';
-    const vol1RM = l.weight > 0 ? Math.round(l.weight * (1 + l.reps / 30)) : 0;
+    // FIX: نستخدم best1RM المحسوب بدقة وقت الحفظ (لكل مجموعة على حدة).
+    // التسجيلات القديمة (قبل هذا التصحيح) ما فيها هذا الحقل — نرجع للمعادلة
+    // التقريبية القديمة بس بالنسبة لها فقط.
+    const vol1RM = (l.best1RM !== undefined) ? l.best1RM : (l.weight > 0 ? Math.round(l.weight * (1 + l.reps / 30)) : 0);
 
-    return `<div class="log-entry">
+    const totalVolume = (l.setsData && l.setsData.length)
+      ? l.setsData.reduce((acc, s) => acc + s.reps * (s.weight || 1), 0)
+      : l.sets * l.reps * (l.weight || 1);
+
+    // Trend badge: compare to the previous session (by date) of the same exercise
+    let trendBadge = '';
+    const sameExChrono = gymLogs.filter(x => x.exId === l.exId).slice().sort((a, b) => new Date(a.date) - new Date(b.date) || a.id - b.id);
+    const idxInChrono = sameExChrono.findIndex(x => x.id === l.id);
+    if (idxInChrono > 0) {
+      const prevLog = sameExChrono[idxInChrono - 1];
+      const curMetric = l.best1RM || l.weight || totalVolume;
+      const prevTotalVolume = (prevLog.setsData && prevLog.setsData.length)
+        ? prevLog.setsData.reduce((acc, s) => acc + s.reps * (s.weight || 1), 0)
+        : prevLog.sets * prevLog.reps * (prevLog.weight || 1);
+      const prevMetric = prevLog.best1RM || prevLog.weight || prevTotalVolume;
+      if (prevMetric > 0) {
+        const diffPct = Math.round(((curMetric - prevMetric) / prevMetric) * 100);
+        if (diffPct > 0) trendBadge = `<span class="log-trend-badge up">▲ ${diffPct}%</span>`;
+        else if (diffPct < 0) trendBadge = `<span class="log-trend-badge down">▼ ${Math.abs(diffPct)}%</span>`;
+        else trendBadge = `<span class="log-trend-badge flat">— ${currentLang === 'ar' ? 'ثابت' : currentLang === 'fr' ? 'stable' : 'flat'}</span>`;
+      }
+    }
+
+    return `<div class="log-entry" onclick="openSetModal(${l.id})">
       <div class="log-entry-header">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <div class="log-exercise-name">${escAttr(l.exName)}</div>
+          <div class="log-exercise-name">${escAttr(displayName)}</div>
           ${catTag} ${prBadge}
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <div class="log-date">${l.date}</div>
-          <button class="log-del" onclick="deleteLog(${l.id})">🗑️</button>
+          ${trendBadge}
+          <button class="log-del" title="${currentLang === 'ar' ? 'تعديل' : currentLang === 'fr' ? 'Modifier' : 'Edit'}" onclick="event.stopPropagation();editLog(${l.id})">✏️</button>
+          <button class="log-del" onclick="event.stopPropagation();deleteLog(${l.id})">🗑️</button>
         </div>
       </div>
       <div class="log-sets-row">
@@ -13324,7 +13691,7 @@ function renderProgressLog() {
         <div class="log-set-badge">${currentLang === 'ar' ? 'رباحة' : currentLang === 'fr' ? 'Répétitions' : 'Reps'}: <span>${l.reps}</span></div>
         ${l.weight ? `<div class="log-set-badge">⚖️ <span>${l.weight} kg</span></div>` : ''}
         ${vol1RM ? `<div class="log-set-badge">${currentLang === 'ar' ? 'حجم 1RM≈' : currentLang === 'fr' ? 'Volume 1RM≈' : '1RM≈'} <span>${vol1RM}kg</span></div>` : ''}
-        <div class="log-set-badge">${currentLang === 'ar' ? 'الحجم الكلي' : currentLang === 'fr' ? 'Volume total' : 'Total Volume'}: <span>${(l.sets * l.reps * (l.weight || 1)).toLocaleString()} ${l.weight ? 'kg·reps' : 'reps'}</span></div>
+        <div class="log-set-badge">${currentLang === 'ar' ? 'الحجم الكلي' : currentLang === 'fr' ? 'Volume total' : 'Total Volume'}: <span>${totalVolume.toLocaleString()} ${l.weight ? 'kg·reps' : 'reps'}</span></div>
       </div>
       ${l.note ? `<div class="log-note">📝 ${escAttr(l.note)}</div>` : ''}
     </div>`;
@@ -13333,11 +13700,74 @@ function renderProgressLog() {
 
 function deleteLog(id) {
   gymLogs = gymLogs.filter(l => l.id !== id);
+  if (_editingLogId === id) cancelEditLog();
   _saveImmediate('gymLogs');
   renderProgressLog();
   renderGymPRs();
   renderGymVolumeBars();
   renderGymSummary();
+}
+
+// =========== GYM LOG — SET DETAILS MODAL ===========
+function openSetModal(id) {
+  const tr = T[currentLang] || T.ar;
+  const l = gymLogs.find(x => x.id === id);
+  if (!l) return;
+
+  const titleEl = document.getElementById('setModalTitle');
+  const bodyEl = document.getElementById('setModalBody');
+  const closeBtn = document.getElementById('setModalCloseBtn');
+  if (closeBtn) closeBtn.textContent = tr.gymModalClose;
+
+  const ex = gymExercises.find(e => e.id === l.exId);
+  const catEmoji = ex ? getCatEmoji(ex.cat) : '';
+  if (titleEl) titleEl.textContent = `${catEmoji} ${ex ? ex.name : l.exName} — ${l.date}`;
+
+  const setsData = (l.setsData && l.setsData.length)
+    ? l.setsData
+    : Array.from({ length: l.sets || 1 }, () => ({ reps: l.reps, weight: l.weight }));
+
+  const totalVolume = setsData.reduce((acc, s) => acc + s.reps * (s.weight || 1), 0);
+
+  let rowsHtml = setsData.map((s, i) => `
+    <div class="set-modal-row">
+      <div class="set-modal-row-left">
+        <div class="set-modal-num">${i + 1}</div>
+        <div class="set-modal-name">${tr.gymModalSetWord} ${i + 1}</div>
+      </div>
+      <div class="set-modal-vals">
+        <div class="set-modal-val">🔁 ${s.reps} ${tr.gymSetReps}</div>
+        ${s.weight ? `<div class="set-modal-val">⚖️ ${s.weight} kg</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  rowsHtml += `<div class="set-modal-row" style="background:var(--bg2);border-color:var(--orange)">
+    <div class="set-modal-row-left">
+      <div class="set-modal-name" style="font-weight:800">${tr.gymModalTotalVolume}</div>
+    </div>
+    <div class="set-modal-vals">
+      <div class="set-modal-val">${totalVolume.toLocaleString()} kg·reps</div>
+    </div>
+  </div>`;
+
+  if (l.note) {
+    rowsHtml += `<div class="log-note" style="margin-top:8px">📝 ${escAttr(l.note)}</div>`;
+  }
+
+  if (bodyEl) bodyEl.innerHTML = rowsHtml;
+
+  document.getElementById('setModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSetModal() {
+  document.getElementById('setModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function _setModalClickOutside(e) {
+  if (e.target === document.getElementById('setModalOverlay')) closeSetModal();
 }
 
 function renderGymPRs() {
@@ -13359,9 +13789,10 @@ function renderGymPRs() {
   prContainer.innerHTML = prs.map(pr => {
     const ex = gymExercises.find(e => e.id === pr.exId);
     const cat = ex ? ex.cat : '';
+    const displayName = ex ? ex.name : pr.name; // FIX: اسم حالي بدل اسم قديم متجمّد
     return `<div class="log-entry" style="padding:10px 14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-weight:700;font-size:0.88rem">${getCatEmoji(cat)} ${pr.name}</div>
+        <div style="font-weight:700;font-size:0.88rem">${getCatEmoji(cat)} ${escAttr(displayName)}</div>
         <div style="font-size:0.7rem;color:var(--text-3)">${pr.sessions} ${currentLang === 'ar' ? 'جلسة' : currentLang === 'fr' ? 'séances' : 'sessions'}</div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -13381,7 +13812,10 @@ function renderGymVolumeBars() {
   }
   const maxMap = {};
   gymLogs.forEach(l => {
-    if (!maxMap[l.exId]) maxMap[l.exId] = { name: l.exName, maxW: 0 };
+    if (!maxMap[l.exId]) {
+      const ex = gymExercises.find(e => e.id === l.exId);
+      maxMap[l.exId] = { name: ex ? ex.name : l.exName, maxW: 0 }; // FIX: اسم حالي
+    }
     if (l.weight > maxMap[l.exId].maxW) maxMap[l.exId].maxW = l.weight;
   });
   const entries = Object.values(maxMap).filter(e => e.maxW > 0).sort((a, b) => b.maxW - a.maxW).slice(0, 7);
@@ -13461,7 +13895,7 @@ function renderGymScheduleExtras() {
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      days7.push(d.toISOString().slice(0, 10));
+      days7.push(_localDateStr(d));
     }
     const vols = days7.map(dateStr => {
       return gymLogs.filter(l => l.date === dateStr).reduce((acc, l) => acc + l.sets * l.reps * (l.weight || 1), 0);
@@ -13577,7 +14011,7 @@ function renderBWGrid() {
   }
   const dayNames = currentLang === 'ar' ? ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'] : currentLang === 'fr' ? ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'] : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   el.innerHTML = days14.map(dt => {
-    const key = dt.toISOString().slice(0, 10);
+    const key = _localDateStr(dt);
     const v = bodyWeightData[key] || '';
     return `<div class="bw-cell">
       <div class="bw-day-label">${dayNames[dt.getDay()]} ${dt.getDate()}</div>
@@ -13587,19 +14021,22 @@ function renderBWGrid() {
     </div>`;
   }).join('');
 
-  const vals = days14.map(dt => parseFloat(bodyWeightData[dt.toISOString().slice(0, 10)]) || 0).filter(v => v > 0);
+  const vals = days14.map(dt => parseFloat(bodyWeightData[_localDateStr(dt)]) || 0).filter(v => v > 0);
   const minEl = document.getElementById('bwMin');
   const maxEl = document.getElementById('bwMax');
   const avgEl = document.getElementById('bwAvg');
   const trendEl = document.getElementById('bwTrend');
-  if (minEl) minEl.textContent = vals.length ? `${tr.gymBWTrend}: ${Math.min(...vals)} kg` : `${tr.gymBWTrend}: —`;
-  if (maxEl) maxEl.textContent = vals.length ? `${tr.gymBWTrend}: ${Math.max(...vals)} kg` : `${tr.gymBWTrend}: —`;
-  if (avgEl) avgEl.textContent = vals.length ? `${tr.gymBWTrend}: ${(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1)} kg` : `${tr.gymBWTrend}: —`;
+  if (minEl) minEl.textContent = vals.length ? `${tr.gymBWMin}: ${Math.min(...vals)} kg` : `${tr.gymBWMin}: —`;
+  if (maxEl) maxEl.textContent = vals.length ? `${tr.gymBWMax}: ${Math.max(...vals)} kg` : `${tr.gymBWMax}: —`;
+  if (avgEl) avgEl.textContent = vals.length ? `${tr.gymBWAvg}: ${(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1)} kg` : `${tr.gymBWAvg}: —`;
   if (trendEl) {
     if (vals.length >= 2) {
       const diff = vals[vals.length - 1] - vals[0];
       trendEl.textContent = diff > 0 ? `📈 +${diff.toFixed(1)} kg` : diff < 0 ? `📉 ${diff.toFixed(1)} kg` : '➡️ ' + (currentLang === 'ar' ? 'ثابت' : currentLang === 'fr' ? 'Stable' : 'Stable');
-      trendEl.style.color = diff < 0 ? 'var(--green)' : diff > 0 ? 'var(--red)' : 'var(--text-3)';
+      // FIX: اللون كان يفترض دائماً أن نقصان الوزن = جيد (أخضر) وزيادته = سيئ (أحمر)،
+      // وهذا افتراض خاطئ لمن هدفه زيادة الوزن أو بناء العضلات. التطبيق لا يعرف
+      // هدف المستخدم، فالأصح لون محايد يعرض الاتجاه فقط دون حكم قيمي.
+      trendEl.style.color = diff !== 0 ? 'var(--blue-500)' : 'var(--text-3)';
     } else {
       trendEl.textContent = '—';
     }
@@ -13613,27 +14050,88 @@ function saveBW(key, val) {
   renderBWGrid();
 }
 
-// =========== WORKOUT NOTES ===========
+// =========== WORKOUT NOTES (with full browsable/editable history) ===========
 let workoutNotesData = {};
+let _wnEditingDate = null; // التاريخ الذي يُعدَّل حالياً بمربع الكتابة — null = اليوم
 
 function saveWorkoutNotes() {
   const area = document.getElementById('workoutNotesArea');
   if (!area) return;
-  const today2 = new Date().toISOString().slice(0, 10);
-  workoutNotesData[today2] = area.value;
+  const dateKey = _wnEditingDate || _localDateStr();
+  const text = area.value.trim();
+  if (text) {
+    workoutNotesData[dateKey] = text;
+  } else {
+    // مربع فاضي = احذف ملاحظة هذا اليوم بدل ما تترك نص فاضي بالسجل
+    delete workoutNotesData[dateKey];
+  }
   _saveImmediate('workoutNotesData'); // FIX: فوري
   const el = document.getElementById('notesSavedDate');
-  if (el) el.textContent = `💾 ${currentLang === 'ar' ? 'تم الحفظ:' : currentLang === 'fr' ? 'Enregistré:' : 'Saved:'} ${today2}`;
+  if (el) el.textContent = `💾 ${currentLang === 'ar' ? 'تم الحفظ:' : currentLang === 'fr' ? 'Enregistré:' : 'Saved:'} ${dateKey}`;
   showToast(t('toastSaved'));
+  _wnEditingDate = null;
+  loadWorkoutNotes();
 }
 
 function loadWorkoutNotes() {
-  const today2 = new Date().toISOString().slice(0, 10);
+  const today2 = _localDateStr();
   const area = document.getElementById('workoutNotesArea');
-  if (area) area.value = workoutNotesData[today2] || '';
+  const editDate = _wnEditingDate || today2;
+  if (area) area.value = workoutNotesData[editDate] || '';
   const keys = Object.keys(workoutNotesData).sort().reverse();
   const el = document.getElementById('notesSavedDate');
-  if (el && keys.length) el.textContent = `${currentLang === 'ar' ? 'آخر حفظ:' : currentLang === 'fr' ? 'Dernier enregistrement:' : 'Last saved:'} ${keys[0]}`;
+  if (el) {
+    if (_wnEditingDate && _wnEditingDate !== today2) {
+      el.textContent = `✏️ ${currentLang === 'ar' ? 'تعديل ملاحظة يوم:' : currentLang === 'fr' ? 'Modification de la note du:' : 'Editing note from:'} ${_wnEditingDate}`;
+    } else if (keys.length) {
+      el.textContent = `${currentLang === 'ar' ? 'آخر حفظ:' : currentLang === 'fr' ? 'Dernier enregistrement:' : 'Last saved:'} ${keys[0]}`;
+    } else {
+      el.textContent = '';
+    }
+  }
+  renderWorkoutNotesHistory();
+}
+
+function renderWorkoutNotesHistory() {
+  const wrap = document.getElementById('workoutNotesHistory');
+  const countEl = document.getElementById('notesHistoryCount');
+  if (!wrap) return;
+  const today2 = _localDateStr();
+  // استبعد يوم اليوم من السجل لأنه أصلاً معروض بمربع الكتابة بالأعلى
+  const keys = Object.keys(workoutNotesData).filter(k => k !== today2).sort().reverse();
+  if (countEl) countEl.textContent = keys.length;
+  if (!keys.length) {
+    const tr = T[currentLang] || T.ar;
+    wrap.innerHTML = `<div style="color:var(--text-3);font-size:0.82rem;padding:10px 0;text-align:center">${tr.gymNotesHistoryEmpty}</div>`;
+    return;
+  }
+  wrap.innerHTML = keys.map(k => {
+    const text = workoutNotesData[k] || '';
+    const preview = text.length > 90 ? text.slice(0, 88) + '…' : text;
+    return `<div class="log-entry" style="cursor:pointer" onclick="editWorkoutNote('${k}')">
+      <div class="log-entry-header">
+        <div class="log-date" style="font-weight:700">${k}</div>
+        <button class="log-del" onclick="event.stopPropagation();deleteWorkoutNote('${k}')">🗑️</button>
+      </div>
+      <div class="log-note" style="margin-top:4px">📝 ${escAttr(preview)}</div>
+    </div>`;
+  }).join('');
+}
+
+function editWorkoutNote(dateKey) {
+  _wnEditingDate = dateKey;
+  loadWorkoutNotes();
+  const area = document.getElementById('workoutNotesArea');
+  if (area) area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function deleteWorkoutNote(dateKey) {
+  const tr = T[currentLang] || T.ar;
+  if (!confirm(tr.gymNotesDeleteConfirm)) return;
+  delete workoutNotesData[dateKey];
+  if (_wnEditingDate === dateKey) _wnEditingDate = null;
+  _saveImmediate('workoutNotesData');
+  loadWorkoutNotes();
 }
 
 // =========== BMI CALCULATOR ===========
@@ -13688,7 +14186,7 @@ let measurementsData = {};
 
 function saveMeasurements() {
   const fields = ['measChest', 'measWaist', 'measHips', 'measArm', 'measThigh', 'measBodyFat'];
-  const today2 = new Date().toISOString().slice(0, 10);
+  const today2 = _localDateStr();
   const entry = {};
   fields.forEach(id => {
     const el = document.getElementById(id);
@@ -13702,7 +14200,7 @@ function saveMeasurements() {
 }
 
 function loadMeasurements() {
-  const today2 = new Date().toISOString().slice(0, 10);
+  const today2 = _localDateStr();
   const keys = Object.keys(measurementsData).sort().reverse();
   const data = measurementsData[today2] || measurementsData[keys[0]] || {};
   const fields = ['measChest', 'measWaist', 'measHips', 'measArm', 'measThigh', 'measBodyFat'];
@@ -13722,7 +14220,7 @@ function setNutriDay(offset) {
   nutriDayOffset = offset;
   const d = new Date();
   d.setDate(d.getDate() + offset);
-  const dateStr = d.toISOString().slice(0, 10);
+  const dateStr = _localDateStr(d);
   document.getElementById('nutriTodayBtn')?.classList.toggle('active', offset === 0);
   document.getElementById('nutriYestBtn')?.classList.toggle('active', offset === -1);
   const lblEl = document.getElementById('nutriDateLabel');
@@ -13746,7 +14244,7 @@ function loadNutritionDay(dateStr) {
 function saveNutrition() {
   const d = new Date();
   d.setDate(d.getDate() + nutriDayOffset);
-  const dateStr = d.toISOString().slice(0, 10);
+  const dateStr = _localDateStr(d);
   const cal = parseFloat(document.getElementById('nutriCalInput')?.value) || 0;
   const prot = parseFloat(document.getElementById('nutriProtInput')?.value) || 0;
   const carb = parseFloat(document.getElementById('nutriCarbInput')?.value) || 0;
@@ -13872,7 +14370,7 @@ function renderProgChart() {
     return;
   }
 
-  const logs = gymLogs.filter(l => l.exId === exId).sort((a, b) => a.date.localeCompare(b.date));
+  const logs = gymLogs.filter(l => l.exId === exId).sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
   if (logs.length < 2) {
     ctx.fillStyle = textColor;
     ctx.font = '13px Tajawal,sans-serif';
@@ -14023,20 +14521,8 @@ function launchConfetti() {
 // =========== QUICK TASKS ===========
 let quickTasks = []; // loaded from Firestore after login
 let journalEntries = []; // loaded from Firestore after login
-// ── استعادة الفلتر والترتيب من localStorage ──────────────────────────────
-(function() {
-  try {
-    var saved = localStorage.getItem('tacky_tasks_view');
-    if (saved) {
-      var v = JSON.parse(saved);
-      window._restoredQtFilter = v.filter || 'all';
-      window._restoredQtSort   = v.sort   || 'manual';
-    }
-  } catch(e) {}
-})();
-
-let qtFilter = window._restoredQtFilter || 'all';
-let qtSort   = window._restoredQtSort   || 'manual'; // manual | prio | due | created
+let qtFilter = 'all';
+let qtSort   = 'manual'; // manual | prio | due | created
 let _qtNewPrio = 'none';
 let _qtNewDate = '';
 let _qtCompletedOpen = true; // completed section collapsed/expanded
@@ -14090,7 +14576,6 @@ function setQtSort(s, btn) {
   qtSort = s;
   document.querySelectorAll('.qt-sort-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  _saveTasksViewState();
   renderQuickTasks();
 }
 
@@ -14234,14 +14719,7 @@ function setQtFilter(filter, btn) {
   qtFilter = filter;
   document.querySelectorAll('.qt-filter-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  _saveTasksViewState();
   renderQuickTasks();
-}
-
-function _saveTasksViewState() {
-  try {
-    localStorage.setItem('tacky_tasks_view', JSON.stringify({ filter: qtFilter, sort: qtSort }));
-  } catch(e) {}
 }
 
 /* ---- Set priority on existing task ---- */
@@ -14736,6 +15214,12 @@ window._onFirebaseInitError = function() {
 // يُستدعى فور تحميل الصفحة — يحاول فتح المتصفح الافتراضي للجهاز مباشرة،
 // والبوب يبقى احتياطاً إذا فشلت كل المحاولات.
 (function _autoRedirectIfInApp() {
+  // 🔧 تم تعطيل هذا البوب/إعادة التوجيه بالكامل بناءً على طلب المستخدم:
+  // كان يحاول فتح متصفح خارجي تلقائياً ثم يعرض بوب "غيّر المتصفح" عند
+  // فشل المحاولة، على آيفون وأندرويد (سامسونج) داخل متصفحات التطبيقات
+  // المدمجة (تلغرام، انستغرام، ماسنجر...). تم إبقاء الدوال معرّفة تحت
+  // (لأن دوال أخرى مثل signInWithGoogle قد تشير إليها) لكن بدون أي تنفيذ هنا.
+  return;
   // نشغّل هذا مرة واحدة فقط — لو تم redirect فعلاً سينفتح المتصفح الخارجي
   // وهذه الصفحة ستبقى في الخلفية (In-App) لكن المستخدم انتقل للمتصفح فعلاً
   const ua = navigator.userAgent || '';
@@ -14980,13 +15464,11 @@ function signInWithGoogle() {
   // can never throw a silent error that leaves the button stuck spinning.
   if (!window._fbReady) return;
 
-  // FIX: متصفح In-App (تلغرام، مسنجر...) — Google Auth لا يعمل هنا أبداً
-  // Popup يُحظر، وRedirect يفقد الـ session عند العودة للتطبيق.
-  // الحل الوحيد: أخبر المستخدم يفتح الرابط في Chrome أو Samsung Browser.
-  if (_isInAppBrowser()) {
-    _showInAppBrowserWarning();
-    return;
-  }
+  // 🔧 تم تعطيل بوب "غيّر المتصفح" بناءً على طلب المستخدم — حتى داخل
+  // متصفحات التطبيقات المدمجة (تلغرام، ماسنجر...). ملاحظة: تسجيل الدخول
+  // بـ Google قد يفشل فعلياً هنا (Google تحظر هذا النوع من المتصفحات)،
+  // لكن بناءً على الطلب لا نعرض أي تنبيه — سيكمل المستخدم عادةً وقد يرى
+  // خطأ من Google نفسه إذا فشلت المحاولة.
 
   const btn = document.getElementById('googleSignInBtn');
   if (btn) {
@@ -15732,7 +16214,7 @@ function _checkAllDone_Weekly() {
     (weeklyTasks[w] || []).forEach(t => { total++; if (t.done) done++; });
   }
   if (total > 0 && done === total) {
-    const key = 'weekly-' + new Date().toISOString().slice(0, 7);
+    const key = 'weekly-' + _localYearMonthStr();
     showCelebration(key);
   }
 }
@@ -15741,7 +16223,7 @@ function _checkAllDone_QuickTasks() {
   const total = quickTasks.length;
   const done = quickTasks.filter(t => t.done).length;
   if (total > 0 && done === total) {
-    const key = 'qt-' + new Date().toISOString().slice(0, 10) + '-' + total;
+    const key = 'qt-' + _localDateStr() + '-' + total;
     showCelebration(key);
   }
 }
@@ -15845,28 +16327,6 @@ renderQuickTasks = function() {
   if (typeof setupTouchDragDrop === 'function') setupTouchDragDrop();
 };
 
-// ── تطبيق الفلتر والترتيب المحفوظ على الأزرار عند أول تحميل ────────────────
-(function _restoreTasksViewButtons() {
-  function _apply() {
-    // الفلتر
-    var filterBtns = { all:'qtFilterAllBtn', pending:'qtFilterPendingBtn', done:'qtFilterDoneBtn', overdue:'qtFilterOverdueBtn' };
-    Object.values(filterBtns).forEach(function(id){ var b = document.getElementById(id); if(b) b.classList.remove('active'); });
-    var activeFilter = document.getElementById(filterBtns[qtFilter] || 'qtFilterAllBtn');
-    if (activeFilter) activeFilter.classList.add('active');
-
-    // الترتيب
-    var sortBtns = { manual:'qtsortManual', prio:'qtsortPrio', due:'qtsortDue', created:'qtsortCreated' };
-    Object.values(sortBtns).forEach(function(id){ var b = document.getElementById(id); if(b) b.classList.remove('active'); });
-    var activeSort = document.getElementById(sortBtns[qtSort] || 'qtsortManual');
-    if (activeSort) activeSort.classList.add('active');
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _apply);
-  } else {
-    setTimeout(_apply, 0);
-  }
-})();
-
 // =========== DRAG & DROP for Weekly Tasks ===========
 let _wTaskDragW = null;
 let _wTaskDragI = null;
@@ -15942,9 +16402,9 @@ function _addTouchDrag(handle, rowSelector, getId, onDrop) {
     g.style.cssText = `
       position:fixed; z-index:99999; opacity:0.95; pointer-events:none;
       display:flex; align-items:center; gap:8px;
-      background:var(--white); border:2px solid var(--blue-500);
+      background:var(--white); border:2px solid #8b5cf6;
       border-radius:14px; padding:10px 16px; font-size:0.85rem; font-weight:700;
-      box-shadow:0 10px 28px -8px color-mix(in srgb, var(--blue-500) 50%, transparent), 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow:0 10px 28px -8px rgba(124,58,237,0.5), 0 4px 12px rgba(0,0,0,0.15);
       max-width:220px; min-width:80px; min-height:22px;
       overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
       font-family:'Tajawal',sans-serif; color:var(--text);
@@ -16151,8 +16611,8 @@ function _hrmOpenMenu(hid, hname) {
       <div style="display:flex;flex-direction:column;gap:9px;">
         <button style="${btnBase}${isFirst ? disabledStyle : ''}background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 6px 18px rgba(59,130,246,0.35);" data-act="up">${tr.up}</button>
         <button style="${btnBase}${isLast ? disabledStyle : ''}background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 6px 18px rgba(59,130,246,0.35);" data-act="down">${tr.down}</button>
-        <button style="${btnBase}${isFirst ? disabledStyle : ''}background:linear-gradient(135deg,var(--blue-400),var(--blue-500));color:#fff;box-shadow:0 6px 18px color-mix(in srgb, var(--blue-500) 35%, transparent);" data-act="first">${tr.first}</button>
-        <button style="${btnBase}${isLast ? disabledStyle : ''}background:linear-gradient(135deg,var(--blue-400),var(--blue-500));color:#fff;box-shadow:0 6px 18px color-mix(in srgb, var(--blue-500) 35%, transparent);" data-act="last">${tr.last}</button>
+        <button style="${btnBase}${isFirst ? disabledStyle : ''}background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;box-shadow:0 6px 18px rgba(139,92,246,0.35);" data-act="first">${tr.first}</button>
+        <button style="${btnBase}${isLast ? disabledStyle : ''}background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;box-shadow:0 6px 18px rgba(139,92,246,0.35);" data-act="last">${tr.last}</button>
         <button style="${btnBase}background:var(--bg-2,#f1f5f9);color:var(--text-2);margin-top:4px;" data-act="cancel">${tr.cancel}</button>
       </div>
     </div>
@@ -17662,7 +18122,7 @@ function pomoSyncToCloud() {
   // FIX: نحدّث pomoStats من pomoState قبل الإرسال
   pomoStats.sessionCount   = pomoState.sessionCount   || 0;
   pomoStats.totalFocusMins = pomoState.totalFocusMins || 0;
-  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayKey = _localDateStr();
   if (!pomoStats.dailyFocusMins) pomoStats.dailyFocusMins = {};
   if (typeof pomoGetTodayFocus === 'function') {
     pomoStats.dailyFocusMins[todayKey] = pomoGetTodayFocus() || 0;
@@ -18483,7 +18943,51 @@ window.pomoRender = function pomoRender() {
       </div>
     </div>
 
+    <!-- Note: لا نضعها هنا — تُبنى مرة واحدة وتُحدَّث بشكل منفصل لمنع إعادة رسمها -->
+    <div id="pomo-note-container"></div>
   `;
+
+  // FIX: ملاحظة الجلسة — نبنيها مرة واحدة فقط، وبعدها نحدّث النص فقط بدون
+  // إعادة رسم الـ textarea (حتى لا يتحرك المؤشر لبداية النص عند كل render)
+  const noteContainer = document.getElementById('pomo-note-container');
+  if (noteContainer) {
+    const existingArea = document.getElementById('pomoNoteArea');
+    if (!existingArea) {
+      // أول مرة — ابنِ القسم كاملاً
+      noteContainer.innerHTML = `
+        <div class="pomo-note-wrap">
+          <div class="pomo-note-title">${t.noteTitle}</div>
+          <textarea class="pomo-note-area" id="pomoNoteArea" placeholder="${t.notePlaceholder}">${pomoState.currentNote || ''}</textarea>
+          <div class="pomo-note-save-row">
+            <button class="pomo-note-delete-btn" id="pomoNoteDeleteBtn" onclick="pomoDeleteNote()" title="${t.noteDelete}">🗑️</button>
+            <button class="pomo-note-save-btn" id="pomoNoteSaveBtn" onclick="pomoSaveNote()">${t.noteSave}</button>
+          </div>
+        </div>
+      `;
+      // FIX: تمدد تلقائي مع الكتابة
+      const _ta = document.getElementById('pomoNoteArea');
+      if (_ta) {
+        const _autoResize = () => { _ta.style.height = 'auto'; _ta.style.height = _ta.scrollHeight + 'px'; };
+        _ta.addEventListener('input', _autoResize);
+        _autoResize(); // ضبط الارتفاع عند التحميل إذا كان فيه نص مسبق
+      }
+    } else {
+      // الجلسات التالية — حدّث النص فقط إذا تغيّر (بدون مس الـ textarea)
+      // ولا تغيّر قيمة الـ textarea إذا كان المستخدم يكتب فيها الآن
+      const isFocused = (document.activeElement === existingArea);
+      if (!isFocused && existingArea.value !== (pomoState.currentNote || '')) {
+        existingArea.value = pomoState.currentNote || '';
+      }
+      // حدّث النصوص فقط (placeholder وعنوان وزر الحفظ)
+      const titleEl = noteContainer.querySelector('.pomo-note-title');
+      if (titleEl) titleEl.textContent = t.noteTitle;
+      existingArea.placeholder = t.notePlaceholder;
+      const saveBtn = document.getElementById('pomoNoteSaveBtn');
+      if (saveBtn && !saveBtn.classList.contains('saved')) saveBtn.textContent = t.noteSave;
+      const delBtn = document.getElementById('pomoNoteDeleteBtn');
+      if (delBtn) delBtn.title = t.noteDelete;
+    }
+  }
 }
 
 /* ---------- INIT ---------- */
